@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { formatKonMail } from "./mail-template.ts";
 
 type JsonValue = Record<string, unknown>;
 const url = Deno.env.get("SUPABASE_URL") || "";
@@ -364,96 +365,30 @@ async function mailPing(req:Request,origin:string|null){
  return respond({ok:true,sender:config.expected_sender,reply_to:config.reply_to,
   enabled:config.enabled},200,origin);
 }
-function konMailEsc(s:unknown){
- return String(s===undefined||s===null?"":s).replace(/[&<>"']/g,ch=>({
-  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- })[ch]||ch);
-}
-function konMailMoney(n:unknown){
- const v=Number(n);
- return "$"+(Number.isFinite(v)?Math.max(v,0):0).toLocaleString("es-AR")+" ARS";
-}
-function konMailDate(value:unknown){
- if(!value)return "";
- try{return new Intl.DateTimeFormat("es-AR",{timeZone:"America/Argentina/Buenos_Aires",
-  weekday:"long",day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"
- }).format(new Date(String(value)))}catch(_){return ""}
-}
-function formatKonMail(input:{
- kind:string,code:string,name:string,items:{label:string,quantity:number}[],
- total:number,received:number|null,event_title:string,starts_at:string|null,
- address:string,alias:string,test?:boolean
-}){
- const displayName=input.name.trim().split(/\s+/).slice(0,1)[0]||"";
- const eventName=input.event_title||"Kon Club";
- const lines=input.items.map(item=>item.quantity+" × "+item.label);
- const whereDate=[konMailDate(input.starts_at),input.address.trim()].filter(Boolean);
- let subject:string;let paragraphs:string[];
- if(input.kind==="received"){
-  subject="Kon Club · Recibimos tu pedido "+input.code;
-  paragraphs=[
-   "Recibimos tu pedido. Todavía NO está confirmado.",
-   "EDICIÓN: "+eventName,
-   ...whereDate,
-   "PEDIDO: "+input.code,
-   "DETALLE:",
-   ...lines,
-   "TOTAL A TRANSFERIR: "+konMailMoney(input.total),
-   "ALIAS: "+input.alias,
-   "La entrada se confirma cuando comprobamos la acreditación bancaria. Un comprobante enviado por sí solo no implica que el pago esté aprobado.",
-   "Si todavía no pudiste subir el comprobante, respondé este correo con tu código de pedido para que te ayudemos."
-  ];
- }else if(input.kind==="verified"){
-  subject="Kon Club · Entrada confirmada · "+input.code;
-  paragraphs=[
-   "¡Tu pago fue verificado y tu entrada está confirmada!",
-   "EDICIÓN: "+eventName,
-   ...whereDate,
-   "CÓDIGO DE PEDIDO: "+input.code,
-   "ENTRADAS Y PRODUCTOS:",
-   ...lines,
-   "PAGO ACREDITADO: "+konMailMoney(input.received),
-   "Guardá este correo y el código de pedido para el día del evento."
-  ];
- }else if(input.kind==="courtesy"){
-  subject="Kon Club · Invitación confirmada · "+input.code;
-  paragraphs=[
-   "¡Tu invitación de cortesía está confirmada!",
-   "EDICIÓN: "+eventName,
-   ...whereDate,
-   "CÓDIGO DE PEDIDO: "+input.code,
-   "ENTRADAS Y PRODUCTOS:",
-   ...lines,
-   "Guardá este correo y el código de pedido para el día del evento."
-  ];
- }else{throw new Error("invalid_mail_kind")}
- const text="Hola "+displayName+",\n\n"+paragraphs.join("\n")+"\n\n¿Consultas? Respondé este correo.\n\nKon Club · El cine es la excusa.";
- const html='<!doctype html><html lang="es"><body style="font-family:Arial,sans-serif;background:#faf5ee;color:#230519;padding:24px">'
-  +'<main style="max-width:600px;margin:auto;background:#fff;padding:32px;border:2px solid #230519">'
-  +'<p style="font-size:14px;font-weight:bold;letter-spacing:2px">KON CLUB</p>'
-  +'<h1 style="font-size:26px;margin:0 0 24px">'+konMailEsc(subject.replace("Kon Club · ",""))+'</h1>'
-  +'<p>Hola '+konMailEsc(displayName)+',</p>'
-  +paragraphs.map(x=>'<p style="margin:0 0 14px;line-height:1.5">'+konMailEsc(x)+'</p>').join("")
-  +'<hr><p style="font-size:13px">¿Consultas? Respondé este correo.</p>'
-  +'<p style="font-size:13px">KON CLUB · El cine es la excusa.</p></main></body></html>';
- return {subject,text,html};
-}
 async function mailPreview(req:Request,origin:string|null){
  const config=await mailAccess(req);
  if(!config)return fail("mail_not_authorized",401,origin);
  const url=new URL(req.url);
  const kind=url.searchParams.get("kind")||"received";
- if(!["received","verified","courtesy"].includes(kind))return fail("invalid_kind",400,origin);
+ if(!["received","verified","courtesy","reminder"].includes(kind))
+  return fail("invalid_kind",400,origin);
+ const {data:event,error:eventError}=await db.from("kon_events")
+  .select("slug,title,starts_at,address").eq("slug","halloween").maybeSingle();
+ if(eventError||!event)return fail("event_unavailable",500,origin);
  const mock=formatKonMail({
-  kind,code:"PRUEBA-NO-REAL",name:"PRUEBA KON CLUB",
+  kind:kind as "received"|"verified"|"courtesy"|"reminder",
+  code:"PRUEBA-NO-REAL",name:"PRUEBA KON CLUB",event_slug:"halloween",
   items:[{label:"ENTRADA GENERAL",quantity:1},{label:"FANZINE",quantity:1}],
-  total:13000,received:13000,event_title:"KON CLUB — PRUEBA DE CORREO",
-  starts_at:null,address:"SOLO PRUEBA — NO ASISTIR",alias:"NO.TRANSFERIR",test:true
+  total:13000,received:13000,
+  event_title:String(event.title||"Kon Club"),
+  starts_at:event.starts_at||null,
+  address:String(event.address||""),
+  alias:"NO.TRANSFERIR",test:true
  });
  return respond({ok:true,to:KON_MAIL_SENDER,
   subject:"[PRUEBA · NO REAL] "+mock.subject,
   text:"ESTE ES UN CORREO DE PRUEBA. NO EXISTE COMPRA NI PAGO REAL.\n\n"+mock.text,
-  html:'<p><strong>PRUEBA · NO HAY COMPRA NI PAGO REAL</strong></p>'+mock.html,
+  html:mock.html,
   enabled:config.enabled
  },200,origin);
 }
@@ -484,7 +419,8 @@ async function mailNext(req:Request,origin:string|null){
   event_title:String(order.kon_events.title||"Kon Club"),
   starts_at:order.kon_events.starts_at||null,
   address:String(order.kon_events.address||""),
-  alias:String(order.kon_events.bank_alias||"")
+  alias:String(order.kon_events.bank_alias||""),
+  event_slug:String(order.kon_events.slug||"")
  });
  return respond({ok:true,enabled:true,mail:{
   id:claimed.id,claim_token:claimToken,to:claimed.recipient,
