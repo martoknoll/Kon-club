@@ -1,6 +1,7 @@
 // Configuración editable de la compra de entradas.
 // NO almacenar claves, datos de clientes ni credenciales en este archivo.
-// Precios actuales de referencia; antes del lanzamiento confirmar con equipo.
+// Precios y alias definitivos confirmados por la organización el 20/10/2026.
+// GENERAL $9.000 · POST-PELÍCULA $7.000 · FANZINE $4.000 · Alias KON.CLUB.GL.
  // El checkout real SOLO se habilita cuando también haya sincronización
  // reciente y cupos definidos en Supabase para cada producto.
 window.KON_CHECKOUT = {
