@@ -12,6 +12,9 @@ Actualización: 20/10/2026
 - **Edición:** `halloween`, La Casa Lobo × The Rocky Horror Picture Show,
   domingo 25/10/2026, de 17:00 a 23:00 según el flyer original confirmado por el equipo.
   El flyer del 25/10 es el correcto, se muestra en la home y no debe corregirse a noviembre.
+- **Cobros confirmados por la organización (20/10/2026):** entrada general ARS $9.000;
+  post-película ARS $7.000; fanzine ARS $4.000; alias `KON.CLUB.GL`.
+  Los valores coinciden con `data/checkout-config.js` y `kon_products`.
 - La cuenta de Gmail `konclub.entradas@gmail.com` está conectada para
   pruebas. Los mensajes reales siguen desactivados.
 
@@ -25,8 +28,9 @@ Actualización: 20/10/2026
 
 Los valores de `kon_products.capacity` se configuraron solamente
 para la edición real `halloween`; staging no se modificó. Los anteriores
-provienen de FECHAS, no de pedidos importados a Supabase. La foto todavía
-NO está sincronizándose automáticamente, de modo que `last_synced_at=NULL`.
+provienen de FECHAS, no de pedidos importados a Supabase. La sincronización
+automática de Apps Script quedó instalada y envía los agregados a Supabase;
+debe seguir revisándose su frescura antes del lanzamiento.
 
 **Stock web disponible:** cupo total MENOS unidades del formulario anterior
 MENOS reservas válidas de pedidos web MENOS margen preventivo. La web
@@ -69,14 +73,16 @@ solo cantidades agregadas de GENERAL, POST y FANZINE.
 4. Ejecutar `syncLegacyInventoryKon` y comprobar en el panel
    **Control de cupos** que los números coincidan con la planilla y
    `SINCRONIZACIÓN ACTIVA`.
-5. Completar revisión del horario, capacidad, alias real
-   `KON.CLUB.GL`, precios actuales ($9.000, $7.000, $4.000),
-   flyer del 25/10 y prueba con el checkout.
+5. **Confirmados:** horario 17:00–23:00 del 25/10/2026, flyer original,
+   capacidad, alias `KON.CLUB.GL`, precios $9.000/$7.000/$4.000.
+   Revisar la versión de checkout que quede publicada y sus datos antes de abrir ventas.
 6. Verificar que la cuenta/proyecto Vercel permita uso comercial.
    La conexión de Vercel no otorgó permisos suficientes para consultar
    el plan del equipo, por lo que **no está confirmado**.
-7. Probar otra compra sintética end-to-end en staging y la sincronización
-   del script real sin afectar pedidos de compradores.
+7. **Probado manualmente en staging por el organizador:** checkout y comprobantes;
+   Supabase registró cuatro pedidos de prueba, dos con archivos de comprobante,
+   y cuatro reflejados en la planilla de pruebas. Falta la revisión final
+   en el despliegue candidato y prueba de concurrencia.
 8. Recién con la aprobación expresa: fusionar la rama de pruebas a
    `main`, habilitar `sales_open=true` en el evento real y
    `allowLive:true` en la versión pública. Controlar la primera compra
@@ -92,4 +98,6 @@ solo cantidades agregadas de GENERAL, POST y FANZINE.
 - Email real `kon_mail_settings.enabled=false`.
 - Recordatorios `reminders_enabled=false`.
 - No se fusionó la rama ni se hizo ninguna compra real desde el checkout nuevo.
+- El stock de Forms sigue sin una reserva atómica conjunta con el checkout web:
+  no declarar eliminada la posibilidad de sobreventa.
 - El formulario anterior continúa independiente y no se debe modificar.
