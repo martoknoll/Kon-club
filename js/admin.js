@@ -268,6 +268,37 @@ $("copyPair").addEventListener("click",async()=>{
  catch(_err){$("pairToken").focus();$("pairToken").select();notice("Copiá el texto seleccionado.");}
 });
 
+$("pairMail").addEventListener("click",()=>{
+ $("mailToken").value="";
+ $("copyMailToken").disabled=true;
+ $("mailDialog").showModal();
+});
+$("closeMail").addEventListener("click",()=>$("mailDialog").close());
+$("generateMailToken").addEventListener("click",async()=>{
+ if(!window.confirm("¿Generar una clave NUEVA para los emails de Kon Club? No modifica Google Sheets ni activa envíos. Si ya había una clave de email, la anterior se invalida."))return;
+ const button=$("generateMailToken");
+ button.disabled=true;
+ try{
+  const response=await call("mail-pair",{method:"POST"});
+  $("mailToken").value=response.sync_token;
+  $("copyMailToken").disabled=false;
+  notice("Conexión preparada. Los correos reales siguen DESACTIVADOS.");
+ }catch(error){
+  notice(error instanceof Error?error.message:"No se pudo configurar el correo.");
+ }finally{button.disabled=false;}
+});
+$("copyMailToken").addEventListener("click",async()=>{
+ const token=$("mailToken").value;
+ if(!token)return;
+ try{
+  await navigator.clipboard.writeText(token);
+  notice("Clave de correo copiada. Guardala solo en las propiedades del script.");
+ }catch(_err){
+  $("mailToken").focus();$("mailToken").select();
+  notice("Seleccioná y copiá la clave.");
+ }
+});
+
 client.auth.onAuthStateChange((_event,newSession)=>{
  if(newSession?.access_token!==session?.access_token){
   session=newSession;
