@@ -4,6 +4,7 @@
 window.KON_CHECKOUT = {
   eventKey: "halloween",
   currency: "ARS",
+  allowLive: false, // Cambiar solo después de probar el backend, Sheets y los permisos
   alias: "KON.CLUB.GL",
   proofMaxBytes: 10 * 1024 * 1024,
   products: [
