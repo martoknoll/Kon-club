@@ -52,7 +52,7 @@ function konLocalDate(iso){
  return get("year")+"-"+get("month")+"-"+get("day");
 }
 function plannedDateText(value){
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(value))return value;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(value))return value;
  const d=new Date(value+"T12:00:00Z");
  return new Intl.DateTimeFormat("es-AR",{
   timeZone:"UTC",weekday:"long",day:"numeric",month:"long",year:"numeric"
