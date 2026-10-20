@@ -7,9 +7,21 @@
 /** Mantener en sincronía con data/site-config.js, assets.halloween.
  * Debe ser una URL pública y directa a la imagen, NO un enlace privado de Drive.
  */
+// Archivo original del afiche fechado 25/10. No mostrarlo en mails de otro día.
+// Cuando se apruebe un flyer nuevo, reemplazar aquí la URL y la fecha.
 const KON_EVENT_FLYERS={
- halloween:"https://kon-club.vercel.app/public/media/df27d971f6912f.webp"
+ halloween:{url:"https://kon-club.vercel.app/public/media/df27d971f6912f.webp",date:"2026-10-25"}
 };
+function eventLocalISODate(value){
+ if(!value)return "";
+ const date=new Date(value);
+ if(!Number.isFinite(date.getTime()))return "";
+ const parts=new Intl.DateTimeFormat("en-GB",{
+  timeZone:"America/Argentina/Buenos_Aires",year:"numeric",month:"2-digit",day:"2-digit"
+ }).formatToParts(date);
+ const get=type=>parts.find(p=>p.type===type)?.value||"";
+ return get("year")+"-"+get("month")+"-"+get("day");
+}
 const BG="#F3E9DA",INK="#230519",ORANGE="#F26C37",CREAM="#FFF4E6",MUTED="#806A70";
 function esc(value){
  return String(value??"").replace(/[&<>"']/g,x=>({
@@ -49,7 +61,9 @@ export function formatKonMail(input){
  const firstName=input.name.trim().split(/\s+/)[0]||"";
  const eventTitle=input.event_title||"Kon Club";
  const items=input.items.filter(x=>x.quantity>0);
- const flyer=KON_EVENT_FLYERS[input.event_slug]||"";
+ const asset=KON_EVENT_FLYERS[input.event_slug];
+ // Un afiche con una fecha anterior nunca debe salir en un recordatorio nuevo.
+ const flyer=asset&&asset.date===eventLocalISODate(input.starts_at)?asset.url:"";
  const confirmed=input.kind==="verified"||input.kind==="courtesy"||input.kind==="reminder";
  let subject="",eyebrow="",headline="",intro="",status="",statusColor="",note="";
  if(input.kind==="received"){
