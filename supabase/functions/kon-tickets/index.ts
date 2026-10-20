@@ -147,14 +147,16 @@ async function uploadProof(req: Request, origin: string | null){
 async function listOrders(req: Request, origin: string|null){
   const admin=await adminFromRequest(req);
   if(!admin)return fail("unauthorized",401,origin);
-  // The public administration dashboard only shows real event orders.
-  const {data:event,error:eventError}=await db.from("kon_events").select("id").eq("slug","halloween").maybeSingle();
+  // Real orders and staging orders are never mixed in administration.
+  const environment=new URL(req.url).searchParams.get("environment")==="test"?"test":"real";
+  const slug=environment==="test"?"halloween-staging":"halloween";
+  const {data:event,error:eventError}=await db.from("kon_events").select("id").eq("slug",slug).maybeSingle();
   if(eventError||!event)return fail("event_unavailable",500,origin);
   const {data,error}=await db.from("kon_orders").select(
     "id,order_code,full_name,email,instagram,first_time,source,amount_expected_ars,amount_received_ars,status,verified_at,verified_by,created_at,admin_note,proof_received_at,kon_order_lines(quantity,unit_price_ars,kon_products(label,slug))"
   ).eq("event_id",event.id).order("created_at",{ascending:false}).limit(150);
   if(error){console.error("orders_error",error.message);return fail("unable_to_list",500,origin);}
-  return respond({ok:true,orders:data||[],admin:admin.email},200,origin);
+  return respond({ok:true,orders:data||[],admin:admin.email,environment},200,origin);
 }
 async function approveOrder(req:Request,payload:JsonValue,origin:string|null){
  const admin=await adminFromRequest(req);
@@ -165,6 +167,11 @@ async function approveOrder(req:Request,payload:JsonValue,origin:string|null){
  const amount=payload.amount_received_ars;
  if(status==="verified"&&(!Number.isInteger(amount)||Number(amount)<1||Number(amount)>2000000||payload.bank_checked!==true))
   return fail("bank_confirmation_required",400,origin);
+ const environment=payload.environment==="test"?"test":"real";
+ const {data:event}=await db.from("kon_events").select("id").eq("slug",environment==="test"?"halloween-staging":"halloween").maybeSingle();
+ if(!event)return fail("event_unavailable",404,origin);
+ const {data:order}=await db.from("kon_orders").select("id").eq("event_id",event.id).eq("id",payload.order_id).maybeSingle();
+ if(!order)return fail("not_found",404,origin);
  const {data,error}=await db.rpc("kon_review_order",{
   p_order_id:payload.order_id,p_status:status,p_amount:status==="verified"?amount:null,
   p_note:readString(payload.note,500),p_actor_email:admin.email,p_actor_source:"panel",
@@ -181,8 +188,14 @@ async function approveOrder(req:Request,payload:JsonValue,origin:string|null){
 async function proofLink(req:Request,origin:string|null){
   const admin=await adminFromRequest(req);
   if(!admin)return fail("unauthorized",401,origin);
-  const id=new URL(req.url).searchParams.get("order_id");
+  const params=new URL(req.url).searchParams;
+  const id=params.get("order_id");
   if(!validUuid(id))return fail("invalid_input",400,origin);
+  const environment=params.get("environment")==="test"?"test":"real";
+  const {data:event}=await db.from("kon_events").select("id").eq("slug",environment==="test"?"halloween-staging":"halloween").maybeSingle();
+  if(!event)return fail("event_unavailable",404,origin);
+  const {data:order}=await db.from("kon_orders").select("id").eq("id",id).eq("event_id",event.id).maybeSingle();
+  if(!order)return fail("not_found",404,origin);
   const {data,error}=await db.from("kon_payment_proofs").select("storage_path")
     .eq("order_id",id).maybeSingle();
   if(error||!data)return fail("not_found",404,origin);
