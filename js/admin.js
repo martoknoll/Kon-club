@@ -116,6 +116,7 @@ async function loadInventorySummary(){
    block(card,"strong",p.remaining===null?"CAPACIDAD PENDIENTE":String(p.remaining)+" DISPONIBLES");
    block(card,"p","Formulario anterior: "+p.legacy);
    block(card,"p","Checkout nuevo: "+p.web);
+   block(card,"p","Margen preventivo: "+(p.buffer||0));
    block(card,"p","Capacidad total: "+(p.capacity===null?"SIN CONFIGURAR":p.capacity));
    target.appendChild(card);
   });
