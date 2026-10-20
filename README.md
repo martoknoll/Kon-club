@@ -32,3 +32,18 @@ Se publican solamente 15 fechas del ciclo regular desde Paprika (carpeta 17). Se
 Usar el repositorio existente `martoknoll/Kon-club` (actualmente público; cambiarlo a privado si corresponde), subir esta carpeta y conectar a Vercel con **Framework Preset: Other** y **Output Directory: .**. Un sitio puede publicarse desde un repositorio privado; la visibilidad se gestiona en GitHub.
 
 No hay pasarela de pagos activa: los botones de compra del prototipo son demostrativos.
+
+## Prelanzamiento paralelo — Rocky Horror & La Casa Lobo
+
+La edición activa tiene una configuración **de preparación** en `data/site-config.js` (`ticketing`):
+- Canales planificados: web y Google Forms.
+- Cupos **totales compartidos**: general **100**, post-película **50**, fanzine **10**.
+- Formulario anterior (referencia, no enlace de venta): https://forms.gle/gJzzsfNnDLNY2eok6
+- `salesEnabled: false` y `centralReservationBackendReady: false`. El modal de entradas es informativo, sin cobros ni reservas.
+
+**No confundir cupos con stock disponible.** Antes de activar cualquier canal hay que:
+1. Conciliar pedidos vigentes en Google Forms y los de la web; descartar los registros ficticios de prueba.
+2. Implementar un único backend de inventario con operación atómica para reservar/descontar unidades y evitar sobreventa concurrente. Google Forms por sí solo no aplica un tope compartido fiable con la web.
+3. Definir estado de pedido y políticas de aprobación, caducidad/reembolso, idempotencia y conciliación manual.
+4. Probar simultaneidad y confirmar cupos restantes reales, horarios, precios y fecha. No extrapolar desde el demo.
+5. Habilitar ambos canales únicamente con aprobación explícita, una vez hecha la verificación. Jamás activar pagos solo cambiando `salesEnabled` en el navegador.
