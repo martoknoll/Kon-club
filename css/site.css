@@ -207,3 +207,35 @@ html{overflow-x:clip}
 @media(max-width:760px){.fanzines .fanzine-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fanzine-full .fanzine-full-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.fanzine-full-bar{min-height:65px}.fanzine-full-brand small{display:none}.fanzine-full-back{padding:11px;font-size:10px}.fanzine-full .zine-card{padding:8px 8px 14px;box-shadow:4px 4px 0 var(--ink)}.fanzine-full .zine-card img{height:clamp(140px,32vw,260px)}.fanzine-full .zine-card-actions .btn,.fanzine-full .zine-print-link{font-size:10px}.fanzine-full-intro h2{font-size:clamp(42px,9vw,72px)}.zine-library-cta{width:100%;text-align:center}}
 @media(max-width:420px){.fanzines .zine-card img{height:160px}.fanzine-full .zine-card img{height:150px}.fanzine-full .zine-card h3{font-size:17px}.fanzine-full .zine-card .tagline{font-size:9px}.fanzine-full .zine-card-actions .btn,.fanzine-full .zine-print-link{font-size:9px}}
 
+
+/* V03.9 / compact-hero: composición desktop ajustada a la ALTURA real del navegador.
+   Mantener al final del CSS para sobreescribir únicamente los tamaños desktop. */
+@media (min-width:1061px) {
+  .hero {
+    min-height:0;
+    grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);
+    column-gap:clamp(28px,3.3vw,64px);
+    padding-top:clamp(24px,3.3vh,44px);
+    padding-bottom:clamp(28px,3.5vh,46px);
+  }
+  .hero .copy {max-width:min(720px,100%)}
+  .hero h1 {
+    font-size:clamp(59px,min(5.35vw,10.5vh),93px);
+    line-height:.88;
+    letter-spacing:-.06em;
+    max-width:720px;
+    margin:clamp(17px,2.4vh,27px) 0 16px;
+  }
+  .hero-lead {font-size:clamp(20px,1.65vw,25px);margin-bottom:18px;max-width:540px}
+  .hero-detail {max-width:525px;margin-bottom:18px}
+  .hero-detail div {padding-top:10px;padding-bottom:10px}
+  .detail-val {font-size:clamp(13px,1.04vw,15px)}
+  .poster-stage {width:min(100%,clamp(295px,23vw,365px));max-width:none}
+  .round-stamp {width:94px;height:94px;font-size:17px;right:-16px}
+  .hero .tiny-row {font-size:11px}
+}
+@media (min-width:761px) and (max-width:1060px) {
+  .hero {padding-top:clamp(22px,3vh,32px);padding-bottom:clamp(26px,3vh,38px)}
+  .hero h1 {font-size:clamp(52px,min(7.3vw,11vh),75px);margin:19px 0 16px}
+  .poster-stage {width:min(100%,clamp(250px,33vw,322px));max-width:none}
+}
