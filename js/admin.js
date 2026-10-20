@@ -81,15 +81,15 @@ async function loadPlannedDates(){
   });
   const active=response.current_event;
   const realDate=konLocalDate(active?.starts_at);
-  const mismatch=realDate&&!dates.some(x=>x.event_date===realDate);
   const note=$("plannedConflict");
   if(note){
-   note.hidden=!mismatch;
-   if(mismatch){
-    note.textContent="REVISAR FECHA: la edición activa del checkout está configurada para el "+
-       plannedDateText(realDate)+
-       ", pero esa fecha no aparece marcada como Kon Club en las capturas del calendario. "+
-       "No se activan ventas ni recordatorios hasta reconciliar ambas.";
+   note.hidden=!realDate;
+   if(realDate){
+    note.textContent="EDICIÓN EN CURSO · "+
+      plannedDateText(realDate)+
+      ": las entradas se venden mediante el formulario anterior de Kon Club. "+
+      "Esta función se gestiona por separado de las fechas tentativas que aparecen arriba. "+
+      "El checkout nuevo sigue cerrado y no se enviarán recordatorios desde este sistema a los compradores del formulario anterior.";
    }
   }
  }catch(err){
