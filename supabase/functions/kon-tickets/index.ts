@@ -14,7 +14,7 @@ const acceptedOrigins = new Set([
 function cors(origin: string | null) {
   return {
     "Access-Control-Allow-Origin": origin && acceptedOrigins.has(origin) ? origin : "null",
-    "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info",
+    "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info, x-kon-mail-token",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Vary": "Origin",
     "Cache-Control": "no-store"
@@ -331,6 +331,181 @@ async function pairSheets(req:Request,payload:JsonValue,origin:string|null){
   tab_title:connector.tab_title,warning:"Guardalo solo en las propiedades privadas de Apps Script. No se puede consultar nuevamente."},200,origin);
 }
 
+
+const KON_MAIL_SENDER="konclub.entradas@gmail.com";
+const KON_MAIL_REPLY_TO="kon.club@proton.me";
+async function mailAccess(req:Request){
+ const token=req.headers.get("x-kon-mail-token")||"";
+ if(!/^[a-f0-9]{64}$/.test(token))return null;
+ const hash=await digest(token);
+ const {data,error}=await db.from("kon_mail_settings")
+  .select("expected_sender,reply_to,enabled,secret_sha256")
+  .eq("id",1).maybeSingle();
+ if(error||!data||!data.secret_sha256||data.secret_sha256!==hash)return null;
+ if(data.expected_sender!==KON_MAIL_SENDER||data.reply_to!==KON_MAIL_REPLY_TO)return null;
+ return data;
+}
+async function pairMail(req:Request,origin:string|null){
+ const admin=await adminFromRequest(req);
+ if(!admin)return fail("unauthorized",401,origin);
+ const bytes=crypto.getRandomValues(new Uint8Array(32));
+ const token=Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
+ const {error}=await db.from("kon_mail_settings").update({
+  secret_sha256:await digest(token),enabled:false,updated_at:new Date().toISOString()
+ }).eq("id",1);
+ if(error)return fail("mail_pair_unavailable",500,origin);
+ return respond({ok:true,sync_token:token,enabled:false,
+  sender:KON_MAIL_SENDER,reply_to:KON_MAIL_REPLY_TO,
+  warning:"Se configuró la conexión de correo, pero los envíos reales siguen DESACTIVADOS."},200,origin);
+}
+async function mailPing(req:Request,origin:string|null){
+ const config=await mailAccess(req);
+ if(!config)return fail("mail_not_authorized",401,origin);
+ return respond({ok:true,sender:config.expected_sender,reply_to:config.reply_to,
+  enabled:config.enabled},200,origin);
+}
+function konMailEsc(s:unknown){
+ return String(s===undefined||s===null?"":s).replace(/[&<>"']/g,ch=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ })[ch]||ch);
+}
+function konMailMoney(n:unknown){
+ const v=Number(n);
+ return "$"+(Number.isFinite(v)?Math.max(v,0):0).toLocaleString("es-AR")+" ARS";
+}
+function konMailDate(value:unknown){
+ if(!value)return "";
+ try{return new Intl.DateTimeFormat("es-AR",{timeZone:"America/Argentina/Buenos_Aires",
+  weekday:"long",day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"
+ }).format(new Date(String(value)))}catch(_){return ""}
+}
+function formatKonMail(input:{
+ kind:string,code:string,name:string,items:{label:string,quantity:number}[],
+ total:number,received:number|null,event_title:string,starts_at:string|null,
+ address:string,alias:string,test?:boolean
+}){
+ const displayName=input.name.trim().split(/\s+/).slice(0,1)[0]||"";
+ const eventName=input.event_title||"Kon Club";
+ const lines=input.items.map(item=>item.quantity+" × "+item.label);
+ const whereDate=[konMailDate(input.starts_at),input.address.trim()].filter(Boolean);
+ let subject:string;let paragraphs:string[];
+ if(input.kind==="received"){
+  subject="Kon Club · Recibimos tu pedido "+input.code;
+  paragraphs=[
+   "Recibimos tu pedido. Todavía NO está confirmado.",
+   "EDICIÓN: "+eventName,
+   ...whereDate,
+   "PEDIDO: "+input.code,
+   "DETALLE:",
+   ...lines,
+   "TOTAL A TRANSFERIR: "+konMailMoney(input.total),
+   "ALIAS: "+input.alias,
+   "La entrada se confirma cuando comprobamos la acreditación bancaria. Un comprobante enviado por sí solo no implica que el pago esté aprobado.",
+   "Si todavía no pudiste subir el comprobante, respondé este correo con tu código de pedido para que te ayudemos."
+  ];
+ }else if(input.kind==="verified"){
+  subject="Kon Club · Entrada confirmada · "+input.code;
+  paragraphs=[
+   "¡Tu pago fue verificado y tu entrada está confirmada!",
+   "EDICIÓN: "+eventName,
+   ...whereDate,
+   "CÓDIGO DE PEDIDO: "+input.code,
+   "ENTRADAS Y PRODUCTOS:",
+   ...lines,
+   "PAGO ACREDITADO: "+konMailMoney(input.received),
+   "Guardá este correo y el código de pedido para el día del evento."
+  ];
+ }else if(input.kind==="courtesy"){
+  subject="Kon Club · Invitación confirmada · "+input.code;
+  paragraphs=[
+   "¡Tu invitación de cortesía está confirmada!",
+   "EDICIÓN: "+eventName,
+   ...whereDate,
+   "CÓDIGO DE PEDIDO: "+input.code,
+   "ENTRADAS Y PRODUCTOS:",
+   ...lines,
+   "Guardá este correo y el código de pedido para el día del evento."
+  ];
+ }else{throw new Error("invalid_mail_kind")}
+ const text="Hola "+displayName+",\n\n"+paragraphs.join("\n")+"\n\n¿Consultas? Respondé este correo.\n\nKon Club · El cine es la excusa.";
+ const html='<!doctype html><html lang="es"><body style="font-family:Arial,sans-serif;background:#faf5ee;color:#230519;padding:24px">'
+  +'<main style="max-width:600px;margin:auto;background:#fff;padding:32px;border:2px solid #230519">'
+  +'<p style="font-size:14px;font-weight:bold;letter-spacing:2px">KON CLUB</p>'
+  +'<h1 style="font-size:26px;margin:0 0 24px">'+konMailEsc(subject.replace("Kon Club · ",""))+'</h1>'
+  +'<p>Hola '+konMailEsc(displayName)+',</p>'
+  +paragraphs.map(x=>'<p style="margin:0 0 14px;line-height:1.5">'+konMailEsc(x)+'</p>').join("")
+  +'<hr><p style="font-size:13px">¿Consultas? Respondé este correo.</p>'
+  +'<p style="font-size:13px">KON CLUB · El cine es la excusa.</p></main></body></html>';
+ return {subject,text,html};
+}
+async function mailPreview(req:Request,origin:string|null){
+ const config=await mailAccess(req);
+ if(!config)return fail("mail_not_authorized",401,origin);
+ const url=new URL(req.url);
+ const kind=url.searchParams.get("kind")||"received";
+ if(!["received","verified","courtesy"].includes(kind))return fail("invalid_kind",400,origin);
+ const mock=formatKonMail({
+  kind,code:"PRUEBA-NO-REAL",name:"PRUEBA KON CLUB",
+  items:[{label:"ENTRADA GENERAL",quantity:1},{label:"FANZINE",quantity:1}],
+  total:13000,received:13000,event_title:"KON CLUB — PRUEBA DE CORREO",
+  starts_at:null,address:"SOLO PRUEBA — NO ASISTIR",alias:"NO.TRANSFERIR",test:true
+ });
+ return respond({ok:true,to:KON_MAIL_SENDER,
+  subject:"[PRUEBA · NO REAL] "+mock.subject,
+  text:"ESTE ES UN CORREO DE PRUEBA. NO EXISTE COMPRA NI PAGO REAL.\n\n"+mock.text,
+  html:'<p><strong>PRUEBA · NO HAY COMPRA NI PAGO REAL</strong></p>'+mock.html,
+  enabled:config.enabled
+ },200,origin);
+}
+async function mailNext(req:Request,origin:string|null){
+ const config=await mailAccess(req);
+ if(!config)return fail("mail_not_authorized",401,origin);
+ if(!config.enabled)return respond({ok:true,enabled:false,mail:null},200,origin);
+ const bytes=crypto.getRandomValues(new Uint8Array(32));
+ const claimToken=Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
+ const {data:claimed,error}=await db.rpc("kon_claim_next_email",{p_lease_sha256:await digest(claimToken)});
+ if(error){console.error("mail_claim_failed",error.code);return fail("mail_claim_unavailable",500,origin)}
+ if(!claimed)return respond({ok:true,enabled:true,mail:null},200,origin);
+ const {data:order,error:orderError}=await db.from("kon_orders")
+  .select("id,order_code,full_name,email,status,amount_expected_ars,amount_received_ars,kon_events(slug,title,starts_at,address,bank_alias),kon_order_lines(quantity,kon_products(label,slug))")
+  .eq("id",claimed.order_id).maybeSingle();
+ if(orderError||!order||order.kon_events?.slug!=="halloween"||
+    String(order.email).toLowerCase()!==String(claimed.recipient).toLowerCase()){
+  console.error("mail_invalid_claim");
+  return fail("invalid_mail_order",500,origin); // Held for manual reconciliation: never resend blindly.
+ }
+ const msg=formatKonMail({
+  kind:claimed.kind,code:order.order_code,name:order.full_name,
+  items:(order.kon_order_lines||[]).map((line:JsonValue)=>({
+   label:String((line.kon_products as JsonValue|null)?.label||"Entrada"),
+   quantity:Number(line.quantity||0)
+  })),
+  total:Number(order.amount_expected_ars),received:order.amount_received_ars,
+  event_title:String(order.kon_events.title||"Kon Club"),
+  starts_at:order.kon_events.starts_at||null,
+  address:String(order.kon_events.address||""),
+  alias:String(order.kon_events.bank_alias||"")
+ });
+ return respond({ok:true,enabled:true,mail:{
+  id:claimed.id,claim_token:claimToken,to:claimed.recipient,
+  ...msg,kind:claimed.kind
+ }},200,origin);
+}
+async function mailAcknowledge(req:Request,payload:JsonValue,origin:string|null){
+ const config=await mailAccess(req);
+ if(!config)return fail("mail_not_authorized",401,origin);
+ if(!validUuid(payload.id)||typeof payload.claim_token!=="string"||
+  !/^[a-f0-9]{64}$/.test(payload.claim_token)||
+  typeof payload.sent!=="boolean")return fail("invalid_input",400,origin);
+ const {data:updated,error}=await db.rpc("kon_finish_email",{
+  p_id:payload.id,p_lease_sha256:await digest(payload.claim_token),
+  p_sent:payload.sent,p_error:readString(payload.error,300)
+ });
+ if(error)return fail("mail_ack_unavailable",500,origin);
+ if(!updated)return fail("mail_claim_missing",409,origin);
+ return respond({ok:true},200,origin);
+}
+
 Deno.serve(async(req:Request)=>{
   const origin=req.headers.get("origin");
   if(req.method==="OPTIONS")return new Response("ok",{headers:cors(origin)});
@@ -338,10 +513,20 @@ Deno.serve(async(req:Request)=>{
   const path=new URL(req.url).pathname.split("/").pop();
   try{
     if(req.method==="GET"&&path==="catalog")return await getCatalog(req,origin);
+    if(req.method==="GET"&&path==="mail-ping")return await mailPing(req,origin);
+    if(req.method==="GET"&&path==="mail-preview")return await mailPreview(req,origin);
+    if(req.method==="GET"&&path==="mail-next")return await mailNext(req,origin);
+    if(req.method==="POST"&&path==="mail-pair")return await pairMail(req,origin);
     if(req.method==="GET"&&path==="sync-export")return await sheetExport(req,origin);
     if(req.method==="GET"&&path==="orders")return await listOrders(req,origin);
     if(req.method==="GET"&&path==="proof-link")return await proofLink(req,origin);
     if(req.method==="POST"&&path==="proof")return await uploadProof(req,origin);
+    if(req.method==="POST"&&path==="mail-ack"){
+      const len=Number(req.headers.get("content-length")||"0");
+      if(len>3000)return fail("payload_too_large",413,origin);
+      const payload=await req.json() as JsonValue;
+      return await mailAcknowledge(req,payload,origin);
+    }
     if(req.method==="POST"&&["order","review","sync-review","sync-ack","sync-pair"].includes(String(path))){
       const len=Number(req.headers.get("content-length")||"0");
       if(len>12000)return fail("payload_too_large",413,origin);
