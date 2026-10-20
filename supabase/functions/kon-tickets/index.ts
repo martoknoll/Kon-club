@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { formatKonMail } from "./mail-template.ts";
+import { formatKonMail } from "./mail-template.js";
 
 type JsonValue = Record<string, unknown>;
 const url = Deno.env.get("SUPABASE_URL") || "";
