@@ -61,21 +61,41 @@ async function updateSession(){
  if(session){await loadOrders()}
  else{$("signin").hidden=false;$("dashboard").hidden=true}
 }
+let magicLinkLocked=false;
 $("loginForm").addEventListener("submit",async(event)=>{
  event.preventDefault();
+ if(magicLinkLocked)return;
  const button=$("loginForm").querySelector("button");
  const email=String(new FormData(event.currentTarget).get("email")||"").trim();
  if(!email)return;
  button.disabled=true;
  $("loginMessage").textContent="Enviando enlace de acceso...";
  try{
+  // Reuse an existing authenticated session instead of consuming another OTP.
+  const {data:{session:existing}}=await client.auth.getSession();
+  if(existing?.access_token){
+   session=existing;
+   await loadOrders();
+   return;
+  }
   const redirectTo=new URL("admin.html",window.location.href).href;
   const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:redirectTo,shouldCreateUser:true}});
   if(error)throw error;
-  $("loginMessage").textContent="Revisá tu email. Te enviamos el enlace para iniciar sesión.";
+  $("loginMessage").textContent="Revisá tu email: ya enviamos el enlace. No hace falta pedir otro.";
+  magicLinkLocked=true;
+  button.textContent="ENLACE SOLICITADO ✓";
  }catch(err){
-  $("loginMessage").textContent=err instanceof Error?err.message:"No pudimos enviar el email.";
- }finally{button.disabled=false}
+  const message=err instanceof Error?err.message:"No pudimos enviar el email.";
+  const limited=String(message).toLowerCase().includes("rate limit")||
+    String(err?.status)==="429"||String(err?.code).includes("over_email_send_rate_limit");
+  if(limited){
+   $("loginMessage").textContent="Supabase alcanzó el límite de correos. No solicites más enlaces por ahora; intentá nuevamente en aproximadamente una hora. Si ya ingresaste, usá el mismo navegador donde tenés la sesión abierta.";
+   magicLinkLocked=true;
+   button.textContent="LÍMITE DE CORREOS ALCANZADO";
+  }else{
+   $("loginMessage").textContent=message;
+  }
+ }finally{button.disabled=magicLinkLocked}
 });
 $("signout").addEventListener("click",async()=>{
  await client.auth.signOut();
