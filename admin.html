@@ -27,6 +27,15 @@
 <section id="dashboard" hidden>
  <div class="toolbar"><div><p class="kicker" id="adminContext">PEDIDOS REALES · HALLOWEEN</p><h2>INSCRIPCIONES.</h2></div><div class="toolbar-actions"><button id="openTestCheckout" type="button">🧪 CHECKOUT PRUEBA</button><button id="pairMail" type="button">✉ CONFIGURAR EMAIL</button><button id="pairTestSheets" type="button">🧪 PROBAR SHEETS</button><button id="pairSheets" type="button">⧉ CONECTAR SHEETS</button><button id="refresh" type="button">↻ ACTUALIZAR</button><button id="signout" type="button">SALIR</button></div></div>
  <div class="stats"><div><small>TOTAL PEDIDOS</small><strong id="statTotal">0</strong></div><div><small>PENDIENTES</small><strong id="statPending">0</strong></div><div><small>APROBADOS</small><strong id="statVerified">0</strong></div><div><small>RECAUDACIÓN VERIFICADA</small><strong id="statRevenue">$0</strong></div></div>
+ <section class="inventory-board" aria-labelledby="inventoryTitle">
+  <div class="inventory-heading">
+   <div><p class="kicker">FORMULARIO ANTERIOR + CHECKOUT NUEVO</p>
+   <h2 id="inventoryTitle">CONTROL DE CUPOS.</h2></div>
+   <p id="inventorySyncState" role="status">Consultando capacidad compartida...</p>
+  </div>
+  <div id="inventoryCards" class="inventory-grid" aria-live="polite"></div>
+  <p class="inventory-note">Las entradas anteriores se cuentan desde FECHAS y las nuevas desde Supabase. El registro en la planilla se conserva tal como estaba. Para publicar, también hay que confirmar la capacidad de cada categoría.</p>
+ </section>
  <div class="filters"><label for="environmentFilter">AMBIENTE</label><select id="environmentFilter" aria-label="Ambiente"><option value="real">REAL · HALLOWEEN</option><option value="test">PRUEBA · NO REAL</option></select><label for="statusFilter">MOSTRAR</label><select id="statusFilter"><option value="all">TODOS</option><option value="pending">PENDIENTES</option><option value="verified">VERIFICADOS</option><option value="rejected">RECHAZADOS</option><option value="courtesy">CORTESÍAS</option><option value="cancelled">CANCELADOS</option></select><span id="syncHint">Sincronización Sheets: pendiente de configurar</span></div>
  <div id="orders" class="order-list" aria-live="polite"></div>
  <section class="planned-section" aria-labelledby="plannedTitle">
