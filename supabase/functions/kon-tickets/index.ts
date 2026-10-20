@@ -129,9 +129,13 @@ async function uploadProof(req: Request, origin: string | null){
      !(file instanceof File)||file.size<1||file.size>10*1024*1024)
     return fail("invalid_proof",400,origin);
   const {data:order,error}=await db.from("kon_orders")
-    .select("id,status,expires_at,proof_token_sha256,kon_events(slug)")
+    .select("id,event_id,status,expires_at,proof_token_sha256")
     .eq("id",orderId).maybeSingle();
-  const isTest=order?.kon_events?.slug==="halloween-staging";
+  if(error||!order)return fail("invalid_or_expired_order",403,origin);
+  const {data:orderEvent,error:eventError}=await db.from("kon_events")
+    .select("slug").eq("id",order.event_id).maybeSingle();
+  if(eventError||!orderEvent)return fail("event_unavailable",500,origin);
+  const isTest=orderEvent.slug==="halloween-staging";
   if(isTest && !(await adminFromRequest(req)))return fail("unauthorized",401,origin);
   if(error||!order||order.status!=="pending"||new Date(order.expires_at).getTime()<Date.now()||
       !order.proof_token_sha256||order.proof_token_sha256!==await digest(claim))
