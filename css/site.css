@@ -368,3 +368,6 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
 .poster-placeholder small{font-size:10px;letter-spacing:.08em;font-weight:700}
 @media(max-width:620px){.poster-placeholder{min-height:310px;padding:14px}
 .poster-placeholder strong{font-size:clamp(43px,10vw,70px)}}
+
+/* Prelanzamiento: el atributo hidden prevalece sobre botones con display:flex. */
+#legacyFormButton[hidden] { display: none !important; }
