@@ -187,6 +187,7 @@ async function approveOrder(req:Request,payload:JsonValue,origin:string|null){
  if(status==="verified"&&(!Number.isInteger(amount)||Number(amount)<1||Number(amount)>2000000||payload.bank_checked!==true))
   return fail("bank_confirmation_required",400,origin);
  const environment=payload.environment==="test"?"test":"real";
+ if(environment==="test"&&status==="verified")return fail("test_payments_not_allowed",400,origin);
  const {data:event}=await db.from("kon_events").select("id").eq("slug",environment==="test"?"halloween-staging":"halloween").maybeSingle();
  if(!event)return fail("event_unavailable",404,origin);
  const {data:order}=await db.from("kon_orders").select("id").eq("event_id",event.id).eq("id",payload.order_id).maybeSingle();
@@ -283,6 +284,7 @@ async function sheetReview(req:Request,payload:JsonValue,origin:string|null){
  if(!validUuid(payload.order_id)||!["verified","rejected","courtesy","cancelled"].includes(String(payload.status)))
   return fail("invalid_input",400,origin);
  const status=String(payload.status);
+ if(access.event_slug==="halloween-staging"&&status==="verified")return fail("test_payments_not_allowed",400,origin);
  const amount=payload.amount_received_ars;
  if(status==="verified"&&(!Number.isInteger(amount)||Number(amount)<1||Number(amount)>2000000||payload.bank_checked!==true))
   return fail("bank_confirmation_required",400,origin);
