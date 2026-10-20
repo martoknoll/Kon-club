@@ -84,7 +84,7 @@ function renderSummary(){
  }
  byId('summaryTotal').textContent=money(total());
  byId('payTotal').textContent=money(total());
- byId('continueToPay').disabled=total()===0;
+ byId('continueToPay').disabled=total()===0||(cfg.allowLive&&!liveReady());
 }
 renderSummary();
 
@@ -117,7 +117,9 @@ async function loadCatalog(){
    byId('completionNotice').innerHTML='<strong>PEDIDO RECIBIDO.</strong> Tu inscripción queda pendiente hasta que verifiquemos la acreditación. Todavía no enviamos correos automáticos.';
    proof.parentElement.querySelector('small').textContent='PNG, JPG o PDF · Máximo 10 MB';
   }else{
-   status.textContent=salesOpen?'CATÁLOGO CONECTADO · COMPRA DE PRUEBA':'CATÁLOGO CONECTADO · VENTA REAL NO HABILITADA';
+   status.textContent=cfg.allowLive
+     ?'VENTAS ONLINE TEMPORALMENTE PAUSADAS · VERIFICAMOS CUPOS CON EL FORMULARIO ANTERIOR'
+     :(salesOpen?'CATÁLOGO CONECTADO · COMPRA DE PRUEBA':'CATÁLOGO CONECTADO · VENTA REAL NO HABILITADA');
   }
  }catch(err){
   catalogLoaded=false;
@@ -142,7 +144,10 @@ function go(step){
   const main=document.querySelector('.checkout');
   main.scrollIntoView({behavior:'auto',block:'start'});
 }
-byId('continueToPay').addEventListener('click',()=>{if(total()>0)go(2)});
+byId('continueToPay').addEventListener('click',()=>{
+ if(cfg.allowLive&&!liveReady())return;
+ if(total()>0)go(2);
+});
 document.querySelectorAll('[data-back]').forEach((b)=>b.addEventListener('click',()=>go(Number(b.dataset.back))));
 byId('copyAlias').addEventListener('click',async()=>{
  const button=byId('copyAlias');
@@ -194,6 +199,10 @@ form.addEventListener('submit',async(evt)=>{
  if(submitting)return;
  if(!form.reportValidity())return;
  if(total()<=0){setError('Elegí al menos una entrada o fanzine.');go(1);return;}
+ if(cfg.allowLive&&!liveReady()){
+  setError('Las ventas online están pausadas. Estamos verificando los cupos disponibles.');
+  return;
+ }
  const formData=new FormData(form);
  const button=form.querySelector('[type="submit"]');
  submitting=true;button.disabled=true;button.textContent='REGISTRANDO...';
@@ -255,6 +264,13 @@ proofForm.addEventListener('submit',async(evt)=>{
    await apiCall('proof',{method:'POST',body:payload});
   }
   const box=byId('confirmation');box.replaceChildren();
+  if(isReal){
+    byId('completeHeading').textContent='¡PEDIDO RECIBIDO!';
+    const header=byId('completeHeading').closest('.heading');
+    header.querySelector('span').textContent='INSCRIPCIÓN PENDIENTE DE VERIFICACIÓN';
+    header.querySelector('p').textContent='Registramos tu pedido y guardamos el comprobante. La entrada no está confirmada hasta que revisemos la transferencia.';
+    document.querySelector('.summary-foot').textContent='Pedido recibido. Guardá el código para consultas y para coordinar tu ingreso una vez aprobado.';
+  }
   const title=document.createElement('h3');
   title.textContent=isReal?'PEDIDO RECIBIDO · PENDIENTE':'RESUMEN DE TU PEDIDO (DEMO)';
   box.appendChild(title);
