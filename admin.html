@@ -29,6 +29,12 @@
  <div class="stats"><div><small>TOTAL PEDIDOS</small><strong id="statTotal">0</strong></div><div><small>PENDIENTES</small><strong id="statPending">0</strong></div><div><small>APROBADOS</small><strong id="statVerified">0</strong></div><div><small>RECAUDACIÓN VERIFICADA</small><strong id="statRevenue">$0</strong></div></div>
  <div class="filters"><label for="environmentFilter">AMBIENTE</label><select id="environmentFilter" aria-label="Ambiente"><option value="real">REAL · HALLOWEEN</option><option value="test">PRUEBA · NO REAL</option></select><label for="statusFilter">MOSTRAR</label><select id="statusFilter"><option value="all">TODOS</option><option value="pending">PENDIENTES</option><option value="verified">VERIFICADOS</option><option value="rejected">RECHAZADOS</option><option value="courtesy">CORTESÍAS</option><option value="cancelled">CANCELADOS</option></select><span id="syncHint">Sincronización Sheets: pendiente de configurar</span></div>
  <div id="orders" class="order-list" aria-live="polite"></div>
+ <section class="planned-section" aria-labelledby="plannedTitle">
+  <div class="planned-heading"><div><p class="kicker">AGENDA INTERNA · SIN PUBLICAR</p><h2 id="plannedTitle">PRÓXIMAS FECHAS.</h2></div>
+   <p>Fechas del calendario del equipo. Las películas, flyers y horarios se completan cuando estén definidos.</p></div>
+  <div id="plannedDates" class="planned-grid" aria-live="polite"><p class="explain">Cargando fechas...</p></div>
+  <p class="planned-note" id="plannedConflict" hidden></p>
+ </section>
  <p class="explain">Los pedidos web se sincronizan con Google Sheets. Los correos automáticos todavía requieren autorizar la cuenta de Gmail y completar una prueba antes de habilitar el envío a compradores.</p>
 </section>
 <dialog id="pairDialog" aria-labelledby="pairTitle">
