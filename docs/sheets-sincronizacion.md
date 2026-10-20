@@ -62,3 +62,17 @@ Preservar en el checkout nombre, Instagram, primera visita, pregunta condicional
 6. Solo al terminar las pruebas, publicar el flujo en `main` y desactivar Forms como mecanismo de compra.
 
 La rama `feature/checkout-transferencias` es todavía una **demo** sin almacenamiento ni recepción de pagos. No fusionar a producción.
+
+
+## Decisión confirmada: quién puede aprobar pagos
+
+Todos los colaboradores que **ya tienen permiso de Editor en la planilla `Kon Club: FECHAS`** podrán verificar pagos, tanto desde Sheets como desde el panel de Kon Club. No es necesario tener un administrador único. Los espectadores (Viewer) y comentaristas no pueden aprobar.
+
+### Implementación de permisos
+
+- Panel propio: inicio de sesión con Google. El backend valida que el usuario autenticado figure como **Editor o superior de FECHAS** (o en una lista sincronizada de editores autorizados); denegar por defecto si la comprobación falla. No confiar en una dirección de correo enviada por el navegador.
+- Planilla: un editor puede marcar `VERIFICADO` solamente en las columnas definidas para la edición activa. La API valida ID de pedido, transiciones permitidas, monto acreditado y evita repetir aprobaciones.
+- Auditoría: registrar fecha/hora, pedido, antes/después, origen (Sheets o panel) y cuenta Google verificable de quien hizo la aprobación.
+- **Importante:** los disparadores `onEdit` de Apps Script no siempre proporcionan la identidad del editor, y pueden ejecutarse bajo la cuenta del propietario del script. No asignar una identidad falsa. Si no se puede identificar y verificar al editor en ese evento, registrar «editor no identificable» y requerir verificación adicional o canal autenticado antes de confirmar y emitir la entrada.
+- Los permisos deben actualizarse al cambiar los colaboradores de FECHAS; un exeditor no conserva acceso al panel.
+- Una aprobación en Sheets o en el panel debe reflejarse en ambos lugares de manera idempotente. El comprobante no acredita por sí mismo una transferencia.
