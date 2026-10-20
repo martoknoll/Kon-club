@@ -275,6 +275,21 @@ async function sheetReview(req:Request,payload:JsonValue,origin:string|null){
  return respond({ok:true,email_dispatched:false},200,origin);
 }
 
+
+async function pairSheets(req:Request,origin:string|null){
+ const admin=await adminFromRequest(req);
+ if(!admin)return fail("unauthorized",401,origin);
+ const bytes=crypto.getRandomValues(new Uint8Array(32));
+ const token=Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
+ const secretHash=await digest(token);
+ const {error}=await db.from("kon_sheet_connectors").update({
+  secret_sha256:secretHash,enabled:true,updated_at:new Date().toISOString()
+ }).eq("id",1);
+ if(error)return fail("unable_to_generate_sync_key",500,origin);
+ // Never persist or log the cleartext key. Rotates previous key.
+ return respond({ok:true,sync_token:token,warning:"Guardalo en Script Properties: KON_SYNC_TOKEN. No se puede consultar nuevamente."},200,origin);
+}
+
 Deno.serve(async(req:Request)=>{
   const origin=req.headers.get("origin");
   if(req.method==="OPTIONS")return new Response("ok",{headers:cors(origin)});
@@ -286,13 +301,14 @@ Deno.serve(async(req:Request)=>{
     if(req.method==="GET"&&path==="orders")return await listOrders(req,origin);
     if(req.method==="GET"&&path==="proof-link")return await proofLink(req,origin);
     if(req.method==="POST"&&path==="proof")return await uploadProof(req,origin);
-    if(req.method==="POST"&&["order","review","sync-review","sync-ack"].includes(String(path))){
+    if(req.method==="POST"&&["order","review","sync-review","sync-ack","sync-pair"].includes(String(path))){
       const len=Number(req.headers.get("content-length")||"0");
       if(len>12000)return fail("payload_too_large",413,origin);
       const body=await req.json() as JsonValue;
       if(path==="order")return await createOrder(body,origin);
       if(path==="sync-review")return await sheetReview(req,body,origin);
       if(path==="sync-ack")return await sheetAcknowledge(req,body,origin);
+      if(path==="sync-pair")return await pairSheets(req,origin);
       return await approveOrder(req,body,origin);
     }
     return fail("not_found",404,origin);
