@@ -143,7 +143,6 @@ function go(step){
   main.scrollIntoView({behavior:'auto',block:'start'});
 }
 byId('continueToPay').addEventListener('click',()=>{if(total()>0)go(2)});
-byId('continueToDetails').addEventListener('click',()=>go(3));
 document.querySelectorAll('[data-back]').forEach((b)=>b.addEventListener('click',()=>go(Number(b.dataset.back))));
 byId('copyAlias').addEventListener('click',async()=>{
  const button=byId('copyAlias');
@@ -182,42 +181,78 @@ function appendReview(parent,label,value){
  row.append(strong,document.createTextNode(value));
  parent.appendChild(row);
 }
+const proofForm=byId('proofForm');
+const proofError=byId('proofError');
+const registeredCode=byId('registeredCode');
+function setProofError(message){
+ proofError.textContent=message;
+ proofError.hidden=!message;
+}
 form.addEventListener('submit',async(evt)=>{
  evt.preventDefault();
  setError('');
  if(submitting)return;
  if(!form.reportValidity())return;
- if(total()<=0){setError('Elegí al menos un producto.');go(1);return;}
- const file=proof.files&&proof.files[0];
- if(!file){setError('Seleccioná un comprobante.');return;}
- if(file.size>cfg.proofMaxBytes){setError('El archivo supera el límite de 10 MB.');return;}
- const allowed=['image/png','image/jpeg','application/pdf'];
- const ext=/\.(png|jpe?g|pdf)$/i.test(file.name);
- if(!allowed.includes(file.type)&&!ext){setError('Usá una imagen JPG/PNG o un PDF.');return;}
+ if(total()<=0){setError('Elegí al menos una entrada o fanzine.');go(1);return;}
  const formData=new FormData(form);
- const isReal=liveReady();
- const submitButton=form.querySelector('[type="submit"]');
- submitting=true;
- submitButton.disabled=true;
- submitButton.textContent=isReal?'REGISTRANDO PEDIDO...':'MOSTRANDO DEMO...';
+ const button=form.querySelector('[type="submit"]');
+ submitting=true;button.disabled=true;button.textContent='REGISTRANDO...';
+ try{
+  if(liveReady()){
+   const response=await apiCall('order',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+     fullName:String(formData.get('fullName')||''),
+     email:String(formData.get('email')||''),
+     instagram:String(formData.get('instagram')||''),
+     firstTime:formData.get('firstTime')==='si',
+     discovery:String(formData.get('discovery')||''),
+     items:cfg.products.filter(p=>quantities[p.id]>0).map(p=>({id:p.backendId,qty:quantities[p.id]}))
+    })
+   });
+   pendingOrder=response;
+   byId('payTotal').textContent=money(response.order.total);
+   registeredCode.textContent='PEDIDO '+response.order.code+' · Guardá este código. Tenés hasta 48 horas para cargar el comprobante.';
+   byId('returnToDetails').hidden=true;
+  }else{
+   registeredCode.textContent='PEDIDO DE DEMOSTRACIÓN · No transfieras dinero real.';
+   byId('returnToDetails').hidden=false;
+  }
+  go(3);
+ }catch(err){
+  const message=err instanceof Error?err.message:'No pudimos crear el pedido.';
+  const translated={
+   sales_closed:'La venta todavía no está habilitada.',
+   not_enough_capacity:'No quedan suficientes cupos para alguna de las opciones.',
+   rate_limited:'Hay demasiados intentos. Probá más tarde.',
+   invalid_order:'Revisá tus datos y las cantidades.'
+  };
+  setError(translated[message]||'No pudimos registrar el pedido: '+message);
+ }finally{
+  submitting=false;button.disabled=false;button.textContent='REGISTRAR PEDIDO Y SEGUIR →';
+ }
+});
+proofForm.addEventListener('submit',async(evt)=>{
+ evt.preventDefault();setProofError('');
+ if(submitting)return;
+ if(!proofForm.reportValidity())return;
+ const file=proof.files&&proof.files[0];
+ if(!file){setProofError('Seleccioná un comprobante.');return;}
+ if(file.size>cfg.proofMaxBytes){setProofError('El archivo supera el máximo de 10 MB.');return;}
+ const ext=/\.(png|jpe?g|pdf)$/i.test(file.name);
+ const allowed=['image/png','image/jpeg','application/pdf'];
+ if(!ext||!allowed.includes(file.type)){setProofError('Solo se admiten JPG, PNG o PDF.');return;}
+ const formData=new FormData(form);
+ const isReal=liveReady()&&Boolean(pendingOrder);
+ const button=proofForm.querySelector('[type="submit"]');
+ submitting=true;button.disabled=true;button.textContent=isReal?'SUBIENDO...':'REVISANDO...';
  try{
   if(isReal){
-   if(!pendingOrder){
-    const order=await apiCall('order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-      fullName:String(formData.get('fullName')||''),
-      email:String(formData.get('email')||''),
-      instagram:String(formData.get('instagram')||''),
-      firstTime:formData.get('firstTime')==='si',
-      discovery:String(formData.get('discovery')||''),
-      items:cfg.products.filter(p=>quantities[p.id]>0).map(p=>({id:p.backendId,qty:quantities[p.id]}))
-    })});
-    pendingOrder=order;
-   }
-   const upload=new FormData();
-   upload.set('order_id',pendingOrder.order.id);
-   upload.set('proof_token',pendingOrder.proof_token);
-   upload.set('file',file,file.name);
-   await apiCall('proof',{method:'POST',body:upload});
+   const payload=new FormData();
+   payload.set('order_id',pendingOrder.order.id);
+   payload.set('proof_token',pendingOrder.proof_token);
+   payload.set('file',file,file.name);
+   await apiCall('proof',{method:'POST',body:payload});
   }
   const box=byId('confirmation');box.replaceChildren();
   const title=document.createElement('h3');
@@ -231,30 +266,29 @@ form.addEventListener('submit',async(evt)=>{
   if(formData.get('firstTime')==='si')appendReview(box,'Cómo nos conoció',String(formData.get('discovery')||''));
   cfg.products.forEach(p=>{if(quantities[p.id])appendReview(box,p.title,quantities[p.id]+' × '+money(p.price))});
   appendReview(box,'Total',isReal?money(pendingOrder.order.total):money(total()));
-  appendReview(box,'Comprobante',isReal?'Almacenado para revisión':file.name+' (no enviado)');
-  const explanation=document.createElement('p');
-  explanation.textContent=isReal?'La confirmación definitiva requiere verificar que se acreditó tu transferencia. Guardá tu número de pedido.':'Esta es una demostración: no se envió ni guardó ningún dato.';
-  box.appendChild(explanation);
+  appendReview(box,'Comprobante',isReal?'Almacenado en forma privada':file.name+' (no enviado)');
+  const description=document.createElement('p');
+  description.textContent=isReal?'El pago todavía no está aprobado. Guardá tu número de pedido hasta recibir la confirmación.':'Esto es una demo: no se envió ni guardó ningún dato.';
+  box.appendChild(description);
   if(isReal){
-   form.reset();
+   proofForm.reset();
    pendingOrder=null;
+   const back=byId('confirmation').closest('.step').querySelector('[data-back="3"]');
+   if(back)back.hidden=true;
   }
   go(4);
  }catch(err){
-  const message=err instanceof Error?err.message:'No pudimos enviar el pedido.';
-  const translated={
-   sales_closed:'La venta de esta edición todavía no está habilitada.',
-   not_enough_capacity:'No quedan suficientes cupos para alguna de las opciones.',
-   rate_limited:'Hay demasiados intentos de inscripción. Probá más tarde.',
-   proof_already_uploaded:'Este comprobante ya fue registrado.',
-   unable_to_upload_proof:'Falló la carga del comprobante. Volvé a intentar.',
-   request_failed:'No pudimos completar tu pedido. Volvé a intentar.'
+  const error=err instanceof Error?err.message:'Falló el envío del comprobante.';
+  const translations={
+   proof_already_uploaded:'Este comprobante ya fue registrado. Contactá a Kon Club.',
+   unable_to_upload_proof:'No pudimos subir el archivo. Volvé a intentar.',
+   invalid_or_expired_order:'El pedido venció o ya no admite comprobantes. Contactá a Kon Club.',
+   request_failed:'No pudimos subir el comprobante. Volvé a intentar.'
   };
-  setError(translated[message]||'No se pudo completar la inscripción: '+message);
+  setProofError(translations[error]||'Error al subir comprobante: '+error);
  }finally{
-  submitting=false;
-  submitButton.disabled=false;
-  submitButton.textContent='REVISAR PEDIDO →';
+  submitting=false;button.disabled=false;button.textContent='ENVIAR COMPROBANTE →';
  }
 });
+
 })();
