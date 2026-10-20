@@ -153,32 +153,27 @@ async function listOrders(req: Request, origin: string|null){
   if(error){console.error("orders_error",error.message);return fail("unable_to_list",500,origin);}
   return respond({ok:true,orders:data||[],admin:admin.email},200,origin);
 }
-async function approveOrder(req: Request, payload: JsonValue,origin:string|null){
-  const admin=await adminFromRequest(req);
-  if(!admin)return fail("unauthorized",401,origin);
-  if(!validUuid(payload.order_id) || !["verified","rejected","courtesy","cancelled"].includes(String(payload.status)))
-    return fail("invalid_input",400,origin);
-  const status=String(payload.status);
-  const amount=payload.amount_received_ars;
-  if(status==="verified" && (!Number.isInteger(amount)|| Number(amount)<0 || Number(amount)>2000000))
-    return fail("invalid_amount",400,origin);
-  const {data:order,error:readErr}=await db.from("kon_orders").select("id,status,proof_received_at")
-    .eq("id",payload.order_id).maybeSingle();
-  if(readErr||!order)return fail("not_found",404,origin);
-  if(order.status!== "pending")return fail("already_reviewed",409,origin);
-  if(status==="verified"&&!order.proof_received_at)return fail("proof_required",409,origin);
-  const now=new Date().toISOString();
-  const {data:changed,error}=await db.from("kon_orders").update({
-    status,amount_received_ars:status==="verified"?amount:status==="courtesy"?0:null,
-    verified_by:admin.email,verified_at:now,updated_at:now,
-    admin_note:readString(payload.note,500)
-  }).eq("id",order.id).eq("status","pending").select("id,status").maybeSingle();
-  if(error||!changed)return fail("already_reviewed",409,origin);
-  await db.from("kon_order_audit").insert({order_id:order.id,action:"reviewed",
-    old_status:"pending",new_status:status,actor_source:"panel",actor_id:admin.id,
-    metadata:{actor_email:admin.email}});
-  // Email dispatch intentionally not enabled until mail provider configured.
-  return respond({ok:true,status:changed.status,email_dispatched:false},200,origin);
+async function approveOrder(req:Request,payload:JsonValue,origin:string|null){
+ const admin=await adminFromRequest(req);
+ if(!admin)return fail("unauthorized",401,origin);
+ if(!validUuid(payload.order_id)||!["verified","rejected","courtesy","cancelled"].includes(String(payload.status)))
+  return fail("invalid_input",400,origin);
+ const status=String(payload.status);
+ const amount=payload.amount_received_ars;
+ if(status==="verified"&&(!Number.isInteger(amount)||Number(amount)<1||Number(amount)>2000000||payload.bank_checked!==true))
+  return fail("bank_confirmation_required",400,origin);
+ const {data,error}=await db.rpc("kon_review_order",{
+  p_order_id:payload.order_id,p_status:status,p_amount:status==="verified"?amount:null,
+  p_note:readString(payload.note,500),p_actor_email:admin.email,p_actor_source:"panel",
+  p_actor_id:admin.id,p_identity_verified:true
+ });
+ if(error){
+  if(/order_not_found/.test(error.message))return fail("not_found",404,origin);
+  if(/proof_required/.test(error.message))return fail("proof_required",409,origin);
+  if(/already_reviewed/.test(error.message))return fail("already_reviewed",409,origin);
+  return fail("unable_to_review",500,origin);
+ }
+ return respond({ok:true,status:data.status,unchanged:data.unchanged,email_dispatched:false},200,origin);
 }
 async function proofLink(req:Request,origin:string|null){
   const admin=await adminFromRequest(req);
@@ -247,36 +242,26 @@ async function sheetAcknowledge(req:Request,payload:JsonValue,origin:string|null
 async function sheetReview(req:Request,payload:JsonValue,origin:string|null){
  const access=await sheetAccess(req);
  if(!access)return fail("sync_not_authorized",401,origin);
- if(!validUuid(payload.order_id)|| !["verified","rejected","courtesy","cancelled"].includes(String(payload.status)))
+ if(!validUuid(payload.order_id)||!["verified","rejected","courtesy","cancelled"].includes(String(payload.status)))
   return fail("invalid_input",400,origin);
  const status=String(payload.status);
  const amount=payload.amount_received_ars;
- if(status==="verified" && (!Number.isInteger(amount)||Number(amount)<0||Number(amount)>2000000||
-     payload.bank_checked!==true))
+ if(status==="verified"&&(!Number.isInteger(amount)||Number(amount)<1||Number(amount)>2000000||payload.bank_checked!==true))
   return fail("bank_confirmation_required",400,origin);
- const {data:order,error:findError}=await db.from("kon_orders")
-  .select("id,status,proof_received_at,source").eq("id",payload.order_id).maybeSingle();
- if(findError||!order)return fail("not_found",404,origin);
- if(order.status===status)return respond({ok:true,unchanged:true},200,origin);
- if(order.status!=="pending")return fail("conflicting_status",409,origin);
- if(status==="verified"&&order.source==="web"&&!order.proof_received_at)return fail("proof_required",409,origin);
  const actorEmail=readString(payload.actor_email,180);
- // Apps Script onEdit cannot always identify the editor: audit as unverified when missing.
- const actorId=null; // The trigger email cannot be treated as verified identity.
- const {data:changed,error}=await db.from("kon_orders").update({
-  status,amount_received_ars:status==="verified"?amount:status==="courtesy"?0:null,
-  verified_by:actorEmail||"Editor de Sheets (identidad no disponible)",
-  verified_at:new Date().toISOString(),updated_at:new Date().toISOString(),
-  admin_note:readString(payload.note,500)
- }).eq("id",order.id).eq("status","pending").select("id").maybeSingle();
- if(error||!changed)return fail("conflicting_status",409,origin);
- await db.from("kon_order_audit").insert({order_id:order.id,action:"reviewed",old_status:"pending",
-  new_status:status,actor_source:"sheets",actor_id:actorId,
-  metadata:{reported_editor_email:actorEmail||null,identity_verified:false}});
- return respond({ok:true,email_dispatched:false},200,origin);
+ const {data,error}=await db.rpc("kon_review_order",{
+  p_order_id:payload.order_id,p_status:status,p_amount:status==="verified"?amount:null,
+  p_note:readString(payload.note,500),p_actor_email:actorEmail,p_actor_source:"sheets",
+  p_actor_id:null,p_identity_verified:false
+ });
+ if(error){
+  if(/order_not_found/.test(error.message))return fail("not_found",404,origin);
+  if(/proof_required/.test(error.message))return fail("proof_required",409,origin);
+  if(/already_reviewed/.test(error.message))return fail("conflicting_status",409,origin);
+  return fail("unable_to_review",500,origin);
+ }
+ return respond({ok:true,unchanged:data.unchanged,email_dispatched:false},200,origin);
 }
-
-
 async function pairSheets(req:Request,origin:string|null){
  const admin=await adminFromRequest(req);
  if(!admin)return fail("unauthorized",401,origin);
