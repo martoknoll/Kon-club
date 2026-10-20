@@ -213,21 +213,38 @@ $("reviewForm").addEventListener("submit",async(event)=>{
  finally{busy=false;$("saveReview").disabled=false;}
 });
 
-$("pairSheets").addEventListener("click",()=>{
+let pairingMode="real";
+function openPairDialog(mode){
+ pairingMode=mode;
+ const test=mode==="test";
+ $("pairTitle").textContent=test?"PRUEBA DE GOOGLE SHEETS":"CONECTAR GOOGLE SHEETS";
+ $("pairDescription").textContent=test
+  ?"Este token SOLO conecta la copia de prueba: nunca modifica Kon Club: FECHAS. Guardalo como KON_TEST_SYNC_TOKEN en las Propiedades de secuencia de comandos del Apps Script de la COPIA."
+  :"Este token conecta la planilla real Kon Club: FECHAS. Guardalo como KON_SYNC_TOKEN en el Apps Script de la planilla original.";
+ $("pairScriptLink").href=test
+  ?"https://github.com/martoknoll/Kon-club/blob/feature/checkout-transferencias/scripts/kon-sheets-test.gs"
+  :"https://github.com/martoknoll/Kon-club/blob/feature/checkout-transferencias/scripts/kon-sheets-sync.gs";
+ $("pairScriptLink").textContent=test?"script AISLADO de prueba":"script de Google Sheets";
  $("pairToken").value="";
  $("copyPair").disabled=true;
  $("pairDialog").showModal();
-});
+}
+$("pairSheets").addEventListener("click",()=>openPairDialog("real"));
+$("pairTestSheets").addEventListener("click",()=>openPairDialog("test"));
 $("closePair").addEventListener("click",()=>$("pairDialog").close());
 $("generatePair").addEventListener("click",async()=>{
  const b=$("generatePair");
- if(!window.confirm("¿Generar una nueva clave de sincronización? Si existía otra, dejará de funcionar."))return;
+ const target=pairingMode==="test"?"la copia de prueba":"la planilla REAL";
+ if(!window.confirm("¿Generar una nueva clave para "+target+"? Si había una clave anterior para este entorno, dejará de funcionar. La otra planilla no se afecta."))return;
  b.disabled=true;
  try{
-  const r=await call("sync-pair",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+  const r=await call("sync-pair",{
+   method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({environment:pairingMode})
+  });
   $("pairToken").value=r.sync_token;
   $("copyPair").disabled=false;
-  notice("Nueva clave generada. Guardala en las propiedades del script de Sheets.");
+  notice("Nueva clave de "+(pairingMode==="test"?"prueba":"producción")+" generada. Guardala solo en el Apps Script correspondiente.");
  }catch(error){
   notice(error instanceof Error?error.message:"No se pudo generar el token.");
  }finally{b.disabled=false;}
