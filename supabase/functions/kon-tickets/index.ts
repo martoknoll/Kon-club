@@ -49,6 +49,79 @@ function validUuid(input: unknown): input is string {
 function readString(value: unknown, max: number) {
   return typeof value === "string" ? value.trim().slice(0, max + 1) : "";
 }
+const LIVE_SHEET_ID="1DZ_yhLnzOVMHhBhsI_3x2QlLzcKcceDddyCjDDbGC7o";
+const INVENTORY_MAX_AGE_MS=12*60*1000;
+function liveInventoryFresh(snapshot:JsonValue|null){
+ return Boolean(snapshot?.last_synced_at&&
+   Number.isFinite(new Date(String(snapshot.last_synced_at)).getTime())&&
+   Date.now()-new Date(String(snapshot.last_synced_at)).getTime()>=0&&
+   Date.now()-new Date(String(snapshot.last_synced_at)).getTime()<INVENTORY_MAX_AGE_MS);
+}
+async function getInventory(eventId:string){
+ const {data,error}=await db.from("kon_legacy_inventory")
+  .select("event_id,general_qty,post_qty,fanzine_qty,legacy_rows,last_synced_at,sync_source")
+  .eq("event_id",eventId).maybeSingle();
+ if(error)throw new Error("inventory_unavailable");
+ return data;
+}
+async function updateLegacyInventory(req:Request,payload:JsonValue,origin:string|null){
+ const access=await sheetAccess(req);
+ if(!access||access.event_slug!=="halloween"||
+    access.spreadsheet_id!==LIVE_SHEET_ID)
+   return fail("sync_not_authorized",401,origin);
+ const fields=["general","post","fanzine","legacy_rows"];
+ if(fields.some(k=>!Number.isInteger(payload[k])||Number(payload[k])<0||Number(payload[k])>10000))
+   return fail("invalid_legacy_counts",400,origin);
+ const {data:event,error:lookupError}=await db.from("kon_events")
+   .select("id").eq("slug","halloween").maybeSingle();
+ if(lookupError||!event)return fail("event_unavailable",500,origin);
+ const {error}=await db.from("kon_legacy_inventory").upsert({
+  event_id:event.id,general_qty:payload.general,post_qty:payload.post,
+  fanzine_qty:payload.fanzine,legacy_rows:payload.legacy_rows,
+  last_synced_at:new Date().toISOString(),updated_at:new Date().toISOString(),
+  sync_source:"kon_club_fechas_apps_script"
+ },{onConflict:"event_id"});
+ if(error){console.error("legacy_inventory_sync",error.code);return fail("inventory_sync_failed",500,origin)}
+ return respond({ok:true,inventory_synced:true},200,origin);
+}
+async function inventorySummary(req:Request,origin:string|null){
+ if(!(await adminFromRequest(req)))return fail("unauthorized",401,origin);
+ const {data:event,error:eventError}=await db.from("kon_events")
+  .select("id,title,starts_at,sales_open").eq("slug","halloween").maybeSingle();
+ if(eventError||!event)return fail("event_unavailable",500,origin);
+ const [snap,prods,orders]=await Promise.all([
+  getInventory(event.id),
+  db.from("kon_products").select("id,slug,label,capacity,price_ars,enabled")
+   .eq("event_id",event.id).order("sort_order"),
+  db.from("kon_order_lines")
+   .select("quantity,product_id,kon_orders!inner(status,expires_at,proof_received_at,event_id)")
+   .eq("kon_orders.event_id",event.id)
+ ]);
+ if(prods.error||orders.error)return fail("inventory_unavailable",500,origin);
+ const current=new Date();
+ const reserved:Record<string,number>={};
+ (orders.data||[]).forEach((line:JsonValue)=>{
+  const o=line.kon_orders as JsonValue|null;
+  if(!o||!["pending","verified","courtesy"].includes(String(o.status)))return;
+  if(o.status==="pending"&&!o.proof_received_at&&new Date(String(o.expires_at))<current)return;
+  reserved[String(line.product_id)]=(reserved[String(line.product_id)]||0)+Number(line.quantity||0);
+ });
+ const legacy:Record<string,number>={
+  general:Number(snap?.general_qty||0),post:Number(snap?.post_qty||0),
+  fanzine:Number(snap?.fanzine_qty||0)
+ };
+ const products=(prods.data||[]).map(p=>{
+  const quantity=Number(reserved[p.id]||0);
+  const old=Number(legacy[p.slug]||0);
+  const cap=p.capacity===null?null:Number(p.capacity);
+  return {slug:p.slug,label:p.label,price_ars:p.price_ars,capacity:cap,
+   legacy:old,web:quantity,remaining:cap===null?null:Math.max(0,cap-old-quantity)};
+ });
+ return respond({ok:true,legacy_rows:Number(snap?.legacy_rows||0),
+  legacy_last_synced_at:snap?.last_synced_at||null,legacy_fresh:liveInventoryFresh(snap),
+  inventory_configured:products.every(p=>p.capacity!==null&&p.capacity>0),
+  current_sales_open:Boolean(event.sales_open),products},200,origin);
+}
 async function getCatalog(req:Request, origin:string|null) {
   const isTest=new URL(req.url).searchParams.get("environment")==="test";
   if(isTest && !(await adminFromRequest(req)))return fail("unauthorized",401,origin);
@@ -61,10 +134,15 @@ async function getCatalog(req:Request, origin:string|null) {
     .select("id,slug,label,subtitle,price_ars,per_order_max,capacity,sort_order")
     .eq("event_id",event.id).eq("enabled",true).order("sort_order");
   if (productError) throw new Error("Products unavailable");
+  const snapshot=isTest?null:await getInventory(event.id);
+  const inventoryReady=isTest||(liveInventoryFresh(snapshot)&&
+    (products||[]).length>0&&products.every(p=>p.capacity!==null&&Number(p.capacity)>0));
+  const open=Boolean(event.sales_open&&inventoryReady);
   return respond({ok:true,
     event: { slug:event.slug,title:event.title,starts_at:event.starts_at,address:event.address,
-      sales_open:event.sales_open,bank_alias:event.bank_alias,
-      test_mode:isTest,checkout_enabled:isTest?true:Boolean(event.sales_open) },
+      sales_open:open,bank_alias:event.bank_alias,
+      test_mode:isTest,checkout_enabled:isTest?true:open,
+      inventory_ready:inventoryReady },
     products: products || []
   },200,origin);
 }
@@ -474,11 +552,18 @@ Deno.serve(async(req:Request)=>{
   const path=new URL(req.url).pathname.split("/").pop();
   try{
     if(req.method==="GET"&&path==="catalog")return await getCatalog(req,origin);
+    if(req.method==="GET"&&path==="inventory-summary")return await inventorySummary(req,origin);
     if(req.method==="GET"&&path==="planned-dates")return await listPlannedDates(req,origin);
     if(req.method==="GET"&&path==="mail-ping")return await mailPing(req,origin);
     if(req.method==="GET"&&path==="mail-preview")return await mailPreview(req,origin);
     if(req.method==="GET"&&path==="mail-next")return await mailNext(req,origin);
     if(req.method==="POST"&&path==="mail-pair")return await pairMail(req,origin);
+    if(req.method==="POST"&&path==="sync-inventory"){
+      const len=Number(req.headers.get("content-length")||"0");
+      if(len>1500)return fail("payload_too_large",413,origin);
+      const body=await req.json() as JsonValue;
+      return await updateLegacyInventory(req,body,origin);
+    }
     if(req.method==="GET"&&path==="sync-export")return await sheetExport(req,origin);
     if(req.method==="GET"&&path==="orders")return await listOrders(req,origin);
     if(req.method==="GET"&&path==="proof-link")return await proofLink(req,origin);
