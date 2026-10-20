@@ -41,6 +41,63 @@ async function call(path,options={}){
  }
  return data;
 }
+function konLocalDate(iso){
+ if(!iso)return null;
+ const date=new Date(iso);
+ if(!Number.isFinite(date.getTime()))return null;
+ const parts=new Intl.DateTimeFormat("en-GB",{
+  timeZone:"America/Argentina/Buenos_Aires",year:"numeric",month:"2-digit",day:"2-digit"
+ }).formatToParts(date);
+ const get=t=>parts.find(p=>p.type===t)?.value||"";
+ return get("year")+"-"+get("month")+"-"+get("day");
+}
+function plannedDateText(value){
+ if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(value))return value;
+ const d=new Date(value+"T12:00:00Z");
+ return new Intl.DateTimeFormat("es-AR",{
+  timeZone:"UTC",weekday:"long",day:"numeric",month:"long",year:"numeric"
+ }).format(d);
+}
+async function loadPlannedDates(){
+ const list=$("plannedDates");
+ if(!list)return;
+ try{
+  const response=await call("planned-dates");
+  list.replaceChildren();
+  const dates=Array.isArray(response.planned_dates)?response.planned_dates:[];
+  if(!dates.length){
+   list.appendChild(el("p","Todavía no hay fechas registradas.","empty"));
+  }
+  dates.forEach(item=>{
+   const card=el("article",null,"planned-card");
+   block(card,"small","FECHA RESERVADA · SIN PUBLICAR");
+   block(card,"h3",plannedDateText(item.event_date));
+   block(card,"p",item.film_title||"PELÍCULA POR DEFINIR");
+   block(card,"p",item.starts_at?
+     "Horario: "+new Intl.DateTimeFormat("es-AR",{timeZone:"America/Argentina/Buenos_Aires",hour:"2-digit",minute:"2-digit"}).format(new Date(item.starts_at)):
+     "HORARIO PENDIENTE");
+   block(card,"p",item.flyer_url?"FLYER ASIGNADO":"FLYER PENDIENTE");
+   list.appendChild(card);
+  });
+  const active=response.current_event;
+  const realDate=konLocalDate(active?.starts_at);
+  const mismatch=realDate&&!dates.some(x=>x.event_date===realDate);
+  const note=$("plannedConflict");
+  if(note){
+   note.hidden=!mismatch;
+   if(mismatch){
+    note.textContent="REVISAR FECHA: la edición activa del checkout está configurada para el "+
+       plannedDateText(realDate)+
+       ", pero esa fecha no aparece marcada como Kon Club en las capturas del calendario. "+
+       "No se activan ventas ni recordatorios hasta reconciliar ambas.";
+   }
+  }
+ }catch(err){
+  list.replaceChildren(el("p",
+   "No se pudieron consultar las próximas fechas. "+
+   (err instanceof Error?err.message:"Reintentá más tarde."),"empty"));
+ }
+}
 async function loadOrders(){
  $("orders").replaceChildren(el("p","Cargando pedidos...","empty"));
  try{
@@ -49,6 +106,7 @@ async function loadOrders(){
   $("signin").hidden=true;
   $("dashboard").hidden=false;
   draw();
+  void loadPlannedDates();
  }catch(err){
   $("dashboard").hidden=true;
   $("signin").hidden=false;
