@@ -98,6 +98,41 @@ async function loadPlannedDates(){
    (err instanceof Error?err.message:"Reintentá más tarde."),"empty"));
  }
 }
+async function loadInventorySummary(){
+ const target=$("inventoryCards");
+ if(!target)return;
+ try{
+  const response=await call("inventory-summary");
+  target.replaceChildren();
+  const clock=response.legacy_last_synced_at?
+   date(response.legacy_last_synced_at):"AÚN NO RECIBIDA";
+  const state=$("inventorySyncState");
+  state.textContent=response.legacy_fresh
+    ?"SINCRONIZACIÓN ACTIVA · "+clock
+    :"SINCRONIZACIÓN PENDIENTE / ANTIGUA · "+clock;
+  (response.products||[]).forEach(p=>{
+   const card=el("article",null,"inventory-card");
+   block(card,"small",p.label);
+   block(card,"strong",p.remaining===null?"CAPACIDAD PENDIENTE":String(p.remaining)+" DISPONIBLES");
+   block(card,"p","Formulario anterior: "+p.legacy);
+   block(card,"p","Checkout nuevo: "+p.web);
+   block(card,"p","Capacidad total: "+(p.capacity===null?"SIN CONFIGURAR":p.capacity));
+   target.appendChild(card);
+  });
+  if(!response.legacy_fresh||!response.inventory_configured){
+   const warning=el("p","CHECKOUT NUEVO BLOQUEADO · "+
+     (!response.legacy_fresh?"Actualizá la sincronización real de Sheets. ":"")+
+     (!response.inventory_configured?"Falta establecer los cupos totales.":""),
+    "inventory-warning");
+   target.appendChild(warning);
+  }
+ }catch(err){
+  target.replaceChildren(el("p",
+   "No se pudo consultar el inventario. "+
+   (err instanceof Error?err.message:"Reintentá más tarde."),"inventory-warning"));
+  $("inventorySyncState").textContent="NO DISPONIBLE";
+ }
+}
 async function loadOrders(){
  $("orders").replaceChildren(el("p","Cargando pedidos...","empty"));
  try{
@@ -107,6 +142,7 @@ async function loadOrders(){
   $("dashboard").hidden=false;
   draw();
   void loadPlannedDates();
+  void loadInventorySummary();
  }catch(err){
   $("dashboard").hidden=true;
   $("signin").hidden=false;
