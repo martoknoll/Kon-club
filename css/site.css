@@ -293,3 +293,34 @@ html.kon-editor-preview #openAdmin {display:inline-flex!important}
   .hero h1 {font-size:clamp(70px,min(6.4vw,12vh),91px)}
   .poster-stage {width:min(27vw,46vh,365px);max-width:none}
 }
+
+
+/* KON CLUB / V06 — tipografía real más liviana, sin Impact ni Arial Black. */
+body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;font-weight:400}
+.hero h1,.manifesto h2,.section-h2,.fanzines h2,
+.footer-title,.archive-full-hero h2,.archive-detail h3,
+.archive-index-meta strong,.archive-index-cover.placeholder strong,
+.archive-type-heading h3,.zr-brand,.zr-sidebar h2,.zr-stagehead h3,
+.fanzine-full-intro h2,.zine-card h3,.fanzine-full .zine-card h3,
+.dialog h3,.marquee-band .strip,.archive-full-brand,.fanzine-full-brand {
+ font-family:'Barlow Condensed','Roboto Condensed','Arial Narrow',Arial,sans-serif;
+ font-weight:600;letter-spacing:-.02em;
+}
+.hero h1 {font-weight:500;letter-spacing:-.028em;line-height:.89}
+.brand-name {font-family:'Barlow Condensed','Roboto Condensed',Arial,sans-serif;font-weight:700;letter-spacing:-.02em;line-height:.9}
+.archive-full-brand,.fanzine-full-brand {font-weight:650}
+.marquee-band .strip {font-weight:600;letter-spacing:.055em}
+.hero-lead {font-family:'Barlow',Arial,sans-serif;font-weight:600;letter-spacing:-.016em;line-height:1.12}
+.nav,.btn,.setting-link,.hero .tiny-row,.introbar .ticker,.detail-val,
+.detail-label,.brand-caption,.eyebrow,.section-sub,.link-underline,
+.archive-card h3,.archive-card .caps,.archive-index-meta small,
+.archive-full-kicker,.archive-full-toolbar,.archive-main-heading,
+.zine-print-link,.zine-library-cta,.fanzine-full-back,.footer-links,
+.fanzine-full-tools strong,.zr-pagebtn,.zr-pick small,
+.fanzine-full-footer,.zine-card .tagline {
+ font-family:'Barlow',Arial,sans-serif;font-weight:600;
+}
+.manifesto p,.fanzines p,.fanzine-full-intro p,.zr-sidebar p,
+.archive-detail p,.fanzine-full-hint {font-family:'Barlow',Arial,sans-serif;font-weight:400}
+@media(max-width:760px) {.hero h1 {letter-spacing:-.025em;line-height:.93}.hero-lead {line-height:1.18}}
+@media(max-width:460px) {.hero h1 {font-size:clamp(48px,14.6vw,64px);line-height:.94}}
