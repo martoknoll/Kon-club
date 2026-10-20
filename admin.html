@@ -14,7 +14,7 @@
 <body>
 <header class="topbar"><a class="wordmark" href="index.html">KON CLUB <span>● PANEL</span></a><a class="back" href="index.html">← VOLVER A LA WEB</a></header>
 <main class="wrap">
-<div class="notice"><strong>PANEL EN DESARROLLO</strong> · El equipo todavía no está sincronizado con Google Sheets. Los pagos deben verificarse contra la cuenta bancaria.</div>
+<div class="notice"><strong>PRUEBAS CONTROLADAS</strong> · Google Sheets está conectado. Los correos automáticos para asistentes siguen desactivados. Todo pago debe verificarse contra la cuenta bancaria.</div>
 <div class="topcopy"><p class="kicker">ACCESO RESTRINGIDO / KON CLUB</p><h1>LA LISTA<br><em>DEL KON.</em></h1><p>Pedidos, comprobantes y verificaciones en un solo lugar.</p></div>
 <section id="signin" class="panel" aria-labelledby="signinTitle">
  <h2 id="signinTitle">ENTRAR AL PANEL.</h2>
@@ -29,7 +29,7 @@
  <div class="stats"><div><small>TOTAL PEDIDOS</small><strong id="statTotal">0</strong></div><div><small>PENDIENTES</small><strong id="statPending">0</strong></div><div><small>APROBADOS</small><strong id="statVerified">0</strong></div><div><small>RECAUDACIÓN VERIFICADA</small><strong id="statRevenue">$0</strong></div></div>
  <div class="filters"><label for="environmentFilter">AMBIENTE</label><select id="environmentFilter" aria-label="Ambiente"><option value="real">REAL · HALLOWEEN</option><option value="test">PRUEBA · NO REAL</option></select><label for="statusFilter">MOSTRAR</label><select id="statusFilter"><option value="all">TODOS</option><option value="pending">PENDIENTES</option><option value="verified">VERIFICADOS</option><option value="rejected">RECHAZADOS</option><option value="courtesy">CORTESÍAS</option><option value="cancelled">CANCELADOS</option></select><span id="syncHint">Sincronización Sheets: pendiente de configurar</span></div>
  <div id="orders" class="order-list" aria-live="polite"></div>
- <p class="explain">Los pedidos nuevos aparecen aquí cuando se habilite la venta. Las confirmaciones por email y la sincronización con Sheets se activarán después de completar las pruebas.</p>
+ <p class="explain">Los pedidos web se sincronizan con Google Sheets. Los correos automáticos todavía requieren autorizar la cuenta de Gmail y completar una prueba antes de habilitar el envío a compradores.</p>
 </section>
 <dialog id="pairDialog" aria-labelledby="pairTitle">
   <div class="dialog-head"><div><small>KON CLUB / INTEGRACIÓN</small><h2 id="pairTitle">CONECTAR GOOGLE SHEETS</h2></div><button type="button" id="closePair" aria-label="Cerrar">×</button></div>
