@@ -1,0 +1,22 @@
+name: Revisar Kon Club
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+      - name: Instalar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar sintaxis
+        run: |
+          node --check data/site-config.js
+          node --check js/site.js
+      - name: Verificar imágenes y catálogo
+        run: node scripts/check-site.mjs

@@ -1,0 +1,92 @@
+{
+  "description": "Referencia del catálogo público; la versión web actual usa también su configuración en js/site.js.",
+  "regular": [
+    {
+      "folder": 36,
+      "name": "Rocky Horror + La Casa Lobo",
+      "assetKey": "halloween"
+    },
+    {
+      "folder": 35,
+      "name": "Wag the Dog",
+      "assetKey": "wag"
+    },
+    {
+      "folder": 34,
+      "name": "Nirvanna the Band",
+      "assetKey": "nirvanna"
+    },
+    {
+      "folder": 33,
+      "name": "FLCL",
+      "assetKey": "flcl"
+    },
+    {
+      "folder": 32,
+      "name": "Chungking Express",
+      "assetKey": "chungking"
+    },
+    {
+      "folder": 31,
+      "name": "Mind Game",
+      "assetKey": "mindgame"
+    },
+    {
+      "folder": 30,
+      "name": "The Secret Life of Walter Mitty",
+      "assetKey": "walter30"
+    },
+    {
+      "folder": 29,
+      "name": "Fear and Loathing",
+      "assetKey": "fear"
+    },
+    {
+      "folder": 28,
+      "name": "Whiplash",
+      "assetKey": "whiplash"
+    },
+    {
+      "folder": 26,
+      "name": "After Hours",
+      "assetKey": "afterhours"
+    },
+    {
+      "folder": 24,
+      "name": "Scott Pilgrim vs. The World",
+      "assetKey": "scott"
+    },
+    {
+      "folder": 22,
+      "name": "Fantastic Mr. Fox",
+      "assetKey": "fox"
+    },
+    {
+      "folder": 21,
+      "name": "Black Dynamite",
+      "assetKey": "dynamite"
+    },
+    {
+      "folder": 19,
+      "name": "Humanist Vampire",
+      "assetKey": "humanist"
+    },
+    {
+      "folder": 17,
+      "name": "Paprika",
+      "assetKey": "paprika"
+    }
+  ],
+  "excluded": {
+    "puertas_cerradas": [
+      "18",
+      "20",
+      "32B",
+      "35.B"
+    ],
+    "fuera_ciclo": [
+      "23",
+      "27"
+    ]
+  }
+}
