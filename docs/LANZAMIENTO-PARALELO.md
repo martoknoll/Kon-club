@@ -10,10 +10,8 @@ Actualización: 20/10/2026
   interruptor frontend `data/checkout-config.js → allowLive` y
   `public.kon_events.sales_open`.
 - **Edición:** `halloween`, La Casa Lobo × The Rocky Horror Picture Show,
-  miércoles 25/11/2026. El **horario definitivo y flyer actualizado deben
-  confirmarse**: el registro de Supabase todavía tiene 17:00 como horario
-  heredado; el afiche anterior decía 25/10 y está oculto en la portada
-  de pruebas.
+  domingo 25/10/2026, de 17:00 a 23:00 según el flyer original confirmado por el equipo.
+  El flyer del 25/10 es el correcto, se muestra en la home y no debe corregirse a noviembre.
 - La cuenta de Gmail `konclub.entradas@gmail.com` está conectada para
   pruebas. Los mensajes reales siguen desactivados.
 
@@ -73,7 +71,7 @@ solo cantidades agregadas de GENERAL, POST y FANZINE.
    `SINCRONIZACIÓN ACTIVA`.
 5. Completar revisión del horario, capacidad, alias real
    `KON.CLUB.GL`, precios actuales ($9.000, $7.000, $4.000),
-   flyer del 25/11 y prueba con el checkout.
+   flyer del 25/10 y prueba con el checkout.
 6. Verificar que la cuenta/proyecto Vercel permita uso comercial.
    La conexión de Vercel no otorgó permisos suficientes para consultar
    el plan del equipo, por lo que **no está confirmado**.
