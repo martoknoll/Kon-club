@@ -192,6 +192,33 @@ $("reviewForm").addEventListener("submit",async(event)=>{
  }catch(err){notice(err instanceof Error?err.message:"No se pudo actualizar el pedido.");}
  finally{busy=false;$("saveReview").disabled=false;}
 });
+
+$("pairSheets").addEventListener("click",()=>{
+ $("pairToken").value="";
+ $("copyPair").disabled=true;
+ $("pairDialog").showModal();
+});
+$("closePair").addEventListener("click",()=>$("pairDialog").close());
+$("generatePair").addEventListener("click",async()=>{
+ const b=$("generatePair");
+ if(!window.confirm("¿Generar una nueva clave de sincronización? Si existía otra, dejará de funcionar."))return;
+ b.disabled=true;
+ try{
+  const r=await call("sync-pair",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+  $("pairToken").value=r.sync_token;
+  $("copyPair").disabled=false;
+  notice("Nueva clave generada. Guardala en las propiedades del script de Sheets.");
+ }catch(error){
+  notice(error instanceof Error?error.message:"No se pudo generar el token.");
+ }finally{b.disabled=false;}
+});
+$("copyPair").addEventListener("click",async()=>{
+ const token=$("pairToken").value;
+ if(!token)return;
+ try{await navigator.clipboard.writeText(token);notice("Clave copiada.");}
+ catch(_err){$("pairToken").focus();$("pairToken").select();notice("Copiá el texto seleccionado.");}
+});
+
 client.auth.onAuthStateChange((_event,newSession)=>{
  if(newSession?.access_token!==session?.access_token){
   session=newSession;
