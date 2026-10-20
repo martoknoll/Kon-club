@@ -35,10 +35,11 @@ async function adminFromRequest(req: Request) {
   if (!match) return null;
   const { data: { user }, error } = await db.auth.getUser(match[1]);
   if (error || !user || !user.email) return null;
-  const { data: member, error: dbError } = await db.from("kon_admins")
-    .select("user_id,google_email,enabled")
-    .eq("user_id", user.id).eq("enabled", true).maybeSingle();
-  if (dbError || !member || member.google_email.toLowerCase() !== user.email.toLowerCase()) return null;
+  // Email must have been verified by Supabase Auth; a typed email alone never grants access.
+  if (!user.email_confirmed_at) return null;
+  const { data: member, error: dbError } = await db.from("kon_allowed_editors")
+    .select("email,google_role").eq("email", user.email.toLowerCase()).maybeSingle();
+  if (dbError || !member) return null;
   return { id: user.id, email: user.email.toLowerCase() };
 }
 function validUuid(input: unknown): input is string {
