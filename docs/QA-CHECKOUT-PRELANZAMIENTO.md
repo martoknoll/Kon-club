@@ -16,13 +16,20 @@
 - Email transaccional: `kon_mail_settings.enabled: false`.
 - Recordatorios: `kon_mail_settings.reminders_enabled: false`.
 
+## Tarifas y alias confirmados
+- **Entrada general:** ARS $9.000.
+- **Post-película:** ARS $7.000.
+- **Fanzine:** ARS $4.000.
+- **Alias:** `KON.CLUB.GL`.
+- Confirmación de la organización: 20/10/2026. No se requieren nuevas confirmaciones de esos importes.
+
 ## Capacidades y sincronización
 - GENERAL: 100 unidades globales.
 - POST: 50 unidades globales.
 - FANZINE: 10 unidades globales.
 - Los 12 registros históricos sumaban inicialmente 22/2/3, pero no son ventas bancarias necesariamente verificadas.
 - Si el campo `kon_legacy_inventory.last_synced_at` está vacío o tiene más de 12 minutos, el backend **rechaza pedidos reales**.
-- El script `scripts/kon-sheets-sync.gs` debe instalarse y autorizarse en Apps Script *de la planilla real* para actualizar agregados cada cinco minutos. Conservar el token en Script Properties; nunca pegarlo en GitHub o el chat.
+- El script `scripts/kon-sheets-sync.gs` quedó instalado y autorizado en Apps Script *de la planilla real*, con los cuatro activadores; reportó exitosamente a Supabase. Continuar verificando ejecuciones automáticas y reportes recientes (no asumir que no puedan fallar). Conservar el token en Script Properties; nunca pegarlo en GitHub o el chat.
 - El Form antiguo NO descuenta unidades de manera atómica al mismo tiempo que los pedidos web. La sincronización periódica y el margen 2/2/1 reducen riesgos, pero **no garantizan stock exclusivo**. Antes de abrir ambos canales definir una reserva de stock para Forms o revisión previa con tope de aceptación; de otro modo hay riesgo de sobreventa.
 
 ## Prueba segura desde navegador
@@ -38,10 +45,10 @@
 10. Revisar en desktop y celular el checkout, los botones de regreso, los estados deshabilitados y que **FORMULARIO ANTERIOR** no sea visible en la home.
 
 ## Pendientes antes de publicar
-- Confirmar horario definitivo del miércoles 25/11 y un flyer con la fecha correcta.
+- **Confirmados:** domingo 25/10/2026, 17:00–23:00 y flyer original con 25/10. La versión nueva del checkout y la fecha del evento en Supabase ya fueron corregidas; queda pendiente desplegar el frontend actualizado.
 - Verificar que la sincronización de `Kon Club: FECHAS` funciona de forma sostenida sin duplicados.
 - Definir límites compartidos de ambos canales con una política segura de reservas del Form.
-- Probar checkout/test end-to-end desde navegador autenticado (no se puede sustituir por verificar únicamente código/SQL).
+- El organizador completó una prueba end-to-end del checkout ficticio autenticado; se verificaron cuatro pedidos en Supabase y cuatro en Sheets de prueba (dos tenían comprobantes adjuntos). Pendiente la revisión de aceptación con la versión final publicada, incluida concurrencia.
 - Validar permisos de panel, tratamiento y retención de comprobantes, errores, antiabuso y política de reembolsos.
 - Confirmar hosting apto para operaciones comerciales. **Vercel Hobby** no está previsto para sitios comerciales.
 - Aprobar explícitamente lanzamiento, fusionar los cambios y recién entonces abrir los interruptores de venta. El lanzamiento no forma parte de esta rama.
