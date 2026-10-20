@@ -42,8 +42,8 @@ La edición activa tiene una configuración **de preparación** en `data/site-co
 - `salesEnabled: false` y `centralReservationBackendReady: false`. El modal de entradas es informativo, sin cobros ni reservas.
 
 **No confundir cupos con stock disponible.** Antes de activar cualquier canal hay que:
-1. Conciliar pedidos vigentes en Google Forms y los de la web; descartar los registros ficticios de prueba.
-2. Implementar un único backend de inventario con operación atómica para reservar/descontar unidades y evitar sobreventa concurrente. Google Forms por sí solo no aplica un tope compartido fiable con la web.
-3. Definir estado de pedido y políticas de aprobación, caducidad/reembolso, idempotencia y conciliación manual.
-4. Probar simultaneidad y confirmar cupos restantes reales, horarios, precios y fecha. No extrapolar desde el demo.
+1. Conciliar pedidos vigentes en Google Forms y los de la web; descartar los registros ficticios de prueba. La planilla real tiene 12 filas con una línea base de 22 generales, 2 post y 3 fanzines al 20/10/2026, pero `kon_legacy_inventory.last_synced_at` es **null**, por lo que el backend debe seguir bloqueando las ventas.
+2. **Conectar la web al backend Supabase existente** (`Kon Club`, función `kon-tickets` y RPC `kon_submit_order`, que ya bloquea filas de productos durante la reserva). Validar la seguridad y pruebas de concurrencia antes de usarlo con compradores reales. Google Forms por sí solo no aplica un tope compartido fiable.
+3. Habilitar y verificar el Apps Script de la planilla real para sincronizar el inventario con Supabase de forma periódica. La función exige un dato fresco (menos de 12 minutos) para permitir ventas. Validar caducidad, reembolso, idempotencia y conciliación manual.
+4. Probar simultaneidad y confirmar cupos restantes reales, horarios, precios y fecha. **Discrepancia pendiente:** la home está en DOM. 25 OCTUBRE y Supabase está en 25 NOVIEMBRE; no publicar hasta resolverla.
 5. Habilitar ambos canales únicamente con aprobación explícita, una vez hecha la verificación. Jamás activar pagos solo cambiando `salesEnabled` en el navegador.
