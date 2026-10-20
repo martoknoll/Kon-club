@@ -239,3 +239,15 @@ html{overflow-x:clip}
   .hero h1 {font-size:clamp(52px,min(7.3vw,11vh),75px);margin:19px 0 16px}
   .poster-stage {width:min(100%,clamp(250px,33vw,322px));max-width:none}
 }
+
+
+/* KON v04 — desktop editorial compacto, editor de pruebas fuera de la web pública. */
+#openAdmin {display:none!important}
+html.kon-editor-preview #openAdmin {display:inline-flex!important}
+@media (min-width:1261px) {
+  .hero.shell {max-width:1560px;margin-inline:auto;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);column-gap:clamp(32px,3vw,58px);padding-top:clamp(18px,2.8vh,36px);padding-bottom:clamp(24px,3.2vh,42px)}
+  .hero h1 {font-size:clamp(58px,min(5vw,10vh),92px);line-height:.9;margin:clamp(12px,2vh,20px) 0 16px}
+  .hero-lead {margin-bottom:16px}
+  .hero-detail {margin-bottom:16px}
+  .poster-stage {width:min(100%,clamp(290px,22vw,350px));margin:auto}
+}
