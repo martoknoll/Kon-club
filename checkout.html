@@ -39,8 +39,8 @@
       <section class="checkout" aria-label="Compra de entradas">
         <nav class="steps" aria-label="Pasos de inscripción">
           <span data-step-marker="1" class="is-active">01 <b>ARMÁ TU PEDIDO</b></span>
-          <span data-step-marker="2">02 <b>TRANSFERENCIA</b></span>
-          <span data-step-marker="3">03 <b>TUS DATOS</b></span>
+          <span data-step-marker="2">02 <b>TUS DATOS</b></span>
+          <span data-step-marker="3">03 <b>TRANSFERENCIA</b></span>
         </nav>
 
         <section class="step" data-step="1" aria-labelledby="chooseHeading">
@@ -50,20 +50,8 @@
           <div class="actions"><button type="button" class="primary" id="continueToPay">SEGUIR CON EL PEDIDO <span>→</span></button></div>
         </section>
 
-        <section class="step" data-step="2" aria-labelledby="payHeading" hidden>
-          <div class="heading"><span>02 / MEDIO DE PAGO</span><h2 id="payHeading">TRANSFERÍ Y LISTO.</h2><p>Usá el monto total y guardá el comprobante. Lo vamos a pedir en el paso siguiente.</p></div>
-          <div class="payment-card">
-            <span class="kicker">ALIAS PARA TRANSFERIR</span>
-            <div class="alias-line"><strong id="payAlias">KON.CLUB.GL</strong><button type="button" id="copyAlias" class="secondary">COPIAR <span aria-hidden="true">⧉</span></button></div>
-            <div class="total-line"><span>TOTAL DEL PEDIDO</span><strong id="payTotal">$0</strong></div>
-            <p>La transferencia es manual. <strong>Enviar un comprobante no significa que el pago esté confirmado.</strong></p>
-          </div>
-          <div class="demo-note" id="paymentNotice"><strong>ESTO ES UNA DEMO.</strong> Todavía no recibimos pedidos ni comprobantes. No hagas una transferencia para probarla.</div>
-          <div class="actions"><button type="button" class="secondary" data-back="1">← ANTERIOR</button><button type="button" class="primary" id="continueToDetails">YA TENGO EL COMPROBANTE <span>→</span></button></div>
-        </section>
-
-        <section class="step" data-step="3" aria-labelledby="detailsHeading" hidden>
-          <div class="heading"><span>03 / INSCRIPCIÓN</span><h2 id="detailsHeading">¿QUIÉN VIENE?</h2><p>Estos datos reemplazarán al Google Forms. El email nos permitirá enviar la confirmación.</p></div>
+        <section class="step" data-step="2" aria-labelledby="detailsHeading" hidden>
+          <div class="heading"><span>02 / DATOS DEL COMPRADOR</span><h2 id="detailsHeading">¿QUIÉN VIENE?</h2><p>Completá tus datos para registrar el pedido y verificar los cupos <strong>antes de hacer la transferencia</strong>.</p></div>
           <form id="orderForm" autocomplete="on">
             <div class="form-fields">
               <label>Nombre y apellido <abbr title="obligatorio">*</abbr><input name="fullName" required autocomplete="name" maxlength="100" placeholder="Tu nombre completo"></label>
@@ -79,11 +67,29 @@
                   <option value="Otro">Otro</option>
                 </select>
               </label>
-              <label class="file-field">Comprobante de transferencia <abbr title="obligatorio">*</abbr><input name="proof" type="file" id="proof" required accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf"><small>PNG, JPG o PDF · Máximo 10 MB · Usá un archivo de prueba, no uno real.</small></label>
-              <div class="checkboxline"><label><input type="checkbox" name="consent" required> Entiendo que la inscripción queda pendiente hasta que Kon Club verifique el pago.</label></div>
+              <div class="checkboxline"><label><input type="checkbox" name="consent" required> Entiendo que el pedido queda pendiente hasta que Kon Club compruebe la acreditación de la transferencia.</label></div>
             </div>
             <p class="hint" id="formError" role="alert" hidden></p>
-            <div class="actions"><button type="button" class="secondary" data-back="2">← ANTERIOR</button><button type="submit" class="primary">REVISAR PEDIDO <span>→</span></button></div>
+            <div class="actions"><button type="button" class="secondary" data-back="1">← ANTERIOR</button><button type="submit" class="primary">REGISTRAR PEDIDO Y SEGUIR <span>→</span></button></div>
+          </form>
+        </section>
+
+        <section class="step" data-step="3" aria-labelledby="payHeading" hidden>
+          <div class="heading"><span>03 / TRANSFERENCIA</span><h2 id="payHeading">TRANSFERÍ Y LISTO.</h2><p>Tu pedido ya fue registrado. Transferí el importe exacto y subí el comprobante para que lo revisemos.</p></div>
+          <div class="payment-card">
+            <span class="kicker">ALIAS PARA TRANSFERIR</span>
+            <div class="alias-line"><strong id="payAlias">KON.CLUB.GL</strong><button type="button" id="copyAlias" class="secondary">COPIAR <span aria-hidden="true">⧉</span></button></div>
+            <div class="total-line"><span>TOTAL DEL PEDIDO</span><strong id="payTotal">$0</strong></div>
+            <p class="hint" id="registeredCode">La inscripción definitiva se confirma después de verificar el pago.</p>
+            <p>La transferencia es manual. <strong>Un comprobante por sí solo no confirma la acreditación bancaria.</strong></p>
+          </div>
+          <div class="demo-note" id="paymentNotice"><strong>ESTO ES UNA DEMO.</strong> No transfieras dinero ni uses un comprobante real.</div>
+          <form id="proofForm">
+            <div class="form-fields" style="margin-top:20px">
+              <label class="file-field">Subí el comprobante <abbr title="obligatorio">*</abbr><input name="proof" type="file" id="proof" required accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf"><small>PNG, JPG o PDF · Máximo 10 MB · Usá un archivo de prueba, no uno real.</small></label>
+            </div>
+            <p class="hint" id="proofError" role="alert" hidden></p>
+            <div class="actions"><button type="button" class="secondary" id="returnToDetails" data-back="2">← DATOS</button><button type="submit" class="primary">ENVIAR COMPROBANTE <span>→</span></button></div>
           </form>
         </section>
 
