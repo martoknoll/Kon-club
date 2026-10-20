@@ -48,22 +48,30 @@ function validUuid(input: unknown): input is string {
 function readString(value: unknown, max: number) {
   return typeof value === "string" ? value.trim().slice(0, max + 1) : "";
 }
-async function getCatalog() {
+async function getCatalog(req:Request, origin:string|null) {
+  const isTest=new URL(req.url).searchParams.get("environment")==="test";
+  if(isTest && !(await adminFromRequest(req)))return fail("unauthorized",401,origin);
+  const slug=isTest?"halloween-staging":"halloween";
   const { data: events, error: eventError } = await db.from("kon_events")
-    .select("id,slug,title,starts_at,address,sales_open,bank_alias").eq("slug", "halloween").limit(1);
+    .select("id,slug,title,starts_at,address,sales_open,bank_alias").eq("slug",slug).limit(1);
   if (eventError || !events?.length) throw new Error("Catalog unavailable");
   const event = events[0];
   const { data: products, error: productError } = await db.from("kon_products")
     .select("id,slug,label,subtitle,price_ars,per_order_max,capacity,sort_order")
     .eq("event_id",event.id).eq("enabled",true).order("sort_order");
   if (productError) throw new Error("Products unavailable");
-  return {
-    event: { slug:event.slug,title:event.title, starts_at:event.starts_at,address:event.address,
-      sales_open:event.sales_open,bank_alias:event.bank_alias },
+  return respond({ok:true,
+    event: { slug:event.slug,title:event.title,starts_at:event.starts_at,address:event.address,
+      sales_open:event.sales_open,bank_alias:event.bank_alias,
+      test_mode:isTest,checkout_enabled:isTest?true:Boolean(event.sales_open) },
     products: products || []
-  };
+  },200,origin);
 }
-async function createOrder(payload: JsonValue, origin: string | null) {
+async function createOrder(req: Request, payload: JsonValue, origin: string | null) {
+  const isTest=payload.environment==="test";
+  if(payload.environment!==undefined && !["test","real"].includes(String(payload.environment)))
+    return fail("invalid_environment",400,origin);
+  if(isTest && !(await adminFromRequest(req)))return fail("unauthorized",401,origin);
   if (payload.website && typeof payload.website === "string" && payload.website.length > 0)
     return fail("invalid_input",400,origin); // honeypot
   const fullName = readString(payload.fullName,100);
@@ -76,6 +84,10 @@ async function createOrder(payload: JsonValue, origin: string | null) {
       !Array.isArray(payload.items) || payload.items.length > 6 || payload.items.length < 1)
     return fail("invalid_input",400,origin);
   if (payload.firstTime && discovery.length<2) return fail("missing_discovery",400,origin);
+  // Staging must not receive real buyers' personal data, even from a modified browser.
+  if(isTest && (!fullName.startsWith("PRUEBA ") || !email.toLowerCase().endsWith("@example.invalid") ||
+     instagram!=="@konclub_prueba" || payload.firstTime!==false))
+    return fail("test_data_only",400,origin);
   const tokenBytes=crypto.getRandomValues(new Uint8Array(32));
   const claimToken=Array.from(tokenBytes).map(b=>b.toString(16).padStart(2,"0")).join("");
   const tokenHash=await digest(claimToken);
@@ -87,7 +99,8 @@ async function createOrder(payload: JsonValue, origin: string | null) {
   if (items.some(x=>!x || !validUuid(x.id) || !Number.isInteger(x.qty) || (x.qty as number)<1 || (x.qty as number)>100))
     return fail("invalid_items",400,origin);
   const { data, error }=await db.rpc("kon_submit_order",{
-    p_event_slug:"halloween",p_name:fullName,p_email:email,p_instagram:instagram,
+    p_event_slug:isTest?"halloween-staging":"halloween",
+    p_name:fullName,p_email:email,p_instagram:instagram,
     p_first_time:payload.firstTime,p_discovery:discovery,p_lines:items,p_token_hash:tokenHash
   });
   if(error){
@@ -116,14 +129,20 @@ async function uploadProof(req: Request, origin: string | null){
      !(file instanceof File)||file.size<1||file.size>10*1024*1024)
     return fail("invalid_proof",400,origin);
   const {data:order,error}=await db.from("kon_orders")
-    .select("id,status,expires_at,proof_token_sha256").eq("id",orderId).maybeSingle();
+    .select("id,status,expires_at,proof_token_sha256,kon_events(slug)")
+    .eq("id",orderId).maybeSingle();
+  const isTest=order?.kon_events?.slug==="halloween-staging";
+  if(isTest && !(await adminFromRequest(req)))return fail("unauthorized",401,origin);
   if(error||!order||order.status!=="pending"||new Date(order.expires_at).getTime()<Date.now()||
       !order.proof_token_sha256||order.proof_token_sha256!==await digest(claim))
     return fail("invalid_or_expired_order",403,origin);
   const {data: existing}=await db.from("kon_payment_proofs").select("id").eq("order_id",orderId).maybeSingle();
   if(existing) return fail("proof_already_uploaded",409,origin);
+  if(isTest && (file.name!=="KON-TEST-comprobante.png" || file.type!=="image/png"))
+    return fail("test_proof_only",400,origin);
   const content=new Uint8Array(await file.arrayBuffer());
   const mime=fileType(content);
+  if(isTest && mime!=="image/png")return fail("test_proof_only",400,origin);
   if(!mime) return fail("unsupported_file_type",400,origin);
   const ext=mime==="image/png"?"png":mime==="image/jpeg"?"jpg":"pdf";
   const storagePath=orderId+"/"+crypto.randomUUID()+"."+ext;
@@ -312,7 +331,7 @@ Deno.serve(async(req:Request)=>{
   if(origin && !acceptedOrigins.has(origin))return fail("origin_not_allowed",403,origin);
   const path=new URL(req.url).pathname.split("/").pop();
   try{
-    if(req.method==="GET"&&path==="catalog")return respond({ok:true,...await getCatalog()},200,origin);
+    if(req.method==="GET"&&path==="catalog")return await getCatalog(req,origin);
     if(req.method==="GET"&&path==="sync-export")return await sheetExport(req,origin);
     if(req.method==="GET"&&path==="orders")return await listOrders(req,origin);
     if(req.method==="GET"&&path==="proof-link")return await proofLink(req,origin);
@@ -321,7 +340,7 @@ Deno.serve(async(req:Request)=>{
       const len=Number(req.headers.get("content-length")||"0");
       if(len>12000)return fail("payload_too_large",413,origin);
       const body=await req.json() as JsonValue;
-      if(path==="order")return await createOrder(body,origin);
+      if(path==="order")return await createOrder(req,body,origin);
       if(path==="sync-review")return await sheetReview(req,body,origin);
       if(path==="sync-ack")return await sheetAcknowledge(req,body,origin);
       if(path==="sync-pair")return await pairSheets(req,body,origin);
