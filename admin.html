@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Administración · Kon Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="css/admin.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="data/supabase-public.js" defer></script>
+<script src="js/admin.js" defer></script>
+</head>
+<body>
+<header class="topbar"><a class="wordmark" href="index.html">KON CLUB <span>● PANEL</span></a><a class="back" href="index.html">← VOLVER A LA WEB</a></header>
+<main class="wrap">
+<div class="notice"><strong>PANEL EN DESARROLLO</strong> · El equipo todavía no está sincronizado con Google Sheets. Los pagos deben verificarse contra la cuenta bancaria.</div>
+<div class="topcopy"><p class="kicker">ACCESO RESTRINGIDO / KON CLUB</p><h1>LA LISTA<br><em>DEL KON.</em></h1><p>Pedidos, comprobantes y verificaciones en un solo lugar.</p></div>
+<section id="signin" class="panel" aria-labelledby="signinTitle">
+ <h2 id="signinTitle">ENTRAR AL PANEL.</h2>
+ <p>Iniciá sesión con tu correo autorizado. Solo los colaboradores habilitados pueden ver pedidos y verificar pagos.</p>
+ <form id="loginForm" class="login"><label>EMAIL <input type="email" name="email" autocomplete="email" placeholder="tu@email.com" maxlength="180" required></label><button type="submit">RECIBIR ENLACE DE ACCESO →</button></form>
+ <p id="loginMessage" class="message" role="status"></p>
+ <p class="explain">El enlace llega por correo. El acceso también debe estar autorizado en Kon Club; ser editor de Sheets no otorga acceso automáticamente hasta terminar la sincronización de permisos.</p>
+</section>
+<section id="dashboard" hidden>
+ <div class="toolbar"><div><p class="kicker">PEDIDOS DE TODAS LAS FECHAS</p><h2>INSCRIPCIONES.</h2></div><div class="toolbar-actions"><button id="refresh" type="button">↻ ACTUALIZAR</button><button id="signout" type="button">SALIR</button></div></div>
+ <div class="stats"><div><small>TOTAL PEDIDOS</small><strong id="statTotal">0</strong></div><div><small>PENDIENTES</small><strong id="statPending">0</strong></div><div><small>APROBADOS</small><strong id="statVerified">0</strong></div><div><small>RECAUDACIÓN VERIFICADA</small><strong id="statRevenue">$0</strong></div></div>
+ <div class="filters"><label for="statusFilter">MOSTRAR</label><select id="statusFilter"><option value="all">TODOS</option><option value="pending">PENDIENTES</option><option value="verified">VERIFICADOS</option><option value="rejected">RECHAZADOS</option><option value="courtesy">CORTESÍAS</option><option value="cancelled">CANCELADOS</option></select><span id="syncHint">Sincronización Sheets: pendiente de configurar</span></div>
+ <div id="orders" class="order-list" aria-live="polite"></div>
+ <p class="explain">Los pedidos nuevos aparecen aquí cuando se habilite la venta. Las confirmaciones por email y la sincronización con Sheets se activarán después de completar las pruebas.</p>
+</section>
+<div id="notification" class="toast" role="status" hidden></div>
+</main>
+<dialog id="reviewDialog" aria-labelledby="reviewTitle">
+ <form id="reviewForm" method="dialog">
+  <div class="dialog-head"><div><small>KON CLUB / CONTROL DE PAGO</small><h2 id="reviewTitle">VERIFICAR PEDIDO</h2></div><button type="button" id="closeDialog" aria-label="Cerrar">×</button></div>
+  <div id="reviewDetails"></div>
+  <label class="field">ACCIÓN<select id="reviewAction" required><option value="verified">Aprobar pago</option><option value="rejected">Rechazar pago</option><option value="courtesy">Marcar cortesía</option><option value="cancelled">Cancelar pedido</option></select></label>
+  <label class="field" id="receivedLabel">IMPORTE ACREDITADO ($)<input type="number" id="receivedAmount" min="0" step="1" required></label>
+  <label class="field">OBSERVACIONES (OPCIONAL)<textarea id="reviewNote" maxlength="500" rows="3" placeholder="Promoción, diferencia de pago, motivo de rechazo..."></textarea></label>
+  <label class="confirmation"><input type="checkbox" id="bankChecked" required><span>Verifiqué el pago acreditado en la cuenta bancaria. No me basé solamente en el comprobante.</span></label>
+  <div class="dialog-actions"><button type="button" class="secondary" id="cancelReview">CANCELAR</button><button type="submit" id="saveReview">GUARDAR DECISIÓN →</button></div>
+ </form>
+</dialog>
+</body></html>
