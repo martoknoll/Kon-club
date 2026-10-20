@@ -16,7 +16,7 @@ Otros diseños:
 
 ## Arte y estilo
 
-- Flyer oficial **La Casa Lobo × The Rocky Horror Picture Show**, el mismo usado por la web:
+- Flyer existente **La Casa Lobo × The Rocky Horror Picture Show**, publicado para **25/10**, el mismo usado por la web:
   \`public/media/df27d971f6912f.webp\` (referenciado desde el dominio público de Kon Club, no desde un enlace privado de Drive).
 - Paleta: bordó \`#230519\`, naranja \`#F26C37\`, crema \`#FFF4E6\`.
 - Layout de entrada de cine y fanzine: cabecera, flyer original visible, fecha, horario local AR, dirección y mapa, código grande, detalle de entradas, pie.
@@ -44,6 +44,7 @@ La vista previa de \`reminder\` también está habilitada en el endpoint privado
 
 - \`kon_mail_settings.enabled=false\`: los emails transaccionales reales siguen apagados.
 - \`kon_events.sales_open=false\`: ventas reales cerradas.
+- El flyer de 25/10 ya no se muestra en recordatorios con fecha 25/11: el backend comprueba que coincida la fecha asociada al asset. Se requiere un flyer actualizado para el 25/11.
 - La cola automática contempla también \`reminder\`, y el backend lo programa mediante \`kon_queue_due_reminders()\`. Lo procesa **el mismo trigger de Gmail** cada cinco minutos, sin crear un cron nuevo.
 - El recordatorio comienza a programarse cuando faltan **24 horas**, con ventana de seguridad hasta que faltan 22 horas para recuperar un ciclo atrasado. La entrega exacta depende de Apps Script, cuota y Gmail.
 - Solo entra en la cola si **ambos interruptores** \`kon_mail_settings.enabled\` y \`reminders_enabled\` están activos y el horario aprobado en \`reminder_approved_starts_at\` coincide exactamente con \`kon_events.starts_at\`.
