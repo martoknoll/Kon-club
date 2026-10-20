@@ -340,7 +340,7 @@ async function mailAccess(req:Request){
  if(!/^[a-f0-9]{64}$/.test(token))return null;
  const hash=await digest(token);
  const {data,error}=await db.from("kon_mail_settings")
-  .select("expected_sender,reply_to,enabled,secret_sha256")
+  .select("expected_sender,reply_to,enabled,reminders_enabled,reminder_approved_starts_at,secret_sha256")
   .eq("id",1).maybeSingle();
  if(error||!data||!data.secret_sha256||data.secret_sha256!==hash)return null;
  if(data.expected_sender!==KON_MAIL_SENDER||data.reply_to!==KON_MAIL_REPLY_TO)return null;
@@ -363,7 +363,8 @@ async function mailPing(req:Request,origin:string|null){
  const config=await mailAccess(req);
  if(!config)return fail("mail_not_authorized",401,origin);
  return respond({ok:true,sender:config.expected_sender,reply_to:config.reply_to,
-  enabled:config.enabled},200,origin);
+  enabled:config.enabled,reminders_enabled:config.reminders_enabled,
+  reminder_approved_starts_at:config.reminder_approved_starts_at},200,origin);
 }
 async function mailPreview(req:Request,origin:string|null){
  const config=await mailAccess(req);
@@ -396,6 +397,15 @@ async function mailNext(req:Request,origin:string|null){
  const config=await mailAccess(req);
  if(!config)return fail("mail_not_authorized",401,origin);
  if(!config.enabled)return respond({ok:true,enabled:false,mail:null},200,origin);
+ // The existing Gmail five-minute trigger is our scheduler; no new trigger
+ // or public cron endpoint is required. Never enqueue if either safety flag is off.
+ if(config.reminders_enabled){
+  const {error:queueError}=await db.rpc("kon_queue_due_reminders");
+  if(queueError){
+   console.error("mail_reminder_queue_failed",queueError.code);
+   return fail("mail_reminder_queue_unavailable",500,origin);
+  }
+ }
  const bytes=crypto.getRandomValues(new Uint8Array(32));
  const claimToken=Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
  const {data:claimed,error}=await db.rpc("kon_claim_next_email",{p_lease_sha256:await digest(claimToken)});
@@ -405,7 +415,8 @@ async function mailNext(req:Request,origin:string|null){
   .select("id,order_code,full_name,email,status,amount_expected_ars,amount_received_ars,kon_events(slug,title,starts_at,address,bank_alias),kon_order_lines(quantity,kon_products(label,slug))")
   .eq("id",claimed.order_id).maybeSingle();
  if(orderError||!order||order.kon_events?.slug!=="halloween"||
-    String(order.email).toLowerCase()!==String(claimed.recipient).toLowerCase()){
+    String(order.email).toLowerCase()!==String(claimed.recipient).toLowerCase()||
+    (claimed.kind==="reminder"&&!["verified","courtesy"].includes(order.status))){
   console.error("mail_invalid_claim");
   return fail("invalid_mail_order",500,origin); // Held for manual reconciliation: never resend blindly.
  }
