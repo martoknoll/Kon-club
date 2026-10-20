@@ -10,7 +10,8 @@
  * Funciones para ejecutar manualmente:
  *   1. verificarKonMail()  -> comprobación sin envíos.
  *   2. enviarPruebaKon()   -> envía UN ejemplo a konclub.entradas@gmail.com.
- *   3. instalarKonMail()  -> instala trigger de cinco minutos;
+ *   3. enviarPruebaRecordatorioKon() -> envia UN ejemplo 24h a Gmail propio.
+ *   4. instalarKonMail()  -> instala trigger de cinco minutos;
  *                           no envía correos reales hasta activar mail_settings.enabled.
  *
  * IMPORTANTE: no guardar tokens en GitHub ni compartirlos en chats.
@@ -81,6 +82,29 @@ function enviarPruebaKon(){
   Logger.log('Enviada 1 prueba a '+KON_MAIL.sender+
     '. Revisá Recibidos y Spam; no se avisó a asistentes.');
 }
+/**
+ * Envía SOLO a la misma cuenta del club un ejemplo con el flyer real del evento.
+ * NO programa recordatorios ni envía mails a asistentes.
+ */
+function enviarPruebaRecordatorioKon(){
+  konMailSender_();
+  const api=konMailApi_('mail-preview?kind=reminder');
+  if(api.to!==KON_MAIL.sender||!api.subject.startsWith('[PRUEBA')){
+    throw new Error('Destino inválido para el email de recordatorio.');
+  }
+  if(MailApp.getRemainingDailyQuota()<1){
+    throw new Error('No queda cuota de Gmail para enviar la prueba.');
+  }
+  MailApp.sendEmail({
+    to:KON_MAIL.sender,
+    subject:api.subject,
+    body:api.text,
+    htmlBody:api.html,
+    name:'Kon Club',
+    replyTo:KON_MAIL.replyTo
+  });
+  Logger.log('Recordatorio ficticio enviado al propio Gmail del club. No se activaron recordatorios reales.');
+}
 function instalarKonMail(){
   verificarKonMail();
   const triggers=ScriptApp.getProjectTriggers();
@@ -91,6 +115,8 @@ function instalarKonMail(){
 }
 /**
  * Corre cada 5 minutos. Mientras enabled=false, no envía correos.
+ * El endpoint mail-next solo genera recordatorios cuando reminders_enabled=true
+ * y se aprobó explícitamente la fecha de la edición.
  * No hace reintentos automáticos de envíos que hayan quedado inciertos,
  * para no duplicar confirmaciones.
  */
@@ -115,7 +141,7 @@ function procesarColaKon(){
       const mail=data.mail;
       if(!/^[0-9a-f-]{36}$/i.test(mail.id)||
          !/^[a-f0-9]{64}$/.test(mail.claim_token)||
-         !['received','verified','courtesy'].includes(mail.kind)||
+         !['received','verified','courtesy','reminder'].includes(mail.kind)||
          typeof mail.to!=='string'||!mail.to.includes('@')||
          /@example\.(invalid|test)$/i.test(mail.to)||
          typeof mail.subject!=='string'||typeof mail.text!=='string'){
