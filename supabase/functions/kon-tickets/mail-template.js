@@ -112,8 +112,8 @@ export function formatKonMail(input){
   payMarkup='<tr>'+td('<p style="margin:0;font:700 13px/1.6 Arial,sans-serif;color:'+INK+'">PAGO VERIFICADO · '+esc(money(input.received))+'</p>',
     'background:#EAF1E3;padding:14px 20px;border-left:5px solid #4E7A45;')+'</tr>';
  }
- const mapHref=input.address && !input.test
-  ?"https://www.google.com/maps/search/?api=1&amp;query="+encodeURIComponent(input.address)
+ const mapHref=input.address
+  ?"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(input.address)
   :"";
  const mapMarkup=mapHref?
   '<a href="'+esc(mapHref)+'" style="display:inline-block;padding:13px 18px;background:'+INK+
