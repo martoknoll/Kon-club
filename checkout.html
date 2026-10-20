@@ -68,6 +68,15 @@
               <label>Email <abbr title="obligatorio">*</abbr><input name="email" type="email" required autocomplete="email" maxlength="150" placeholder="tu@email.com"></label>
               <label>Instagram <abbr title="obligatorio">*</abbr><input name="instagram" required maxlength="80" placeholder="@usuario"></label>
               <fieldset><legend>¿Es la primera vez que venís? <abbr title="obligatorio">*</abbr></legend><div class="radio-row"><label><input type="radio" name="firstTime" value="si" required> Sí</label><label><input type="radio" name="firstTime" value="no" required> No</label></div></fieldset>
+              <label id="discoveryField" hidden>¿Cómo nos conociste? <abbr title="obligatorio">*</abbr>
+                <select name="discovery" id="discovery" disabled>
+                  <option value="">Elegí una opción</option>
+                  <option value="Publicidad en Instagram">Publicidad en Instagram</option>
+                  <option value="Un amigo/a me contó">Un amigo/a me contó</option>
+                  <option value="Los encontré por mi cuenta">Los encontré por mi cuenta</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </label>
               <label class="file-field">Comprobante de transferencia <abbr title="obligatorio">*</abbr><input name="proof" type="file" id="proof" required accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf"><small>PNG, JPG o PDF · Máximo 10 MB · Usá un archivo de prueba, no uno real.</small></label>
               <div class="checkboxline"><label><input type="checkbox" name="consent" required> Entiendo que la inscripción queda pendiente hasta que Kon Club verifique el pago.</label></div>
             </div>
