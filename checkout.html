@@ -12,10 +12,11 @@
   <link href="css/checkout.css" rel="stylesheet">
   <script src="data/site-config.js" defer></script>
   <script src="data/checkout-config.js" defer></script>
+  <script src="data/supabase-public.js" defer></script>
   <script src="js/checkout.js" defer></script>
 </head>
 <body>
-  <div class="preview-banner" role="status">VISTA PREVIA · NO ENVÍES COMPROBANTES REALES NI HAGAS TRANSFERENCIAS PARA PROBAR ESTA PÁGINA</div>
+  <div class="preview-banner" id="demoBanner" role="status">VISTA PREVIA · NO ENVÍES COMPROBANTES REALES NI HAGAS TRANSFERENCIAS PARA PROBAR ESTA PÁGINA</div>
   <div class="ticker" aria-hidden="true">✳ KON CLUB — CINE · JUEGOS DE MESA · CONSOLAS · D&amp;D · COMIDA ✳ EL CINE ES LA EXCUSA ✳</div>
   <header class="header">
     <a class="brand" href="./index.html" aria-label="Volver a Kon Club">
@@ -31,6 +32,7 @@
       <h1>VENÍ<br><em>AL KON.</em></h1>
       <p>Elegí cómo querés venir, armá tu pedido y seguí los pasos para transferir.</p>
       <p class="subtle">Las inscripciones y comprobantes se verificarán manualmente antes de confirmar una entrada.</p>
+      <p class="subtle" id="apiStatus" role="status">CARGANDO CATÁLOGO DE ENTRADAS...</p>
     </div>
 
     <div class="checkout-grid">
@@ -56,7 +58,7 @@
             <div class="total-line"><span>TOTAL DEL PEDIDO</span><strong id="payTotal">$0</strong></div>
             <p>La transferencia es manual. <strong>Enviar un comprobante no significa que el pago esté confirmado.</strong></p>
           </div>
-          <div class="demo-note"><strong>ESTO ES UNA DEMO.</strong> Todavía no recibimos pedidos ni comprobantes. No hagas una transferencia para probarla.</div>
+          <div class="demo-note" id="paymentNotice"><strong>ESTO ES UNA DEMO.</strong> Todavía no recibimos pedidos ni comprobantes. No hagas una transferencia para probarla.</div>
           <div class="actions"><button type="button" class="secondary" data-back="1">← ANTERIOR</button><button type="button" class="primary" id="continueToDetails">YA TENGO EL COMPROBANTE <span>→</span></button></div>
         </section>
 
@@ -88,7 +90,7 @@
         <section class="step" data-step="4" aria-labelledby="completeHeading" hidden>
           <div class="heading"><span>VISTA PREVIA / NO ENVIADO</span><h2 id="completeHeading">ASÍ QUEDARÍA.</h2><p>Revisá tu pedido. <strong>No se guardaron los datos ni se subió el comprobante.</strong></p></div>
           <div id="confirmation" class="confirmation"></div>
-          <div class="demo-note"><strong>FALTA CONECTAR EL SISTEMA REAL.</strong> La confirmación automática, el almacenamiento privado del comprobante y la validación del pago se implementarán antes de habilitar la venta.</div>
+          <div class="demo-note" id="completionNotice"><strong>FALTA CONECTAR EL SISTEMA REAL.</strong> La confirmación automática, el almacenamiento privado del comprobante y la validación del pago se implementarán antes de habilitar la venta.</div>
           <div class="actions"><button type="button" class="secondary" data-back="3">← CORREGIR</button><a class="primary as-link" href="./index.html">VOLVER AL KON <span>↗</span></a></div>
         </section>
       </section>
