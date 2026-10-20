@@ -75,6 +75,11 @@ function setupKonSync(){
   }
   syncKonToSheet();
 }
+function konSafeText_(input){
+  const s=String(input||'');
+  // Prevent CSV/Sheets formula injection from buyer-provided text.
+  return /^[=+\-@\t\r\n]/.test(s.trimStart()) ? "'"+s : s;
+}
 function syncKonToSheet(){
   const lock=LockService.getScriptLock();
   if(!lock.tryLock(25000))return;
@@ -96,23 +101,28 @@ function syncKonToSheet(){
         row=++finalRow;
         // Respeta las columnas estadísticas H:J y las entradas previas A:F.
         sheet.getRange(row,1,1,6).setValues([[
-          order.name,order.general||'',order.post||'',order.fanzine||'','',
+          konSafeText_(order.name),order.general||'',order.post||'',order.fanzine||'','',
           'WEB · '+order.code
         ]]);
         sheet.getRange(row,12,1,6).setValues([[
-          order.id,order.email,'PENDIENTE','WEB',new Date(),order.code
+          order.id,konSafeText_(order.email),'PENDIENTE','WEB',new Date(),order.code
         ]]);
         map[order.id]=row;
+      }
+      if(order.sheet_row_key!==KON_SYNC.sheetName+':'+String(row)){
         konApi_('sync-ack',{order_id:order.id,row:row});
       }
+      let changed=false;
       const newState=konStatus_(order.status);
       const current=String(sheet.getRange(row,14).getValue()||'').toUpperCase().trim();
-      if(current!==newState)sheet.getRange(row,14).setValue(newState);
+      if(current!==newState){sheet.getRange(row,14).setValue(newState);changed=true;}
       if((order.status==='verified'||order.status==='courtesy')&&order.received!==null){
         const payment=sheet.getRange(row,5);
-        if(konAmount_(payment.getValue())!==Number(order.received))payment.setValue(Number(order.received));
+        if(konAmount_(payment.getValue())!==Number(order.received)){
+          payment.setValue(Number(order.received));changed=true;
+        }
       }
-      sheet.getRange(row,16).setValue(new Date());
+      if(changed)sheet.getRange(row,16).setValue(new Date());
     });
   }finally{lock.releaseLock();}
 }
