@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Correos de Kon Club · Vista previa</title>
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;color:#fff4e6;background:#230519}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#64233b 0%,#230519 70%)}
+header{max-width:1130px;margin:0 auto;padding:30px 22px 12px}
+.kicker{font-size:11px;letter-spacing:2px;font-weight:900;color:#f26c37}
+h1{font-size:clamp(32px,5vw,61px);font-weight:900;line-height:.94;letter-spacing:-2px;margin:12px 0}
+h1 em{color:#f26c37;font-style:normal}
+p{line-height:1.55}
+header p{max-width:640px;color:#ecd2c6}
+.topbar{max-width:1130px;margin:0 auto;padding:0 22px;display:flex;flex-wrap:wrap;gap:9px}
+.tab{font-family:inherit;cursor:pointer;border:1px solid #ca8f85;padding:12px 14px;background:transparent;color:#fff4e6;font-size:12px;font-weight:800;letter-spacing:.4px}
+.tab[aria-selected="true"]{background:#f26c37;color:#230519;border-color:#f26c37}
+.workspace{max-width:1130px;margin:14px auto 42px;padding:0 22px;display:grid;grid-template-columns:minmax(0,740px) 1fr;gap:22px;align-items:start}
+.mock{background:#f7f7f7;border:7px solid #3c1b2b;border-radius:13px;overflow:hidden;box-shadow:0 20px 80px #140513aa;color:#333}
+.mailhead{background:#fff;padding:18px 18px 13px;border-bottom:1px solid #d1d1d1}
+.mailhead .circle{display:inline-grid;place-items:center;width:36px;height:36px;background:#633545;color:#fff;border-radius:50%;font-size:20px;margin-right:10px}
+.mailhead .sender{font-size:14px;font-weight:800;color:#262626}
+.mailhead .meta{margin:7px 0;color:#666;font-size:12px}
+.mailhead .subject{font-size:13px;color:#262626;margin-top:10px;font-weight:700}
+iframe{width:100%;height:1100px;border:0;display:block;background:#f3e9da}
+.side{border:1px solid #825364;background:#321023;padding:21px}
+.side h2{font-size:19px;margin:0 0 12px}
+.side p,.side li{font-size:14px;color:#e4c7cc;line-height:1.55}
+.side code{color:#f26c37;overflow-wrap:anywhere}
+.line{margin:18px 0;height:1px;background:#825364}
+.pill{display:inline-block;color:#230519;background:#f26c37;font-size:11px;letter-spacing:1px;font-weight:900;padding:7px 9px}
+.note{border-left:3px solid #f26c37;padding-left:13px}
+@media(max-width:880px){.workspace{grid-template-columns:1fr}iframe{height:1000px}.side{order:-1}}
+</style>
+</head>
+<body>
+<header>
+ <div class="kicker">KON CLUB / CORREOS TRANSACCIONALES</div>
+ <h1>EL CINE ES<br><em>LA EXCUSA.</em></h1>
+ <p>Así se van a ver los mensajes que reciben los asistentes. El recordatorio usa el <strong>flyer oficial de Halloween</strong>, idéntico al publicado en nuestra web. No es una recreación ni un póster genérico.</p>
+</header>
+<nav class="topbar" aria-label="Elegir correo para previsualizar">
+ <button class="tab" type="button" data-kind="received" aria-selected="false">01 · PEDIDO RECIBIDO</button>
+ <button class="tab" type="button" data-kind="verified" aria-selected="false">02 · PAGO CONFIRMADO</button>
+ <button class="tab" type="button" data-kind="courtesy" aria-selected="false">03 · CORTESÍA</button>
+ <button class="tab" type="button" data-kind="reminder" aria-selected="true">04 · RECORDATORIO 24 H</button>
+</nav>
+<main class="workspace">
+ <section class="mock" aria-label="Vista del correo">
+  <div class="mailhead">
+   <div><span class="circle">K</span><span class="sender">Kon Club</span></div>
+   <div class="meta">para: konclub.entradas@gmail.com · VISTA PREVIA</div>
+   <div class="subject" id="subjectLine"></div>
+  </div>
+  <iframe title="Contenido visual del correo" id="emailFrame" sandbox="allow-same-origin"></iframe>
+ </section>
+ <aside class="side">
+  <span class="pill">SOLO VISTA PREVIA</span>
+  <h2 id="infoTitle" style="margin-top:16px">RECORDATORIO / 24 H</h2>
+  <p id="infoText">Se mandaría solo a quienes ya tengan entrada confirmada o una cortesía aprobada, alrededor de 24 horas antes del comienzo.</p>
+  <div class="line"></div>
+  <h2>El flyer real</h2>
+  <p>La imagen de <strong>La Casa Lobo + The Rocky Horror Picture Show</strong> se sirve desde los archivos públicos de Kon Club. La edición de Halloween usa el mismo recurso que la portada del sitio.</p>
+  <p class="note">Los lectores de correo pueden bloquear imágenes. Por eso fecha, lugar y código se muestran también como texto; el recordatorio funciona aunque el flyer no cargue.</p>
+  <div class="line"></div>
+  <p>Remitente previsto: <code>konclub.entradas@gmail.com</code></p>
+  <p>Respuestas: <code>kon.club@proton.me</code></p>
+  <p><strong>No se envía ningún correo desde esta página.</strong> Los envíos reales siguen desactivados.</p>
+ </aside>
+</main>
+<script type="module">
+import {formatKonMail} from "./supabase/functions/kon-tickets/mail-template.js";
+const sample={
+ name:"PRUEBA KON CLUB",code:"PRUEBA-NO-REAL",
+ items:[{label:"ENTRADA GENERAL",quantity:1},{label:"FANZINE",quantity:1}],
+ total:13000,received:13000,event_slug:"halloween",
+ event_title:"LA CASA LOBO × THE ROCKY HORROR PICTURE SHOW",
+ starts_at:"2026-10-25T20:00:00Z",
+ address:"VIRREY OLAGUER Y FELIÚ 3121 · BUENOS AIRES",
+ alias:"NO.TRANSFERIR",test:true
+};
+const copy={
+ received:["PEDIDO RECIBIDO","El pedido queda pendiente hasta verificar la transferencia; no representa una entrada confirmada."],
+ verified:["ENTRADA CONFIRMADA","El correo muestra el importe ya acreditado, el código y el detalle del pedido."],
+ courtesy:["INVITACIÓN DE CORTESÍA","Se confirma la entrada sin mencionar transferencias ni precios."],
+ reminder:["RECORDATORIO / 24 H","Para entradas confirmadas y cortesías. Se enviaría aproximadamente 24 horas antes, con flyer real, fecha, dirección y código de acceso."]
+};
+function render(kind){
+ const message=formatKonMail({...sample,kind});
+ document.getElementById("subjectLine").textContent="[PRUEBA · NO REAL] "+message.subject;
+ document.getElementById("emailFrame").srcdoc=message.html;
+ document.getElementById("infoTitle").textContent=copy[kind][0];
+ document.getElementById("infoText").textContent=copy[kind][1];
+ document.querySelectorAll("[data-kind]").forEach(btn=>btn.setAttribute("aria-selected",String(btn.dataset.kind===kind)));
+}
+document.querySelectorAll("[data-kind]").forEach(b=>b.addEventListener("click",()=>render(b.dataset.kind)));
+render("reminder");
+</script>
+</body>
+</html>

@@ -353,3 +353,21 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
 @media (max-width:460px) {
   .hero h1 {font-size:clamp(46px,13.8vw,62px);letter-spacing:0;}
 }
+
+/* Próxima función del 25/11: evita mostrar como vigente el flyer fechado 25/10. */
+.poster-main[hidden],.poster-placeholder[hidden]{display:none!important}
+.poster-placeholder{min-height:390px;aspect-ratio:3/4;background:#f26c37;color:#230519;
+ border:12px solid #230519;outline:4px solid #fff4e6;
+ display:flex;flex-direction:column;justify-content:space-between;
+ text-align:left;padding:clamp(14px,2.2vw,28px);transform:rotate(-2deg);
+ box-shadow:12px 14px 0 #11040c}
+.poster-placeholder span{font:700 clamp(10px,1vw,14px)/1.5 'Barlow',Arial,sans-serif;letter-spacing:.1em}
+.poster-placeholder strong{font:800 clamp(44px,5vw,82px)/.84 'Barlow Condensed',Arial,sans-serif;letter-spacing:-.02em}
+.poster-placeholder strong i{font-style:normal;color:#fff4e6}
+.poster-placeholder>b{border-top:2px dashed #230519;padding:13px 0 0;font:800 clamp(20px,2vw,32px)/1.05 'Barlow Condensed',Arial,sans-serif}
+.poster-placeholder small{font-size:10px;letter-spacing:.08em;font-weight:700}
+@media(max-width:620px){.poster-placeholder{min-height:310px;padding:14px}
+.poster-placeholder strong{font-size:clamp(43px,10vw,70px)}}
+
+/* Prelanzamiento: el atributo hidden prevalece sobre botones con display:flex. */
+#legacyFormButton[hidden] { display: none !important; }

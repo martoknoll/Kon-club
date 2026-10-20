@@ -32,3 +32,19 @@ Se publican solamente 15 fechas del ciclo regular desde Paprika (carpeta 17). Se
 Usar el repositorio existente `martoknoll/Kon-club` (actualmente público; cambiarlo a privado si corresponde), subir esta carpeta y conectar a Vercel con **Framework Preset: Other** y **Output Directory: .**. Un sitio puede publicarse desde un repositorio privado; la visibilidad se gestiona en GitHub.
 
 No hay pasarela de pagos activa: los botones de compra del prototipo son demostrativos.
+
+
+## Prelanzamiento checkout paralelo · rama `prep/checkout-integrado-sin-ventas-20261020`
+
+La web usa el checkout por transferencia y panel existentes en `feature/checkout-transferencias`.
+En esta rama ambos botones de salida a venta están **cerrados**:
+- `data/checkout-config.js`: `allowLive=false` y `legacyFormPublic=false`.
+- El Google Form anterior queda registrado como referencia interna, sin enlace visible en la home.
+- El checkout real exige además `kon_events.sales_open=true` en Supabase y disponibilidad fresca.
+- `checkout-test.html` permite probar pedidos *ficticios* mediante autenticación de administradores, separados de la edición real.
+
+**No se ha modificado ni cerrado el formulario externo**. Si éste acepta respuestas desde un enlace que ya circula, puede seguir recibiéndolas por fuera de la web. El riesgo de simultaneidad de Google Forms no desaparece al sincronizar cada cinco minutos: se debe acordar un cupo reservado por canal, un límite de Forms o dejar las respuestas sin confirmación hasta validarlas contra el inventario central.
+
+Cupos globales confirmados del evento real: **100 entradas generales, 50 post-película y 10 fanzines**. La base de datos es la única fuente de disponibilidad real. El horario del 25/11 debe ratificarse; no publicar el flyer fechado en octubre.
+
+Pasos de QA (sin ventas ni datos reales): ver `docs/QA-CHECKOUT-PRELANZAMIENTO.md`.
