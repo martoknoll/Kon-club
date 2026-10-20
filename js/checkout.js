@@ -103,6 +103,17 @@ byId('copyAlias').addEventListener('click',async()=>{
 });
 
 const form=byId('orderForm');
+const discoveryField=byId('discoveryField');
+const discovery=byId('discovery');
+function updateDiscovery(){
+ const firstTime=form.querySelector('input[name="firstTime"]:checked')?.value==='si';
+ discoveryField.hidden=!firstTime;
+ discovery.disabled=!firstTime;
+ discovery.required=firstTime;
+ if(!firstTime)discovery.value='';
+}
+form.querySelectorAll('input[name="firstTime"]').forEach(input=>input.addEventListener('change',updateDiscovery));
+updateDiscovery();
 const proof=byId('proof');
 const error=byId('formError');
 function setError(message){
@@ -134,6 +145,7 @@ form.addEventListener('submit',(evt)=>{
  appendReview(box,'Email',String(formData.get('email')||''));
  appendReview(box,'Instagram',String(formData.get('instagram')||''));
  appendReview(box,'Primera visita',formData.get('firstTime')==='si'?'Sí':'No');
+ if(formData.get('firstTime')==='si')appendReview(box,'Cómo nos conoció',String(formData.get('discovery')||''));
  cfg.products.forEach((p)=>{if(quantities[p.id])appendReview(box,p.title,quantities[p.id]+' × '+money(p.price))});
  appendReview(box,'Total',money(total()));
  appendReview(box,'Archivo seleccionado',file.name);
