@@ -25,7 +25,7 @@
  <p class="explain"><strong>¿El enlace del correo te manda a una página inexistente?</strong> Antes de solicitar otro, configurá en <a href="https://supabase.com/dashboard/project/ogrzuiwlyfobhtknjuzu/auth/url-configuration" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;font-weight:700">Supabase → Authentication → URL Configuration</a> la dirección de esta página en <strong>Redirect URLs</strong> y el dominio oficial en <strong>Site URL</strong>. Después solicitá un enlace nuevo.</p>
 </section>
 <section id="dashboard" hidden>
- <div class="toolbar"><div><p class="kicker">PEDIDOS DE TODAS LAS FECHAS</p><h2>INSCRIPCIONES.</h2></div><div class="toolbar-actions"><button id="pairSheets" type="button">⧉ CONECTAR SHEETS</button><button id="refresh" type="button">↻ ACTUALIZAR</button><button id="signout" type="button">SALIR</button></div></div>
+ <div class="toolbar"><div><p class="kicker">PEDIDOS DE TODAS LAS FECHAS</p><h2>INSCRIPCIONES.</h2></div><div class="toolbar-actions"><button id="pairTestSheets" type="button">🧪 PROBAR SHEETS</button><button id="pairSheets" type="button">⧉ CONECTAR SHEETS</button><button id="refresh" type="button">↻ ACTUALIZAR</button><button id="signout" type="button">SALIR</button></div></div>
  <div class="stats"><div><small>TOTAL PEDIDOS</small><strong id="statTotal">0</strong></div><div><small>PENDIENTES</small><strong id="statPending">0</strong></div><div><small>APROBADOS</small><strong id="statVerified">0</strong></div><div><small>RECAUDACIÓN VERIFICADA</small><strong id="statRevenue">$0</strong></div></div>
  <div class="filters"><label for="statusFilter">MOSTRAR</label><select id="statusFilter"><option value="all">TODOS</option><option value="pending">PENDIENTES</option><option value="verified">VERIFICADOS</option><option value="rejected">RECHAZADOS</option><option value="courtesy">CORTESÍAS</option><option value="cancelled">CANCELADOS</option></select><span id="syncHint">Sincronización Sheets: pendiente de configurar</span></div>
  <div id="orders" class="order-list" aria-live="polite"></div>
@@ -33,11 +33,11 @@
 </section>
 <dialog id="pairDialog" aria-labelledby="pairTitle">
   <div class="dialog-head"><div><small>KON CLUB / INTEGRACIÓN</small><h2 id="pairTitle">CONECTAR GOOGLE SHEETS</h2></div><button type="button" id="closePair" aria-label="Cerrar">×</button></div>
-  <p>Este código permite conectar la planilla de FECHAS. Se muestra solo una vez: guardalo como <strong>KON_SYNC_TOKEN</strong> en las propiedades del script de Google.</p>
+  <p id="pairDescription">Este código permite conectar la planilla de FECHAS. Se muestra solo una vez: guardalo como <strong>KON_SYNC_TOKEN</strong> en las propiedades del script de Google.</p>
   <label class="field">TOKEN DE SINCRONIZACIÓN (PRIVADO)<textarea id="pairToken" rows="3" readonly placeholder="Generá un token desde el botón de abajo."></textarea></label>
   <p class="explain">Generar otro token invalida el anterior. No lo compartas ni lo pegues en GitHub.</p>
   <div class="dialog-actions"><button type="button" class="secondary" id="generatePair">GENERAR TOKEN</button><button type="button" id="copyPair" disabled>COPIAR TOKEN</button></div>
-  <p>Luego instalá el <a style="text-decoration:underline;font-weight:700" href="https://github.com/martoknoll/Kon-club/blob/feature/checkout-transferencias/scripts/kon-sheets-sync.gs" target="_blank" rel="noopener noreferrer">script de Google Sheets</a>, siguiendo el instructivo.</p>
+  <p>Luego instalá el <a id="pairScriptLink" style="text-decoration:underline;font-weight:700" href="https://github.com/martoknoll/Kon-club/blob/feature/checkout-transferencias/scripts/kon-sheets-sync.gs" target="_blank" rel="noopener noreferrer">script de Google Sheets</a>, siguiendo el instructivo.</p>
 </dialog>
 <div id="notification" class="toast" role="status" hidden></div>
 </main>
