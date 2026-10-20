@@ -237,9 +237,10 @@ async function sheetAcknowledge(req:Request,payload:JsonValue,origin:string|null
    .eq("id",payload.order_id).maybeSingle();
  if(findError||!order)return fail("not_found",404,origin);
  if(order.sheets_row_key && order.sheets_row_key!==rowKey)return fail("conflicting_sheet_row",409,origin);
- const {error}=await db.from("kon_orders").update({sheets_row_key:rowKey})
-  .eq("id",order.id).or("sheets_row_key.is.null,sheets_row_key.eq."+rowKey);
- if(error)return fail("unable_to_ack",500,origin);
+ if(order.sheets_row_key===rowKey)return respond({ok:true,unchanged:true},200,origin);
+ const {data:changed,error}=await db.from("kon_orders").update({sheets_row_key:rowKey})
+  .eq("id",order.id).is("sheets_row_key",null).select("id").maybeSingle();
+ if(error||!changed)return fail("conflicting_sheet_row",409,origin);
  return respond({ok:true},200,origin);
 }
 async function sheetReview(req:Request,payload:JsonValue,origin:string|null){
@@ -260,7 +261,7 @@ async function sheetReview(req:Request,payload:JsonValue,origin:string|null){
  if(status==="verified"&&order.source==="web"&&!order.proof_received_at)return fail("proof_required",409,origin);
  const actorEmail=readString(payload.actor_email,180);
  // Apps Script onEdit cannot always identify the editor: audit as unverified when missing.
- const actorId=actorEmail.includes("@")?null:null;
+ const actorId=null; // The trigger email cannot be treated as verified identity.
  const {data:changed,error}=await db.from("kon_orders").update({
   status,amount_received_ars:status==="verified"?amount:status==="courtesy"?0:null,
   verified_by:actorEmail||"Editor de Sheets (identidad no disponible)",
