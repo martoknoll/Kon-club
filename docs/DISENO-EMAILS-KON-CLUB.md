@@ -44,8 +44,13 @@ La vista previa de \`reminder\` también está habilitada en el endpoint privado
 
 - \`kon_mail_settings.enabled=false\`: los emails transaccionales reales siguen apagados.
 - \`kon_events.sales_open=false\`: ventas reales cerradas.
-- La cola automática actualmente solo contempla \`received\`, \`verified\` y \`courtesy\`.
-- El **recordatorio se diseñó para 24 h antes**, pero aún no hay trabajo programado que lo encole. Hace falta implementar el envío programado después de aprobar el diseño, con selección exclusiva de \`verified\` y \`courtesy\`, deduplicación y control de cuotas.
+- La cola automática contempla también \`reminder\`, y el backend lo programa mediante \`kon_queue_due_reminders()\`. Lo procesa **el mismo trigger de Gmail** cada cinco minutos, sin crear un cron nuevo.
+- El recordatorio comienza a programarse cuando faltan **24 horas**, con ventana de seguridad hasta que faltan 22 horas para recuperar un ciclo atrasado. La entrega exacta depende de Apps Script, cuota y Gmail.
+- Solo entra en la cola si **ambos interruptores** \`kon_mail_settings.enabled\` y \`reminders_enabled\` están activos y el horario aprobado en \`reminder_approved_starts_at\` coincide exactamente con \`kon_events.starts_at\`.
+- Ambos interruptores siguen **en false** y la fecha aprobada sigue **null**: el recordatorio está implementado, pero NO ACTIVADO.
+- El envío verifica de nuevo el estado al reclamarlo. Si alguien cancela la entrada, mueve la fecha o deshabilita recordatorios, el pedido pendiente se marca \`skipped\` (no enviado).
+- Solo se envía a pedidos reales con entrada general o post película, estado \`verified\` o \`courtesy\`. Quedan fuera staging y los pedidos solo de fanzine. \`UNIQUE(order_id,kind)\` evita duplicar un recordatorio.
+- **Se comprobó el scheduler con transacciones sintéticas revertidas**: horario, deduplicación, cortesías, exclusión de pendientes/staging/fanzine y cancelación. Ninguna prueba mandó mensajes.
 - Falta probar la visualización real del flyer remoto dentro de Gmail y otros clientes; el deploy y las vistas previas no sustituyen ese test.
 
 Para empezar la prueba visual sin notificar asistentes, abrí \`/mail-preview.html\` y elegí **04 · RECORDATORIO 24 H**.
