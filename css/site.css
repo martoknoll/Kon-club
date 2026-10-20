@@ -324,3 +324,32 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
 .archive-detail p,.fanzine-full-hint {font-family:'Barlow',Arial,sans-serif;font-weight:400}
 @media(max-width:760px) {.hero h1 {letter-spacing:-.025em;line-height:.93}.hero-lead {line-height:1.18}}
 @media(max-width:460px) {.hero h1 {font-size:clamp(48px,14.6vw,64px);line-height:.94}}
+
+
+/* KON CLUB / V07 — punto medio: letras firmes, pero con aire y buena lectura. */
+.hero h1 {
+  font-family:'Barlow Condensed','Roboto Condensed','Arial Narrow',Arial,sans-serif;
+  font-weight:700;
+  letter-spacing:.009em;
+  line-height:.94;
+  text-wrap:balance;
+}
+.hero-lead {
+  font-weight:600;
+  letter-spacing:.005em;
+  line-height:1.19;
+}
+.manifesto h2,.section-h2,.fanzines h2,.footer-title,
+.archive-type-heading h3,.fanzine-full-intro h2,
+.zr-sidebar h2,.zr-stagehead h3 {
+  font-family:'Barlow Condensed','Roboto Condensed','Arial Narrow',Arial,sans-serif;
+  font-weight:700;
+  letter-spacing:.008em;
+  line-height:.99;
+}
+@media (max-width:760px) {
+  .hero h1 {letter-spacing:.003em;line-height:.98;}
+}
+@media (max-width:460px) {
+  .hero h1 {font-size:clamp(46px,13.8vw,62px);letter-spacing:0;}
+}
