@@ -453,6 +453,20 @@ async function mailAcknowledge(req:Request,payload:JsonValue,origin:string|null)
  return respond({ok:true},200,origin);
 }
 
+async function listPlannedDates(req:Request,origin:string|null){
+ const admin=await adminFromRequest(req);
+ if(!admin)return fail("unauthorized",401,origin);
+ const [plans,current]=await Promise.all([
+  db.from("kon_planned_dates")
+    .select("event_date,label,film_title,flyer_url,starts_at,planning_status")
+    .order("event_date",{ascending:true}).limit(50),
+  db.from("kon_events").select("slug,title,starts_at,sales_open")
+    .eq("slug","halloween").maybeSingle()
+ ]);
+ if(plans.error||current.error)return fail("schedule_unavailable",500,origin);
+ return respond({ok:true,planned_dates:plans.data||[],
+   current_event:current.data||null},200,origin);
+}
 Deno.serve(async(req:Request)=>{
   const origin=req.headers.get("origin");
   if(req.method==="OPTIONS")return new Response("ok",{headers:cors(origin)});
@@ -460,6 +474,7 @@ Deno.serve(async(req:Request)=>{
   const path=new URL(req.url).pathname.split("/").pop();
   try{
     if(req.method==="GET"&&path==="catalog")return await getCatalog(req,origin);
+    if(req.method==="GET"&&path==="planned-dates")return await listPlannedDates(req,origin);
     if(req.method==="GET"&&path==="mail-ping")return await mailPing(req,origin);
     if(req.method==="GET"&&path==="mail-preview")return await mailPreview(req,origin);
     if(req.method==="GET"&&path==="mail-next")return await mailNext(req,origin);
