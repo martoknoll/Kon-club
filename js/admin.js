@@ -177,7 +177,9 @@ function reviewText(label,value){
 function openReview(order){
  selection=order;
  $("reviewTitle").textContent=($("environmentFilter").value==="test"?"PRUEBA · ":"PEDIDO ")+order.order_code;
- $("reviewAction").value="verified";
+ const isTest=$("environmentFilter").value==="test";
+ $("reviewAction").querySelector('[value="verified"]').disabled=isTest;
+ $("reviewAction").value=isTest?"courtesy":"verified";
  $("receivedAmount").value=String(order.amount_expected_ars);
  $("reviewNote").value="";
  $("bankChecked").checked=false;
@@ -190,7 +192,7 @@ function openReview(order){
  $("reviewDialog").showModal();
 }
 function updateReviewForm(){
- const verified=$("reviewAction").value==="verified";
+ const verified=$("reviewAction").value==="verified" && $("environmentFilter").value!=="test";
  $("receivedLabel").hidden=!verified;
  $("receivedAmount").required=verified;
  $("bankChecked").required=verified;
@@ -205,6 +207,10 @@ $("reviewForm").addEventListener("submit",async(event)=>{
  if(busy||!selection)return;
  if(!$("reviewForm").reportValidity())return;
  const action=$("reviewAction").value;
+ if(action==="verified"&&$("environmentFilter").value==="test"){
+  notice("Los pedidos ficticios no se marcan como pagados. Elegí CORTESÍA.");
+  return;
+ }
  if(action==="verified"&&!$("bankChecked").checked){notice("Tenés que verificar la acreditación antes de aprobar.");return;}
  const amount=Number($("receivedAmount").value);
  const payload={order_id:selection.id,status:action,note:$("reviewNote").value,environment:$("environmentFilter").value};
