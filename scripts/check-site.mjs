@@ -14,6 +14,13 @@ const check = (pass, msg) => {if (!pass) errors.push(msg)};
 const media = (p,desc) => check(typeof p === 'string' && p.startsWith('public/media/') && fileExists(p), `${desc}: imagen no encontrada: ${p}`);
 
 check(!!config.editionDefaults[config.activeEdition], 'La edición activa no existe');
+// Bloqueo de seguridad de la preparación: esta rama no puede vender.
+check(config.ticketing?.salesEnabled === false, 'La venta debe permanecer deshabilitada');
+check(config.ticketing?.status === 'prelaunch', 'La edición debe seguir en prelanzamiento');
+check(config.ticketing?.inventoryScope === 'shared-across-channels', 'El inventario debe ser único');
+check(JSON.stringify(config.ticketing?.totalCapacity) === JSON.stringify({general:100,postPelicula:50,fanzine:10}), 'Los cupos compartidos deben ser 100/50/10');
+check(config.ticketing?.centralReservationBackendReady === false, 'No declarar backend listo sin verificaciones');
+
 for (const [key, image] of Object.entries(config.assets)) media(image, `assets.${key}`);
 for (const [key, entry] of Object.entries(config.editionDefaults)) {
     check(!!config.assets[entry.poster], `editionDefaults.${key}: flyer inexistente`);
