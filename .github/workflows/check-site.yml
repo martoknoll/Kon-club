@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main, feature/checkout-transferencias]
 jobs:
   revisar:
     runs-on: ubuntu-latest
@@ -18,5 +18,10 @@ jobs:
         run: |
           node --check data/site-config.js
           node --check js/site.js
+          node --check js/checkout.js
+          node --check js/checkout-test.js
+          node --check js/admin.js
+          node --check data/checkout-config.js
+          node --check data/checkout-test-config.js
       - name: Verificar imágenes y catálogo
         run: node scripts/check-site.mjs

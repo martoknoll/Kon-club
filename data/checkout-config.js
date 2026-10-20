@@ -7,6 +7,7 @@ window.KON_CHECKOUT = {
   eventKey: "halloween",
   currency: "ARS",
   allowLive: false, // Cambiar solo después de probar el backend, Sheets y los permisos
+  legacyFormPublic: false, // No mostrar el enlace al Form mientras preparamos el lanzamiento
   legacyFormUrl: "https://forms.gle/gJzzsfNnDLNY2eok6", // Google Form anterior: sigue vendiendo en paralelo
   alias: "KON.CLUB.GL",
   proofMaxBytes: 10 * 1024 * 1024,

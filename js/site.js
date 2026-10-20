@@ -6,7 +6,7 @@ if(oldForm){
  const raw=String(window.KON_CHECKOUT?.legacyFormUrl||'').trim();
  try{
   const uri=new URL(raw);
-  if(uri.protocol==='https:'&&['docs.google.com','forms.gle'].includes(uri.hostname)){
+  if(window.KON_CHECKOUT?.allowLive===true&&window.KON_CHECKOUT?.legacyFormPublic===true&&uri.protocol==='https:'&&['docs.google.com','forms.gle'].includes(uri.hostname)){
    oldForm.href=uri.href;oldForm.hidden=false;
   }
  }catch(_err){/* Aún no tenemos el enlace verificado del formulario anterior. */}
