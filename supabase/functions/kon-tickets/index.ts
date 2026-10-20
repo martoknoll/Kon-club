@@ -59,7 +59,7 @@ function liveInventoryFresh(snapshot:JsonValue|null){
 }
 async function getInventory(eventId:string){
  const {data,error}=await db.from("kon_legacy_inventory")
-  .select("event_id,general_qty,post_qty,fanzine_qty,legacy_rows,last_synced_at,sync_source")
+  .select("event_id,general_qty,post_qty,fanzine_qty,legacy_rows,last_synced_at,sync_source,safety_margin_general,safety_margin_post,safety_margin_fanzine")
   .eq("event_id",eventId).maybeSingle();
  if(error)throw new Error("inventory_unavailable");
  return data;
@@ -110,12 +110,19 @@ async function inventorySummary(req:Request,origin:string|null){
   general:Number(snap?.general_qty||0),post:Number(snap?.post_qty||0),
   fanzine:Number(snap?.fanzine_qty||0)
  };
+ const margin:Record<string,number>={
+  general:Number(snap?.safety_margin_general||0),
+  post:Number(snap?.safety_margin_post||0),
+  fanzine:Number(snap?.safety_margin_fanzine||0)
+ };
  const products=(prods.data||[]).map(p=>{
   const quantity=Number(reserved[p.id]||0);
   const old=Number(legacy[p.slug]||0);
+  const buffer=Number(margin[p.slug]||0);
   const cap=p.capacity===null?null:Number(p.capacity);
   return {slug:p.slug,label:p.label,price_ars:p.price_ars,capacity:cap,
-   legacy:old,web:quantity,remaining:cap===null?null:Math.max(0,cap-old-quantity)};
+   legacy:old,web:quantity,buffer,
+   remaining:cap===null?null:Math.max(0,cap-old-quantity-buffer)};
  });
  return respond({ok:true,legacy_rows:Number(snap?.legacy_rows||0),
   legacy_last_synced_at:snap?.last_synced_at||null,legacy_fresh:liveInventoryFresh(snap),
