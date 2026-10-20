@@ -48,3 +48,13 @@
 
 ## Notas
 La rama `prep/prelanzamiento-stock-compartido-20261020` era un borrador anterior basado en el sitio demo sin checkout. Esta rama, que parte de `feature/checkout-transferencias`, incorpora la implementación de checkout ya desarrollada y reemplaza ese borrador como base para la QA.
+
+
+## Regla comercial confirmada: reserva automática en Google Forms
+
+En Google Forms, **cada respuesta enviada reserva sus cantidades de GENERAL, POST y FANZINE en ese momento**, aunque el pago todavía esté pendiente. Por lo tanto:
+- El cómputo de `konLegacyCounts_` es correcto al incluir filas sin pago; **nunca restar solamente transferencias verificadas**.
+- La cancelación/rechazo explícitos pueden liberar cantidades solamente cuando el equipo decida que esa reserva deja de ser válida.
+- En la base de datos, `kon_legacy_inventory` toma sumas desde FECHAS, **no directamente desde Google Forms**. Si FECHAS no se actualiza inmediatamente con cada respuesta, el cómputo puede omitir reservas ya aceptadas por Forms.
+- La sincronización de cinco minutos y el buffer no garantizan cupos simultáneos. Hasta comprobar cómo el formulario vuelca las respuestas y establecer control de aceptación o cuotas por canal, **no habilitar el checkout web real**.
+- Confirmar antes de cualquier integración: ¿cada envío del Google Form aparece automáticamente en la pestaña `KON CLUB: (Alimme) - Casa Lobo & Rocky Horror` de la planilla FECHAS, o alguien pasa esa información manualmente o por otra automatización?
