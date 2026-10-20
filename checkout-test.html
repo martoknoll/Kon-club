@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#230519">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Elegí tus entradas y fanzines para la próxima fecha de Kon Club.">
+  <title>Prueba de checkout — Kon Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="css/checkout.css" rel="stylesheet">
+  <script src="data/site-config.js" defer></script>
+  <script src="data/checkout-test-config.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="data/supabase-public.js" defer></script>
+  <script src="js/checkout-test.js" defer></script>
+  <style>.preview-banner{font-weight:800;letter-spacing:.04em}#generateTestProof{width:100%;padding:15px;margin-top:8px}#authStatus a{color:inherit;text-decoration:underline}#apiStatus{font-weight:700}</style>
+</head>
+<body>
+  <div class="preview-banner" id="demoBanner" role="status">MODO PRUEBA · NO TRANSFIERAS DINERO · NO CARGUES DATOS PERSONALES NI COMPROBANTES REALES</div>
+  <div class="ticker" aria-hidden="true">✳ KON CLUB — CINE · JUEGOS DE MESA · CONSOLAS · D&amp;D · COMIDA ✳ EL CINE ES LA EXCUSA ✳</div>
+  <header class="header">
+    <a class="brand" href="./index.html" aria-label="Volver a Kon Club">
+      <img id="headerLogo" alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
+      <span>KON<br>CLUB<small>CINE CLUB · BUENOS AIRES</small></span>
+    </a>
+    <a class="back" href="./index.html">← VOLVER A LA WEB</a>
+  </header>
+
+  <main class="shell">
+    <div class="lead">
+      <p class="kicker">KON CLUB / LABORATORIO DE COMPRAS</p>
+      <h1>PROBÁ<br><em>EL KON.</em></h1>
+      <p>Elegí entradas ficticias, registrá un pedido de prueba y generá un comprobante sintético. Acá no se cobra nada.</p>
+      <p class="subtle">Acceso exclusivo para administradores. Usá el mismo navegador donde ya abriste el panel de Kon Club.</p>
+      <p class="subtle" id="apiStatus" role="status">COMPROBANDO TU SESIÓN DE ADMINISTRADOR...</p>
+      <p class="subtle" id="authStatus" role="status"></p>
+    </div>
+
+    <div class="checkout-grid">
+      <section class="checkout" aria-label="Compra de entradas">
+        <nav class="steps" aria-label="Pasos de inscripción">
+          <span data-step-marker="1" class="is-active">01 <b>ARMÁ TU PEDIDO</b></span>
+          <span data-step-marker="2">02 <b>TUS DATOS</b></span>
+          <span data-step-marker="3">03 <b>COMPROBANTE FICTICIO</b></span>
+        </nav>
+
+        <section class="step" data-step="1" aria-labelledby="chooseHeading">
+          <div class="heading"><span>01 / TU PLAN</span><h2 id="chooseHeading">¿QUÉ LLEVAMOS?</h2><p>Podés combinar entradas generales, post-película y fanzines.</p></div>
+          <div id="products" class="products"></div>
+          <p class="hint">Las cantidades y los precios se ajustan para cada edición. El pedido se registra únicamente en la edición de prueba y no implica ninguna compra.</p>
+          <div class="actions"><button type="button" class="primary" id="continueToPay">SEGUIR CON EL PEDIDO <span>→</span></button></div>
+        </section>
+
+        <section class="step" data-step="2" aria-labelledby="detailsHeading" hidden>
+          <div class="heading"><span>02 / DATOS DEL COMPRADOR</span><h2 id="detailsHeading">¿QUIÉN VIENE?</h2><p>Los datos ficticios ya están completados. Solo se usarán para registrar esta prueba.</p></div>
+          <form id="orderForm" autocomplete="on">
+            <div class="form-fields">
+              <label>Nombre y apellido <abbr title="obligatorio">*</abbr><input name="fullName" required autocomplete="name" maxlength="100" placeholder="Tu nombre completo"></label>
+              <label>Email <abbr title="obligatorio">*</abbr><input name="email" type="email" required autocomplete="email" maxlength="150" placeholder="tu@email.com"></label>
+              <label>Instagram <abbr title="obligatorio">*</abbr><input name="instagram" required maxlength="80" placeholder="@usuario"></label>
+              <fieldset><legend>¿Es la primera vez que venís? <abbr title="obligatorio">*</abbr></legend><div class="radio-row"><label><input type="radio" name="firstTime" value="si" required> Sí</label><label><input type="radio" name="firstTime" value="no" required> No</label></div></fieldset>
+              <label id="discoveryField" hidden>¿Cómo nos conociste? <abbr title="obligatorio">*</abbr>
+                <select name="discovery" id="discovery" disabled>
+                  <option value="">Elegí una opción</option>
+                  <option value="Publicidad en Instagram">Publicidad en Instagram</option>
+                  <option value="Un amigo/a me contó">Un amigo/a me contó</option>
+                  <option value="Los encontré por mi cuenta">Los encontré por mi cuenta</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </label>
+              <div class="checkboxline"><label><input type="checkbox" name="consent" required> Entiendo que esto es una simulación, que no se pagará nada y que no se enviará ningún ticket.</label></div>
+            </div>
+            <p class="hint" id="formError" role="alert" hidden></p>
+            <div class="actions"><button type="button" class="secondary" data-back="1">← ANTERIOR</button><button type="submit" class="primary">REGISTRAR PEDIDO Y SEGUIR <span>→</span></button></div>
+          </form>
+        </section>
+
+        <section class="step" data-step="3" aria-labelledby="payHeading" hidden>
+          <div class="heading"><span>03 / SIMULACIÓN</span><h2 id="payHeading">CERO PESOS REALES.</h2><p>El pedido ficticio ya está registrado. Generá un archivo de prueba y enviálo para comprobar el almacenamiento privado.</p></div>
+          <div class="payment-card">
+            <span class="kicker">ALIAS DE PRUEBA — NO USAR</span>
+            <div class="alias-line"><strong id="payAlias">NO.TRANSFERIR</strong><button type="button" id="copyAlias" class="secondary" disabled>NO TRANSFERIR</button></div>
+            <div class="total-line"><span>TOTAL DEL PEDIDO</span><strong id="payTotal">$0</strong></div>
+            <p class="hint" id="registeredCode">La inscripción definitiva se confirma después de verificar el pago.</p>
+            <p>Este importe es **ficticio**. <strong>No ingreses a ninguna aplicación bancaria ni hagas transferencias reales.</strong></p>
+          </div>
+          <div class="demo-note" id="paymentNotice"><strong>SOLO PRUEBA.</strong> Se va a guardar un archivo PNG generado por esta página. No subas información real.</div>
+          <form id="proofForm">
+            <div class="form-fields" style="margin-top:20px">
+              <button type="button" class="secondary" id="generateTestProof">GENERAR COMPROBANTE FICTICIO →</button>
+              <input name="proof" type="file" id="proof" hidden accept="image/png">
+              <p class="hint" id="testProofStatus" role="status">No hace falta adjuntar archivos tuyos.</p>
+            </div>
+            <p class="hint" id="proofError" role="alert" hidden></p>
+            <div class="actions"><button type="button" class="secondary" id="returnToDetails" data-back="2">← DATOS</button><button type="submit" class="primary">ENVIAR COMPROBANTE <span>→</span></button></div>
+          </form>
+        </section>
+
+        <section class="step" data-step="4" aria-labelledby="completeHeading" hidden>
+          <div class="heading"><span>CHECKOUT DE PRUEBA</span><h2 id="completeHeading">¡ENVIADO!</h2><p>La inscripción y el comprobante ficticios están en Supabase. <strong>No existe ningún pago real.</strong></p></div>
+          <div id="confirmation" class="confirmation"></div>
+          <div class="demo-note" id="completionNotice"><strong>PRUEBA COMPLETADA.</strong> Abrí el panel de administración, elegí ambiente PRUEBA y revisá el archivo. Podés marcar el pedido como CORTESÍA para no simular un pago bancario.</div>
+          <div class="actions"><button type="button" class="secondary" data-back="3">← CORREGIR</button><a class="primary as-link" href="./admin.html">IR AL PANEL <span>↗</span></a></div>
+        </section>
+      </section>
+
+      <aside class="summary" aria-label="Resumen del pedido">
+        <div class="event">
+          <img id="poster" alt="Flyer de la edición activa" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
+          <div><span class="kicker">PRÓXIMA EDICIÓN</span><h3 id="eventTitle">KON CLUB</h3><p id="eventDate"></p></div>
+        </div>
+        <div class="summary-body">
+          <h3>TU PEDIDO</h3>
+          <div id="summaryLines" aria-live="polite"></div>
+          <div class="summary-total"><span>TOTAL</span><strong id="summaryTotal">$0</strong></div>
+          <p class="summary-foot">TOTAL SIMULADO · NO DEBÉS TRANSFERIR ESTE MONTO.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+  <footer>✳ EL CINE ES LA EXCUSA ✳ KON CLUB · BUENOS AIRES</footer>
+</body>
+</html>
