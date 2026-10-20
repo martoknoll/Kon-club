@@ -6,9 +6,8 @@
 
 - Remitente: konclub.entradas@gmail.com.
 - Respuestas: kon.club@proton.me.
-- Diseño: flyer **oficial** de Halloween (La Casa Lobo × The Rocky Horror Picture Show).
-- La edición registrada en Supabase comienza **25/10/2026 a las 17:00 de Buenos Aires**.
-  **Esperar confirmación definitiva de fecha**: en otras comunicaciones surgió 25 de noviembre.
+- Diseño: estilo Kon Club y flyer original de Halloween cuando corresponda a la fecha configurada. **El afiche disponible dice 25/10; no se incorporará automáticamente en el correo del 25/11** hasta contar con una versión corregida.
+- La edición registrada en Supabase comienza **miércoles 25/11/2026 a las 17:00 de Buenos Aires** (fecha confirmada por el equipo; el horario de 17:00 se conserva de la configuración anterior y requiere confirmación).
 - Ventas reales: cerradas. Emails reales: desactivados. Recordatorios: desactivados.
 
 ## Funcionamiento
