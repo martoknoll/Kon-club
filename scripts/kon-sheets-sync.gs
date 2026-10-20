@@ -82,6 +82,9 @@ function setupKonSync(){
   if(!triggers.some(t=>t.getHandlerFunction()==='konOnSheetChange')){
     ScriptApp.newTrigger('konOnSheetChange').forSpreadsheet(spreadsheet).onChange().create();
   }
+  if(!triggers.some(t=>t.getHandlerFunction()==='konOnFormSubmit')){
+    ScriptApp.newTrigger('konOnFormSubmit').forSpreadsheet(spreadsheet).onFormSubmit().create();
+  }
   syncKonToSheet();
 }
 function konSafeText_(input){
@@ -130,6 +133,11 @@ function syncLegacyInventoryKon(){
   if(!lock.tryLock(20000))throw new Error('Hay otra sincronización en proceso. Reintentá en unos segundos.');
   try{konReportLegacyInventory_(konSheet_())}
   finally{lock.releaseLock();}
+}
+function konOnFormSubmit(e){
+  if(!e||!e.range||e.range.getSheet().getName()!==KON_SYNC.sheetName)return;
+  // Cuando el formulario anterior vuelca directamente en FECHAS.
+  syncLegacyInventoryKon();
 }
 function konOnSheetChange(e){
   // Las respuestas de Google Forms no siempre lanzan onEdit.
