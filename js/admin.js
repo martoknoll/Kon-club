@@ -10,6 +10,7 @@ if(!config||!authLib){
 const client=authLib.createClient(config.url,config.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let session=null;
 let orders=[];
+$("environmentFilter").value=new URL(window.location.href).searchParams.get("environment")==="test"?"test":"real";
 let selection=null;
 let busy=false;
 const currency=(n)=>"$"+Number(n||0).toLocaleString("es-AR");
@@ -105,6 +106,7 @@ $("signout").addEventListener("click",async()=>{
  $("loginMessage").textContent="Sesión cerrada.";
 });
 $("refresh").addEventListener("click",()=>loadOrders());
+$("openTestCheckout").addEventListener("click",()=>window.location.assign("./checkout-test.html"));
 $("statusFilter").addEventListener("change",draw);
 $("environmentFilter").addEventListener("change",()=>{ $("statusFilter").value="all"; loadOrders(); });
 function block(parent,tag,text,cls){
