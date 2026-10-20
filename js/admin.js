@@ -182,7 +182,7 @@ $("reviewForm").addEventListener("submit",async(event)=>{
  if(action==="verified"&&!$("bankChecked").checked){notice("Tenés que verificar la acreditación antes de aprobar.");return;}
  const amount=Number($("receivedAmount").value);
  const payload={order_id:selection.id,status:action,note:$("reviewNote").value};
- if(action==="verified")payload.amount_received_ars=amount;
+ if(action==="verified"){payload.amount_received_ars=amount;payload.bank_checked=$("bankChecked").checked;}
  busy=true;$("saveReview").disabled=true;
  try{
   const result=await call("review",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
