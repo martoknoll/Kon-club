@@ -43,7 +43,7 @@ async function call(path,options={}){
 async function loadOrders(){
  $("orders").replaceChildren(el("p","Cargando pedidos...","empty"));
  try{
-  const data=await call("orders");
+  const data=await call("orders?environment="+encodeURIComponent($("environmentFilter").value));
   orders=Array.isArray(data.orders)?data.orders:[];
   $("signin").hidden=true;
   $("dashboard").hidden=false;
@@ -106,10 +106,14 @@ $("signout").addEventListener("click",async()=>{
 });
 $("refresh").addEventListener("click",()=>loadOrders());
 $("statusFilter").addEventListener("change",draw);
+$("environmentFilter").addEventListener("change",()=>{ $("statusFilter").value="all"; loadOrders(); });
 function block(parent,tag,text,cls){
  const e=el(tag,text,cls);parent.append(e);return e;
 }
 function draw(){
+ const isTest=$("environmentFilter").value==="test";
+ $("adminContext").textContent=isTest?"MODO PRUEBA · PEDIDOS FICTICIOS":"PEDIDOS REALES · HALLOWEEN";
+ $("syncHint").textContent=isTest?"Sincronización aislada: solo la copia de prueba":"Sincronización con Kon Club: FECHAS";
  const shown=orders.filter(o=>$("statusFilter").value==="all"||o.status===$("statusFilter").value);
  $("statTotal").textContent=String(orders.length);
  $("statPending").textContent=String(orders.filter(o=>o.status==="pending").length);
@@ -157,7 +161,7 @@ function draw(){
 }
 async function openProof(id){
  try{
-  const response=await call("proof-link?order_id="+encodeURIComponent(id));
+  const response=await call("proof-link?order_id="+encodeURIComponent(id)+"&environment="+encodeURIComponent($("environmentFilter").value));
   const parsed=new URL(response.url);
   if(parsed.protocol!=="https:"||parsed.hostname!==new URL(config.url).hostname)throw new Error("URL del comprobante no válida.");
   window.open(response.url,"_blank","noopener,noreferrer");
@@ -170,7 +174,7 @@ function reviewText(label,value){
 }
 function openReview(order){
  selection=order;
- $("reviewTitle").textContent="PEDIDO "+order.order_code;
+ $("reviewTitle").textContent=($("environmentFilter").value==="test"?"PRUEBA · ":"PEDIDO ")+order.order_code;
  $("reviewAction").value="verified";
  $("receivedAmount").value=String(order.amount_expected_ars);
  $("reviewNote").value="";
@@ -201,7 +205,7 @@ $("reviewForm").addEventListener("submit",async(event)=>{
  const action=$("reviewAction").value;
  if(action==="verified"&&!$("bankChecked").checked){notice("Tenés que verificar la acreditación antes de aprobar.");return;}
  const amount=Number($("receivedAmount").value);
- const payload={order_id:selection.id,status:action,note:$("reviewNote").value};
+ const payload={order_id:selection.id,status:action,note:$("reviewNote").value,environment:$("environmentFilter").value};
  if(action==="verified"){payload.amount_received_ars=amount;payload.bank_checked=$("bankChecked").checked;}
  busy=true;$("saveReview").disabled=true;
  try{
