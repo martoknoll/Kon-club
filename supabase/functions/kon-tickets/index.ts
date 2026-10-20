@@ -147,9 +147,12 @@ async function uploadProof(req: Request, origin: string | null){
 async function listOrders(req: Request, origin: string|null){
   const admin=await adminFromRequest(req);
   if(!admin)return fail("unauthorized",401,origin);
+  // The public administration dashboard only shows real event orders.
+  const {data:event,error:eventError}=await db.from("kon_events").select("id").eq("slug","halloween").maybeSingle();
+  if(eventError||!event)return fail("event_unavailable",500,origin);
   const {data,error}=await db.from("kon_orders").select(
     "id,order_code,full_name,email,instagram,first_time,source,amount_expected_ars,amount_received_ars,status,verified_at,verified_by,created_at,admin_note,proof_received_at,kon_order_lines(quantity,unit_price_ars,kon_products(label,slug))"
-  ).order("created_at",{ascending:false}).limit(150);
+  ).eq("event_id",event.id).order("created_at",{ascending:false}).limit(150);
   if(error){console.error("orders_error",error.message);return fail("unable_to_list",500,origin);}
   return respond({ok:true,orders:data||[],admin:admin.email},200,origin);
 }
@@ -192,16 +195,17 @@ async function proofLink(req:Request,origin:string|null){
 async function sheetAccess(req:Request){
  const token=req.headers.get("x-kon-sheet-token")||"";
  if(!/^[a-f0-9]{64}$/.test(token))return null;
+ const hash=await digest(token);
  const {data,error}=await db.from("kon_sheet_connectors")
-  .select("spreadsheet_id,tab_title,secret_sha256,enabled").eq("id",1).maybeSingle();
+  .select("id,spreadsheet_id,tab_title,event_slug,secret_sha256,enabled")
+  .eq("secret_sha256",hash).eq("enabled",true).maybeSingle();
  if(error||!data||!data.enabled||!data.secret_sha256)return null;
- if(await digest(token)!==data.secret_sha256)return null;
  return data;
 }
 async function sheetExport(req:Request,origin:string|null){
  const access=await sheetAccess(req);
  if(!access)return fail("sync_not_authorized",401,origin);
- const {data:event}=await db.from("kon_events").select("id").eq("slug","halloween").single();
+ const {data:event}=await db.from("kon_events").select("id").eq("slug",access.event_slug).single();
  if(!event)return fail("event_unavailable",404,origin);
  const {data,error}=await db.from("kon_orders")
   .select("id,order_code,full_name,email,instagram,source,status,amount_expected_ars,amount_received_ars,admin_note,created_at,sheets_row_key,verified_at,kon_order_lines(quantity,kon_products(slug))")
@@ -229,8 +233,10 @@ async function sheetAcknowledge(req:Request,payload:JsonValue,origin:string|null
  if(!validUuid(payload.order_id)||!Number.isInteger(payload.row)||Number(payload.row)<2||Number(payload.row)>100000)
   return fail("invalid_input",400,origin);
  const rowKey=access.tab_title+":"+String(payload.row);
+ const {data:event}=await db.from("kon_events").select("id").eq("slug",access.event_slug).maybeSingle();
+ if(!event)return fail("event_unavailable",404,origin);
  const {data:order,error:findError}=await db.from("kon_orders").select("id,sheets_row_key")
-   .eq("id",payload.order_id).maybeSingle();
+   .eq("id",payload.order_id).eq("event_id",event.id).maybeSingle();
  if(findError||!order)return fail("not_found",404,origin);
  if(order.sheets_row_key && order.sheets_row_key!==rowKey)return fail("conflicting_sheet_row",409,origin);
  if(order.sheets_row_key===rowKey)return respond({ok:true,unchanged:true},200,origin);
@@ -248,6 +254,10 @@ async function sheetReview(req:Request,payload:JsonValue,origin:string|null){
  const amount=payload.amount_received_ars;
  if(status==="verified"&&(!Number.isInteger(amount)||Number(amount)<1||Number(amount)>2000000||payload.bank_checked!==true))
   return fail("bank_confirmation_required",400,origin);
+ const {data:event}=await db.from("kon_events").select("id").eq("slug",access.event_slug).maybeSingle();
+ if(!event)return fail("event_unavailable",404,origin);
+ const {data:order}=await db.from("kon_orders").select("id").eq("id",payload.order_id).eq("event_id",event.id).maybeSingle();
+ if(!order)return fail("not_found",404,origin);
  const actorEmail=readString(payload.actor_email,180);
  const {data,error}=await db.rpc("kon_review_order",{
   p_order_id:payload.order_id,p_status:status,p_amount:status==="verified"?amount:null,
@@ -262,18 +272,25 @@ async function sheetReview(req:Request,payload:JsonValue,origin:string|null){
  }
  return respond({ok:true,unchanged:data.unchanged,email_dispatched:false},200,origin);
 }
-async function pairSheets(req:Request,origin:string|null){
+async function pairSheets(req:Request,payload:JsonValue,origin:string|null){
  const admin=await adminFromRequest(req);
  if(!admin)return fail("unauthorized",401,origin);
+ const isTest=payload.environment==="test";
+ if(payload.environment!==undefined&&!["test","real"].includes(String(payload.environment)))
+   return fail("invalid_environment",400,origin);
+ const connectorId=isTest?2:1;
+ const {data:connector}=await db.from("kon_sheet_connectors").select("id,spreadsheet_id,tab_title").eq("id",connectorId).maybeSingle();
+ if(!connector)return fail("connector_not_found",404,origin);
  const bytes=crypto.getRandomValues(new Uint8Array(32));
  const token=Array.from(bytes).map(b=>b.toString(16).padStart(2,"0")).join("");
  const secretHash=await digest(token);
  const {error}=await db.from("kon_sheet_connectors").update({
   secret_sha256:secretHash,enabled:true,updated_at:new Date().toISOString()
- }).eq("id",1);
+ }).eq("id",connectorId);
  if(error)return fail("unable_to_generate_sync_key",500,origin);
- // Never persist or log the cleartext key. Rotates previous key.
- return respond({ok:true,sync_token:token,warning:"Guardalo en Script Properties: KON_SYNC_TOKEN. No se puede consultar nuevamente."},200,origin);
+ // Never persist or log the cleartext key. Rotates only the selected connector.
+ return respond({ok:true,sync_token:token,environment:isTest?"test":"real",
+  tab_title:connector.tab_title,warning:"Guardalo solo en las propiedades privadas de Apps Script. No se puede consultar nuevamente."},200,origin);
 }
 
 Deno.serve(async(req:Request)=>{
@@ -294,7 +311,7 @@ Deno.serve(async(req:Request)=>{
       if(path==="order")return await createOrder(body,origin);
       if(path==="sync-review")return await sheetReview(req,body,origin);
       if(path==="sync-ack")return await sheetAcknowledge(req,body,origin);
-      if(path==="sync-pair")return await pairSheets(req,origin);
+      if(path==="sync-pair")return await pairSheets(req,body,origin);
       return await approveOrder(req,body,origin);
     }
     return fail("not_found",404,origin);
