@@ -547,3 +547,53 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
  .kon-archive-ticket-card,.kon-card-enter,.kon-ticket-corner{animation:none!important;transition:none!important}
  .kon-archive-ticket-card{will-change:auto}
 }
+
+
+/* Paletas editoriales individuales: no alteran la home ni la galería del archivo. */
+.archive-full.kon-edition-theme{
+  background:var(--bg);color:var(--on);
+  background-image:
+    radial-gradient(ellipse at 94% 12%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 35%),
+    radial-gradient(ellipse at 3% 85%,color-mix(in srgb,var(--secondary) 10%,transparent),transparent 41%);
+}
+.archive-full.kon-edition-theme .archive-full-bar{
+  background:var(--bg);border-bottom-color:var(--accent);
+}
+.archive-full.kon-edition-theme .archive-full-brand span,
+.archive-full.kon-edition-theme .archive-detail .num,
+.archive-full.kon-edition-theme .archive-issue-kicker{color:var(--accent)}
+.archive-full.kon-edition-theme .archive-issue-meta{
+  border-color:var(--accent);
+}
+.archive-full.kon-edition-theme .archive-issue-meta>span:nth-child(2){
+  color:var(--accent);
+}
+.archive-full.kon-edition-theme .archive-issue-intro h3{
+  text-shadow:4px 4px 0 color-mix(in srgb,var(--accent) 22%,transparent);
+}
+.archive-full.kon-edition-theme .archive-detail-poster{
+  border-color:var(--on);box-shadow:9px 9px 0 color-mix(in srgb,var(--accent) 40%,transparent);
+}
+.archive-full.kon-edition-theme .archive-issue-chapter{border-top-color:var(--on)}
+.archive-full.kon-edition-theme .archive-issue-jumps button:hover{
+  background:var(--accent);color:var(--bg);
+}
+.archive-full.kon-edition-theme .kon-archive-ticket-card{
+  border-color:var(--on);box-shadow:12px 12px 0 color-mix(in srgb,var(--accent) 37%,transparent);
+}
+.archive-full.kon-edition-theme .kon-ticket-stage.has-variants::after{background:var(--accent)}
+/* Ampliación en el propio sitio: no hay enlaces de Drive. */
+.kon-ticket-dialog{
+  box-sizing:border-box;width:min(94vw,1180px);max-width:none;height:min(94dvh,920px);
+  max-height:none;overflow:hidden;padding:clamp(14px,2vw,24px);
+  border:2px solid var(--on);background:var(--bg);color:var(--on);
+}
+.kon-ticket-dialog::backdrop{background:rgba(7,3,11,.86);backdrop-filter:blur(6px)}
+.kon-ticket-dialog[open]{display:flex;flex-direction:column;gap:15px}
+.kon-ticket-dialog-top{display:flex;align-items:center;justify-content:space-between;gap:12px;font:900 11px 'Barlow',Arial,sans-serif;letter-spacing:.09em}
+.kon-ticket-dialog-close{cursor:pointer;background:var(--accent);color:var(--ink);padding:11px 14px;border:2px solid var(--on);font:900 11px 'Barlow',Arial,sans-serif;white-space:nowrap}
+.kon-ticket-dialog-image{display:block;min-height:0;max-width:100%;height:100%;flex:1;object-fit:contain;margin:auto}
+.kon-ticket-dialog-caption{font:800 12px 'Barlow',Arial,sans-serif;letter-spacing:.09em;text-align:center}
+.kon-archive-ticket-actions button:first-child{background:var(--accent);color:var(--ink)}
+.kon-archive-ticket-actions button:nth-child(2){background:transparent;color:var(--on)}
+@media(max-width:730px){.kon-ticket-dialog{width:100vw;height:100dvh;border:0;padding:16px}.kon-ticket-dialog-top{font-size:10px}}
