@@ -34,9 +34,15 @@ function apply(e,privatePreview){
  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",e.palette.bg);
  $("heroEditionTag").textContent=e.tag||"KON CLUB / CINE";
  $("heroStatus").textContent=privatePreview?"VISTA PREVIA PRIVADA":"PRÓXIMA EDICIÓN";
+ // El CSS ya usa display:block en el span de la segunda línea.
+ // Evitar sumar un <br> + dos spans de bloque: generaban un renglón vacío en mobile.
  const titles=String(e.headline||e.film_title||"KON CLUB").split("|");
- const headline=$("heroTitle");headline.replaceChildren();
- titles.forEach((segment,i)=>{if(i)headline.appendChild(document.createElement("br"));const span=document.createElement("span");span.textContent=segment;headline.appendChild(span)});
+ const headline=$("heroTitle");headline.replaceChildren(document.createTextNode(titles[0]||"KON CLUB"));
+ if(titles.length>1){
+  const second=document.createElement("span");
+  second.textContent=titles.slice(1).join(" ");
+  headline.appendChild(second);
+ }
  $("heroLead").textContent=e.film_title||e.title||"KON CLUB";
  if(e.starts_at&&e.ends_at)brText($("heroDate"),[prettyDate(e.starts_at),time(e.starts_at)+" A "+time(e.ends_at)+" HS"]);
  else $("heroDate").textContent="PRÓXIMAMENTE";
