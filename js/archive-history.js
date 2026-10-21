@@ -45,7 +45,7 @@ function section(folder){
   const current=items[0];
   const empty='<div class="archive-issue-empty"><span>✳</span><p>Esta pieza todavía no está disponible en el archivo digital.</p></div>';
   root.innerHTML='<header><span>[01] / ARCHIVO DE PAPEL</span><h4>LA ENTRADA<br>DE ESA <em>FECHA.</em></h4><small>'+label(folder)+'</small></header>'+
-    (!current?empty:'<div class="kon-archive-ticket-layout"><div class="kon-ticket-stage"><div class="kon-archive-ticket-card" id="konTicketCard" role="button" tabindex="0" aria-label="Ampliar entrada física"><div class="kon-ticket-backdrop"><span>KON CLUB / ARCHIVO</span><strong>ENTRADA<br>ORIGINAL</strong></div><img id="konTicketImage" alt="Entrada del Kon" src="'+ticketSrc(current)+'" loading="lazy"><span class="kon-ticket-corner">AMPLIAR ⤢</span></div></div><div class="kon-archive-ticket-copy"><span class="archive-issue-kicker">PIEZAS ORIGINALES / SIN REDISEÑAR</span><h5>UNA ENTRADA.<br>UN RECUERDO.</h5><p>La entrada física que diseñamos para esta función. Un recorrido por la evolución gráfica del club desde Paprika.</p><strong id="konTicketName" aria-live="polite"></strong><small class="kon-ticket-mobile-help">'+(items.length>1?'DESLIZÁ PARA CAMBIAR DE ENTRADA · TOCÁ PARA AMPLIAR':'ARRASTRÁ LA ENTRADA · TOCÁ PARA AMPLIAR')+'</small><div class="kon-archive-ticket-actions"><button type="button" id="konTicketZoom">AMPLIAR ENTRADA ⤢</button>'+(items.length>1?'<button type="button" id="konTicketNext">OTRA VERSIÓN ↻</button>':'')+'</div>'+(items.length>1?'<small id="konTicketPosition"></small>':'')+'<small>Registro gráfico del Kon. Esta imagen es parte del archivo histórico, no una entrada válida para ingresar.</small></div></div><dialog class="kon-ticket-dialog" aria-label="Entrada física ampliada"><div class="kon-ticket-dialog-top"><span>ARCHIVO DE ENTRADAS · '+label(folder)+'</span><button type="button" class="kon-ticket-dialog-close">CERRAR ×</button></div><img class="kon-ticket-dialog-image" alt="Entrada física de la edición"><span class="kon-ticket-dialog-caption"></span></dialog>');
+    (!current?empty:'<div class="kon-archive-ticket-layout"><div class="kon-ticket-stage"><button type="button" class="kon-archive-ticket-card" id="konTicketCard" aria-label="Ampliar entrada física"><div class="kon-ticket-backdrop"><span>KON CLUB / ARCHIVO</span><strong>ENTRADA<br>ORIGINAL</strong></div><img id="konTicketImage" alt="Entrada del Kon" src="'+ticketSrc(current)+'" loading="lazy"><span class="kon-ticket-corner">AMPLIAR ⤢</span></button></div><div class="kon-archive-ticket-copy"><span class="archive-issue-kicker">PIEZAS ORIGINALES / SIN REDISEÑAR</span><h5>UNA ENTRADA.<br>UN RECUERDO.</h5><p>La entrada física que diseñamos para esta función. Un recorrido por la evolución gráfica del club desde Paprika.</p><strong id="konTicketName" aria-live="polite"></strong><small class="kon-ticket-mobile-help">'+(items.length>1?'DESLIZÁ PARA CAMBIAR · TOCÁ PARA AMPLIAR':'TOCÁ LA ENTRADA PARA AMPLIAR')+'</small><div class="kon-archive-ticket-actions"><button type="button" id="konTicketZoom">AMPLIAR ENTRADA ⤢</button>'+(items.length>1?'<button type="button" id="konTicketPrev" aria-label="Ver entrada anterior">← ANTERIOR</button><button type="button" id="konTicketNext" aria-label="Ver entrada siguiente">SIGUIENTE →</button>':'')+'</div>'+(items.length>1?'<small id="konTicketPosition" role="status" aria-live="polite"></small>':'')+'<small>Registro gráfico del Kon. Esta imagen es parte del archivo histórico, no una entrada válida para ingresar.</small></div></div><dialog class="kon-ticket-dialog" aria-label="Entrada física ampliada"><div class="kon-ticket-dialog-top"><span>ARCHIVO DE ENTRADAS · '+label(folder)+'</span><button type="button" class="kon-ticket-dialog-close">CERRAR ×</button></div><img class="kon-ticket-dialog-image" alt="Entrada física de la edición"><span class="kon-ticket-dialog-caption"></span></dialog>');
   if(items.length){
     let index=0;
     const frame=root.querySelector('#konTicketCard'),img=root.querySelector('#konTicketImage'),name=root.querySelector('#konTicketName'),position=root.querySelector('#konTicketPosition');
@@ -89,18 +89,19 @@ function section(folder){
       if(!modal.open)modal.showModal();
     };
     paint();
+    const prev=root.querySelector('#konTicketPrev');
+    if(prev)prev.addEventListener('click',()=>advance(-1));
     const next=root.querySelector('#konTicketNext');
     if(next)next.addEventListener('click',()=>advance(1));
     frame.parentElement.classList.toggle('has-variants',items.length>1);
-    // En pantallas táctiles, distinguir el toque (ampliar) del arrastre (mover o pasar).
+    // Mobile: botones y swipe natural; el toque abre el visor sin competidores de gestos.
     let suppressClickUntil=0;
     frame.addEventListener('click',event=>{
       if(Date.now()<suppressClickUntil){event.preventDefault();return;}
       zoom();
     });
-    enableTicketTouch(frame,items.length,advance,()=>{suppressClickUntil=Date.now()+550;});
-    frame.addEventListener('keydown',event=>{
-      if(event.key==='Enter'||event.key===' '){event.preventDefault();zoom();}
+    enableTicketSwipe(frame,items.length,advance,()=>{
+      suppressClickUntil=Date.now()+700;
     });
     root.querySelector('#konTicketZoom').addEventListener('click',zoom);
     root.querySelector('.kon-ticket-dialog-close').addEventListener('click',()=>modal.close());
@@ -114,78 +115,26 @@ function section(folder){
   return root;
 }
 
-// Manipulación táctil con drag elástico y swipe horizontal. El scroll vertical sigue nativo.
-function enableTicketTouch(frame,total,advance,suppressClick){
-  if(!window.PointerEvent)return;
-  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
-  let gesture=null;
-  const resting='rotate(-1.25deg)';
-  function settle(){
-    if(!gesture)return;
-    gesture=null;
-    if(!reduced.matches){
-      frame.style.transition='transform 620ms cubic-bezier(.2,1.35,.3,1)';
-      frame.style.transform=resting;
-    }else{
-      frame.style.transition='';
-      frame.style.transform='';
-    }
-    frame.classList.remove('kon-ticket-grabbing');
-  }
-  frame.addEventListener('pointerdown',event=>{
-    if(event.pointerType!=='touch'&&event.pointerType!=='pen')return;
-    if(!event.isPrimary||gesture||event.button>0)return;
-    gesture={id:event.pointerId,x:event.clientX,y:event.clientY,dx:0,dy:0,dragging:false,vertical:false};
-  });
-  frame.addEventListener('pointermove',event=>{
-    if(!gesture||event.pointerId!==gesture.id||gesture.vertical)return;
-    const dx=event.clientX-gesture.x,dy=event.clientY-gesture.y;
-    gesture.dx=dx;gesture.dy=dy;
-    if(!gesture.dragging){
-      if(Math.abs(dy)>9&&Math.abs(dy)>Math.abs(dx)*1.15){
-        gesture.vertical=true; // No secuestrar gestos destinados a scrollear.
-        return;
-      }
-      if(Math.abs(dx)<9||Math.abs(dx)<=Math.abs(dy)*1.1)return;
-      gesture.dragging=true;
-      frame.classList.add('kon-ticket-grabbing');
-      if(frame.setPointerCapture){
-        try{frame.setPointerCapture(event.pointerId);}catch(err){}
-      }
-    }
-    if(reduced.matches)return;
-    const x=Math.max(-43,Math.min(43,dx*.24));
-    const y=Math.max(-13,Math.min(13,dy*.13));
-    const angle=Math.max(-11,Math.min(11,dx*.045))-1.25;
-    frame.style.transition='none';
-    frame.style.transform='translate3d('+x+'px,'+y+'px,0) rotate('+angle+'deg) scale(1.018)';
-  });
-  frame.addEventListener('pointerup',event=>{
-    if(!gesture||event.pointerId!==gesture.id)return;
-    const {dx,dragging,vertical}=gesture;
-    if(dragging&&!vertical){
-      suppressClick();
-      const threshold=Math.min(72,Math.max(42,frame.getBoundingClientRect().width*.16));
-      if(total>1&&Math.abs(dx)>=threshold)advance(dx<0?1:-1);
-    }
-    settle();
-  });
-  frame.addEventListener('pointercancel',settle);
-  frame.addEventListener('lostpointercapture',settle);
-}
-function revealTicketOnScroll(section){
-  if(!section||!window.IntersectionObserver||window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-  const stage=section.querySelector('.kon-ticket-stage');
-  if(!stage)return;
-  stage.classList.add('kon-ticket-before-reveal');
-  const observer=new IntersectionObserver(entries=>{
-    if(entries.some(entry=>entry.isIntersecting)){
-      stage.classList.remove('kon-ticket-before-reveal');
-      stage.classList.add('kon-ticket-revealed');
-      observer.disconnect();
-    }
-  },{root:archivePage,threshold:0.12,rootMargin:'0px 0px 40px 0px'});
-  observer.observe(stage);
+// Los gestos son de lectura, no de arrastre: no se captura el puntero ni se bloquea el scroll.
+// Los controles anterior/siguiente siguen disponibles aunque el navegador cancele el swipe.
+function enableTicketSwipe(frame,count,advance,suppressClick){
+  if(count<2)return;
+  let start=null;
+  frame.addEventListener('touchstart',event=>{
+    if(event.touches.length!==1){start=null;return;}
+    const point=event.touches[0];
+    start={x:point.clientX,y:point.clientY};
+  },{passive:true});
+  frame.addEventListener('touchend',event=>{
+    if(!start||event.changedTouches.length!==1){start=null;return;}
+    const point=event.changedTouches[0];
+    const dx=point.clientX-start.x,dy=point.clientY-start.y;
+    start=null;
+    if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy)*1.3)return;
+    suppressClick(); // Un swipe no debe abrir por error el diálogo de ampliación.
+    advance(dx<0?1:-1);
+  },{passive:true});
+  frame.addEventListener('touchcancel',()=>{start=null;},{passive:true});
 }
 
 function enhanceDetail(){
@@ -208,7 +157,6 @@ function enhanceDetail(){
   if(!spot)return;
   const ticketSection=section(id);
   spot.insertAdjacentElement('beforebegin',ticketSection);
-  revealTicketOnScroll(ticketSection);
   const jump=document.createElement('button');
   jump.type='button';jump.textContent='ENTRADA ↓';
   jump.onclick=()=>byId('archiveIssueTicket')?.scrollIntoView({behavior:'smooth',block:'start'});

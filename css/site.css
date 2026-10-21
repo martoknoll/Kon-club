@@ -670,3 +670,39 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
   .kon-ticket-stage.kon-ticket-revealed,.kon-card-enter-reverse{animation:none!important}
   .kon-ticket-stage .kon-archive-ticket-card{transition:none!important}
 }
+
+
+/* Mobile estabilizado: sin animación que oculte la entrada, sin tilt por touch, botones nativos. */
+.kon-ticket-stage .kon-archive-ticket-card{
+  appearance:none;-webkit-appearance:none;padding:0;text-align:left;font:inherit;color:inherit;
+}
+.kon-archive-ticket-actions button{
+  min-height:44px;
+}
+.kon-archive-ticket-actions #konTicketPrev,
+.kon-archive-ticket-actions #konTicketNext{
+  background:transparent;color:var(--on);border-color:var(--on);
+}
+#konTicketPosition{font-variant-numeric:tabular-nums}
+@media(hover:none), (pointer:coarse){
+  .kon-ticket-stage,.kon-ticket-stage.kon-ticket-before-reveal{
+    opacity:1!important;transform:none!important;animation:none!important;transition:none!important;
+  }
+  .kon-ticket-stage .kon-archive-ticket-card{
+    touch-action:pan-y!important;transform:rotate(-1.25deg)!important;
+    transition:transform .16s ease-out!important;cursor:pointer;
+    filter:none!important;
+  }
+  .kon-ticket-stage .kon-archive-ticket-card:active{
+    transform:rotate(-1.25deg) scale(.985)!important;
+  }
+  .kon-ticket-mobile-help{display:block!important}
+  .kon-ticket-corner{display:none}
+  .kon-archive-ticket-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .kon-archive-ticket-actions #konTicketZoom{grid-column:1/-1}
+  .kon-archive-ticket-actions button{width:100%;white-space:normal}
+  .kon-ticket-stage.has-variants::before,.kon-ticket-stage.has-variants::after{pointer-events:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .kon-ticket-stage .kon-archive-ticket-card,.kon-ticket-stage .kon-archive-ticket-card:active{transition:none!important}
+}
