@@ -5,6 +5,87 @@
 window.KON_CONFIG = {
   activeEdition: 'halloween',
   assets: {"logoHalloween2026":"public/media/8e47e9d7df2efb.png","halloween":"public/media/df27d971f6912f.webp","wag":"public/media/261621a14d0677.webp","flcl":"public/media/a9035079072fca.webp","paprika":"public/media/676e7dbee3b1fd.webp","nirvanna":"public/media/6e3aa330456735.webp","fear":"public/media/cd0711d82e4c5a.webp","logoHalloween":"public/media/6b17595351a746.webp","logoFlcl":"public/media/a2f5a47cad65e3.webp","logoFear":"public/media/15aaa0bd0f1b46.webp","fanPaprika":"public/media/ba13b417f50c25.webp","fanWag":"public/media/50c062fbb25f11.webp","photo1":"public/media/cd060e7cc6ea42.webp","photo2":"public/media/9538596401c866.webp","photo3":"public/media/c467296d2e54d5.webp","photo4":"public/media/b3210033e1e1a4.webp","photo5":"public/media/ea14fcc0808a6f.webp","logoWag":"public/media/ec37518d2b62df.webp","logoPaprika":"public/media/5bbbffc6e92a96.webp","chungking":"public/media/7d513c65e78a9b.webp","mindgame":"public/media/b41f992d173f06.webp","walter30":"public/media/f9088922f8e259.webp","whiplash":"public/media/72c8dd1bbd3fdb.webp","afterhours":"public/media/56047adf986ece.webp","scott":"public/media/4e17ad6c748c19.webp","fox":"public/media/d993f74f1c4251.webp","dynamite":"public/media/fb3a6171073622.webp","humanist":"public/media/7ed64e2b3f78d4.webp"},
+  // Fotografías tomadas en ediciones del archivo oficial (#17+), no flyers ni reseñas.
+  photoAlbum: [
+    {
+      "src": "public/media/fotos/whiplash-31.jpg",
+      "edition": 28,
+      "event": "WHIPLASH",
+      "description": "Público reunido durante Whiplash"
+    },
+    {
+      "src": "public/media/cd060e7cc6ea42.webp",
+      "edition": 29,
+      "event": "FEAR AND LOATHING",
+      "description": "Juegos y encuentro social"
+    },
+    {
+      "src": "public/media/fotos/chungking-169.jpg",
+      "edition": 32,
+      "event": "CHUNGKING EXPRESS",
+      "description": "Mesa de juegos y asistentes"
+    },
+    {
+      "src": "public/media/fotos/flcl-proyeccion.jpg",
+      "edition": 33,
+      "event": "FLCL",
+      "description": "Proyección compartida"
+    },
+    {
+      "src": "public/media/fotos/whiplash-22.jpg",
+      "edition": 28,
+      "event": "WHIPLASH",
+      "description": "Partida de Dungeons & Dragons"
+    },
+    {
+      "src": "public/media/c467296d2e54d5.webp",
+      "edition": 29,
+      "event": "FEAR AND LOATHING",
+      "description": "Asistentes en Kon Club"
+    },
+    {
+      "src": "public/media/fotos/chungking-166.jpg",
+      "edition": 32,
+      "event": "CHUNGKING EXPRESS",
+      "description": "Juegos de mesa durante el evento"
+    },
+    {
+      "src": "public/media/fotos/whiplash-55.jpg",
+      "edition": 28,
+      "event": "WHIPLASH",
+      "description": "Charla en el encuentro"
+    },
+    {
+      "src": "public/media/b3210033e1e1a4.webp",
+      "edition": 29,
+      "event": "FEAR AND LOATHING",
+      "description": "Una noche compartida"
+    },
+    {
+      "src": "public/media/fotos/chungking-159.jpg",
+      "edition": 32,
+      "event": "CHUNGKING EXPRESS",
+      "description": "Proyección y comunidad"
+    },
+    {
+      "src": "public/media/fotos/whiplash-42.jpg",
+      "edition": 28,
+      "event": "WHIPLASH",
+      "description": "Invitados durante la función"
+    },
+    {
+      "src": "public/media/ea14fcc0808a6f.webp",
+      "edition": 29,
+      "event": "FEAR AND LOATHING",
+      "description": "Público del Kon"
+    },
+    {
+      "src": "public/media/fotos/chungking-163.jpg",
+      "edition": 32,
+      "event": "CHUNGKING EXPRESS",
+      "description": "Recuerdos de la noche"
+    }
+  ],
   editionDefaults: {halloween:{tag:'HALLOWEEN / DOBLE FUNCIÓN',title:'EL KON|SE DISFRAZA.',lead:'LA CASA LOBO × THE ROCKY HORROR PICTURE SHOW',date:'DOM. 25 OCTUBRE | 17:00 A 23:00 HS',place:'VIRREY OLAGUER Y FELIÚ 3121 | BUENOS AIRES',price:'$9.000',poster:'halloween',logo:'logoHalloween2026',palette:{bg:'#230519',on:'#fff4e6',paper:'#f4dec4',ink:'#291021',accent:'#f26c37',secondary:'#d64350'}},wag:{tag:'KON CLUB RECOMIENDA',title:'CINE,|MENTIRAS Y TV.',lead:'WAG THE DOG',date:'DOM. 04 OCTUBRE | 18:00 A 23:00 HS',place:'VIRREY OLAGUER Y FELIÚ 3121 | BUENOS AIRES',price:'CONSULTAR',poster:'wag',logo:'logoWag',palette:{bg:'#081853',on:'#f6f1de',paper:'#f0e2c9',ink:'#102051',accent:'#eab0ad',secondary:'#d12c39'}},flcl:{tag:'KON CLUB / ANIME',title:'UN VIAJE|SIN FRENOS.',lead:'FLCL',date:'DOM. 30 AGOSTO | 18:00 A 23:00 HS',place:'VIRREY OLAGUER Y FELIÚ 3121 | BUENOS AIRES',price:'CONSULTAR',poster:'flcl',logo:'logoFlcl',palette:{bg:'#34132e',on:'#fff0d5',paper:'#f5e7c9',ink:'#32122f',accent:'#e97c37',secondary:'#d4476f'}},paprika:{tag:'KON CLUB / CINE',title:'SOÑÁ|DESPIERTO.',lead:'PAPRIKA',date:'SÁB. 03 ENERO | 20:00 A 01:00 HS',place:'MANUEL UGARTE 2789 | BUENOS AIRES',price:'CONSULTAR',poster:'paprika',logo:'logoPaprika',palette:{bg:'#872427',on:'#fff1d5',paper:'#fbe1b9',ink:'#661a20',accent:'#ff8c57',secondary:'#e43b40'}}},
   // Sinopsis originales, breves y sin spoilers, vinculadas al número de carpeta.
   archiveSynopses: {
