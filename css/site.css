@@ -597,3 +597,40 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
 .kon-archive-ticket-actions button:first-child{background:var(--accent);color:var(--ink)}
 .kon-archive-ticket-actions button:nth-child(2){background:transparent;color:var(--on)}
 @media(max-width:730px){.kon-ticket-dialog{width:100vw;height:100dvh;border:0;padding:16px}.kon-ticket-dialog-top{font-size:10px}}
+
+
+/* Card física: la proporción real de la entrada define su marco, sin troqueles artificiales. */
+.kon-archive-ticket-layout{grid-template-columns:minmax(0,1.12fr) minmax(265px,.88fr);align-items:center;gap:clamp(30px,5vw,85px)}
+.kon-ticket-stage{display:flex;align-items:center;justify-content:center;width:100%;max-width:100%;padding:16px 18px 24px;margin:0 auto;perspective:1400px;transition:max-width .25s}
+.kon-ticket-stage.is-portrait{max-width:min(100%,440px)}
+.kon-ticket-stage.is-square{max-width:min(100%,570px)}
+.kon-ticket-stage .kon-archive-ticket-card{
+  display:block;width:100%;max-width:100%;min-height:0;aspect-ratio:var(--ticket-aspect,8 / 5);
+  background:transparent;border:0;box-shadow:9px 12px 0 color-mix(in srgb,var(--on) 23%,transparent),0 20px 30px #0005;
+  outline-offset:6px;transform:rotate(-1.25deg);overflow:hidden;
+}
+.kon-ticket-stage .kon-archive-ticket-card::before,
+.kon-ticket-stage .kon-archive-ticket-card::after{display:none!important}
+.kon-ticket-stage .kon-archive-ticket-card img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:fill;display:block;background:transparent;
+}
+.kon-ticket-stage .kon-ticket-backdrop{position:absolute;inset:0;z-index:0;background:color-mix(in srgb,var(--paper) 35%,var(--bg));color:var(--on)}
+.kon-ticket-stage.has-variants::before,.kon-ticket-stage.has-variants::after{
+  inset:20px 22px 27px;max-width:none;border:1px solid var(--on);
+  box-shadow:5px 6px 0 #0005
+}
+.kon-ticket-stage .kon-ticket-corner{bottom:12px;right:12px}
+.kon-ticket-stage .kon-archive-ticket-card.fallback{aspect-ratio:8/5}
+.kon-ticket-stage .kon-archive-ticket-card.fallback img{display:none}
+@media(max-width:850px){
+ .kon-archive-ticket-layout{grid-template-columns:1fr}
+ .kon-ticket-stage{max-width:min(100%,720px)}
+ .kon-ticket-stage.is-portrait{max-width:min(100%,420px)}
+}
+@media(max-width:480px){
+ .kon-ticket-stage{padding:8px 9px 16px}
+ .kon-ticket-stage.is-portrait{max-width:min(100%,310px)}
+ .kon-archive-ticket-copy h5{font-size:clamp(38px,11vw,58px)}
+}
+@media(prefers-reduced-motion:reduce){.kon-ticket-stage{transition:none}}

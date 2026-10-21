@@ -7,6 +7,9 @@ const edition=folder=>kon.archiveEditionNumbers[String(folder)]||null;
 const label=folder=>edition(folder)?'EDICIÓN #'+edition(folder):'EDICIÓN DEL ARCHIVO';
 const validId=id=>/^[A-Za-z0-9_-]{20,80}$/.test(String(id||''));
 const thumb=(id,large=false)=>validId(id)?'https://drive.google.com/thumbnail?id='+id+'&sz='+(large?'w2400':'w1200'):'';
+const safeLocalSrc=src=>/^public\/media\/entradas\/[a-z0-9-]+\.webp$/.test(String(src||''))?src:'';
+const ticketSrc=(item,large=false)=>safeLocalSrc(item.src)||thumb(item.id,large);
+const validTicket=item=>Boolean(safeLocalSrc(item.src)||validId(item.id));
 const archivePage=byId('archivo-completo');
 const themeProperties=['bg','on','paper','ink','accent','secondary'];
 let ticketDialog=null;
@@ -36,24 +39,34 @@ function enhanceList(){
   if(byId('regularCount'))byId('regularCount').textContent=byId('regularCount').textContent.replace('EDICIONES','FUNCIONES');
 }
 function section(folder){
-  const items=(kon.archiveTickets?.[folder]||[]).filter(t=>validId(t.id));
+  const items=(kon.archiveTickets?.[folder]||[]).filter(validTicket);
   const root=document.createElement('section');
   root.className='kon-archive-ticket';root.id='archiveIssueTicket';
   const current=items[0];
   const empty='<div class="archive-issue-empty"><span>✳</span><p>Esta pieza todavía no está disponible en el archivo digital.</p></div>';
   root.innerHTML='<header><span>[01] / ARCHIVO DE PAPEL</span><h4>LA ENTRADA<br>DE ESA <em>FECHA.</em></h4><small>'+label(folder)+'</small></header>'+
-    (!current?empty:'<div class="kon-archive-ticket-layout"><div class="kon-ticket-stage"><div class="kon-archive-ticket-card" id="konTicketCard" role="button" tabindex="0" aria-label="Ampliar entrada física"><div class="kon-ticket-backdrop"><span>KON CLUB / ARCHIVO</span><strong>ENTRADA<br>ORIGINAL</strong></div><img id="konTicketImage" alt="Entrada del Kon" src="'+thumb(current.id)+'" loading="lazy"><span class="kon-ticket-corner">AMPLIAR ⤢</span></div></div><div class="kon-archive-ticket-copy"><span class="archive-issue-kicker">PIEZAS ORIGINALES / SIN REDISEÑAR</span><h5>UNA ENTRADA.<br>UN RECUERDO.</h5><p>La entrada física que diseñamos para esta función. Un recorrido por la evolución gráfica del club desde Paprika.</p><strong id="konTicketName"></strong><div class="kon-archive-ticket-actions"><button type="button" id="konTicketZoom">AMPLIAR ENTRADA ⤢</button>'+(items.length>1?'<button type="button" id="konTicketNext">OTRA VERSIÓN ↻</button>':'')+'</div>'+(items.length>1?'<small id="konTicketPosition"></small>':'')+'<small>Registro gráfico del Kon. Esta imagen es parte del archivo histórico, no una entrada válida para ingresar.</small></div></div><dialog class="kon-ticket-dialog" aria-label="Entrada física ampliada"><div class="kon-ticket-dialog-top"><span>ARCHIVO DE ENTRADAS · '+label(folder)+'</span><button type="button" class="kon-ticket-dialog-close">CERRAR ×</button></div><img class="kon-ticket-dialog-image" alt="Entrada física de la edición"><span class="kon-ticket-dialog-caption"></span></dialog>');
+    (!current?empty:'<div class="kon-archive-ticket-layout"><div class="kon-ticket-stage"><div class="kon-archive-ticket-card" id="konTicketCard" role="button" tabindex="0" aria-label="Ampliar entrada física"><div class="kon-ticket-backdrop"><span>KON CLUB / ARCHIVO</span><strong>ENTRADA<br>ORIGINAL</strong></div><img id="konTicketImage" alt="Entrada del Kon" src="'+ticketSrc(current)+'" loading="lazy"><span class="kon-ticket-corner">AMPLIAR ⤢</span></div></div><div class="kon-archive-ticket-copy"><span class="archive-issue-kicker">PIEZAS ORIGINALES / SIN REDISEÑAR</span><h5>UNA ENTRADA.<br>UN RECUERDO.</h5><p>La entrada física que diseñamos para esta función. Un recorrido por la evolución gráfica del club desde Paprika.</p><strong id="konTicketName"></strong><div class="kon-archive-ticket-actions"><button type="button" id="konTicketZoom">AMPLIAR ENTRADA ⤢</button>'+(items.length>1?'<button type="button" id="konTicketNext">OTRA VERSIÓN ↻</button>':'')+'</div>'+(items.length>1?'<small id="konTicketPosition"></small>':'')+'<small>Registro gráfico del Kon. Esta imagen es parte del archivo histórico, no una entrada válida para ingresar.</small></div></div><dialog class="kon-ticket-dialog" aria-label="Entrada física ampliada"><div class="kon-ticket-dialog-top"><span>ARCHIVO DE ENTRADAS · '+label(folder)+'</span><button type="button" class="kon-ticket-dialog-close">CERRAR ×</button></div><img class="kon-ticket-dialog-image" alt="Entrada física de la edición"><span class="kon-ticket-dialog-caption"></span></dialog>');
   if(items.length){
     let index=0;
     const frame=root.querySelector('#konTicketCard'),img=root.querySelector('#konTicketImage'),name=root.querySelector('#konTicketName'),position=root.querySelector('#konTicketPosition');
     const modal=root.querySelector('.kon-ticket-dialog'),modalImg=root.querySelector('.kon-ticket-dialog-image'),modalCaption=root.querySelector('.kon-ticket-dialog-caption');
     ticketDialog=modal;
     img.addEventListener('error',()=>frame.classList.add('fallback'));
-    img.addEventListener('load',()=>frame.classList.remove('fallback'));
+    img.addEventListener('load',()=>{
+      frame.classList.remove('fallback');
+      const w=img.naturalWidth,h=img.naturalHeight;
+      if(w&&h){
+        const aspect=w/h;
+        frame.style.setProperty('--ticket-aspect',aspect.toFixed(4));
+        frame.parentElement.classList.toggle('is-portrait',aspect<.9);
+        frame.parentElement.classList.toggle('is-square',aspect>=.9&&aspect<1.2);
+      }
+    });
     const paint=()=>{
       const item=items[index];
       frame.classList.remove('fallback');
-      img.src=thumb(item.id);
+      frame.style.removeProperty('--ticket-aspect');
+      img.src=ticketSrc(item);
       img.alt='Entrada original de '+item.name;
       name.textContent=item.name;
       frame.setAttribute('aria-label','Ampliar entrada de '+item.name);
@@ -70,7 +83,7 @@ function section(folder){
     };
     const zoom=()=>{
       const item=items[index];
-      modalImg.src=thumb(item.id,true);
+      modalImg.src=ticketSrc(item,true);
       modalImg.alt='Entrada original de '+item.name;
       modalCaption.textContent=item.name+' · '+label(folder);
       if(!modal.open)modal.showModal();
