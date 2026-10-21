@@ -19,7 +19,7 @@ function zrNav(){let pages=zrVisible();zr('zrCount').textContent=pages.map(x=>St
 function zrPickMarkup(){zr('zrPicks').innerHTML=Object.entries(readerIssues).map(([k,it])=>'<button class="zr-pick '+(k===zrKey?'selected':'')+'" type="button" data-reader-issue="'+k+'" aria-pressed="'+(k===zrKey)+'"><img src="'+it.pages[0]+'" alt="Tapa de '+it.name+'"><div><small>REVISTA Nº '+it.number+'</small><strong>'+it.name+'</strong></div></button>').join('');zrRoot.querySelectorAll('[data-reader-issue]').forEach(b=>b.onclick=()=>zrSelect(b.dataset.readerIssue))}
 function zrSelect(key){if(!readerIssues[key]||zrBusy)return;zrKey=key;zrTurn=0;zrMobileIndex=0;zrRoot.style.setProperty('--zrbase',zrCurrent().bg);zrRoot.style.setProperty('--zron',zrCurrent().on);zr('zrNum').textContent='N.º '+zrCurrent().number;zr('zrTitle').textContent=zrCurrent().name;let pl=zr('zrPrint');pl.href=zrCurrent().print;pl.download='KonClub_'+zrCurrent().folder+'_para_imprimir.jpg';zrPickMarkup();zrBuild();zrNav()}
 function openZine(key){zrReturnFocus=document.activeElement; if(modal.classList.contains('open'))closeModal(); if(zr('adminPanel').classList.contains('open'))closePanel();zrRoot.classList.add('open');zrRoot.setAttribute('aria-hidden','false');document.body.classList.add('no-scroll');zrRoot.scrollTop=0;zrSelect(key);zr('zrClose').focus()}
-function closeZine(){zrRoot.classList.remove('open');zrRoot.setAttribute('aria-hidden','true');document.body.classList.toggle('no-scroll',location.hash==='#fanzinoteca-completa'||location.hash==='#archivo-completo');if(zr('zrZoom').open)zr('zrZoom').close();zrReturnFocus?.focus?.()}
+function closeZine(){zrRoot.classList.remove('open');zrRoot.setAttribute('aria-hidden','true');document.body.classList.toggle('no-scroll',location.hash==='#fanzinoteca-completa'||location.hash.startsWith('#archivo-completo'));if(zr('zrZoom').open)zr('zrZoom').close();zrReturnFocus?.focus?.()}
 zr('zrClose').onclick=closeZine;
 function zrFlipDesk(dir){if(zrBusy||(dir===1&&zrTurn>=4)||(dir===-1&&zrTurn<=0))return;zrBusy=true;let i=dir===1?zrTurn:zrTurn-1,leaf=zrBook.querySelectorAll('.zr-sheet')[i];leaf.style.zIndex=20;void leaf.offsetWidth;leaf.style.transition='transform 800ms cubic-bezier(.21,.65,.21,1)';leaf.style.transform=dir===1?'rotateY(-180deg)':'rotateY(0deg)';let finished=false;function done(){if(finished)return;finished=true;zrTurn+=dir;zrBusy=false;zrSetLayers();zrNav()}leaf.addEventListener('transitionend',done,{once:true});setTimeout(done,850)}
 function zrFlipMobile(dir){if(zrBusy)return;const next=zrMobileIndex+dir;if(next<0||next>=8)return;zrBusy=true;let over=document.createElement('div');over.className='zr-mobile-turn'+(dir<0?' backward':'');over.innerHTML='<img src="'+zrCurrent().pages[zrMobileIndex]+'" alt="">';zrMobile.append(over);zrMobileImg.src=zrCurrent().pages[next];zrMobileImg.alt='Página '+(next+1)+' de '+zrCurrent().name;void over.offsetWidth;over.style.transition='transform 580ms cubic-bezier(.16,.62,.34,1), opacity 540ms';over.style.transform=dir===1?'rotateY(-175deg)':'rotateY(175deg)';over.style.opacity='.45';zrMobileIndex=next;let finished=false;function done(){if(finished)return;finished=true;over.remove();zrBusy=false;zrNav()}over.addEventListener('transitionend',done,{once:true});setTimeout(done,650)}
@@ -59,14 +59,146 @@ window.KON_ADD_ARCHIVED=function(entries){
  archivePaint();
 };const archivePage=$('archivo-completo'),archiveGrid=$('archiveAllGrid'),archiveDetail=$('archiveDetail'),archiveDetailContent=$('archiveDetailContent');
 const archiveSearch=$('archiveSearch');
-function archiveImage(asset){return asset&&assets[asset]?'<img alt="Flyer original de Kon Club" src="'+assets[asset]+'" loading="lazy" decoding="async">':null}
-function archiveCard(it){let img=archiveImage(it[2]);return '<button class="archive-index-card" type="button" data-archive-id="'+it[0]+'" aria-label="Abrir edición '+escapeHtml(it[1])+'"><div class="archive-index-cover '+(img?'':'placeholder')+'">'+(img||'<span>'+it[0]+'</span><strong>'+escapeHtml(it[1])+'</strong>')+'</div><div class="archive-index-meta"><small>ARCHIVO KON CLUB / CARPETA '+it[0]+'</small><strong>'+escapeHtml(it[1])+'</strong></div></button>'}
-function archivePaint(){let q=archiveSearch.value.trim().toLocaleLowerCase('es');let regular=archiveCatalog.filter(it=>(it[0]+' '+it[1]).toLocaleLowerCase('es').includes(q));archiveGrid.innerHTML=regular.map(archiveCard).join('');$('regularCount').textContent=regular.length+' EDICIONES';$('archiveResultCount').textContent=regular.length+' EDICIONES DEL KON';$('archiveEmpty').hidden=regular.length!==0;archiveGrid.querySelectorAll('[data-archive-id]').forEach(b=>b.onclick=()=>archiveOpenDetail(b.dataset.archiveId))}
-function archiveSynopsis(folder){const entries=window.KON_CONFIG.archiveSynopses?.[folder]||[];if(!entries.length)return '<p>Estamos preparando la sinopsis de esta edición.</p>';const double=entries.length>1;return '<div class="archive-synopses"><span class="archive-synopsis-kicker">'+(double?'SINOPSIS / DOBLE FUNCIÓN':'SINOPSIS / SIN SPOILERS')+'</span>'+entries.map(entry=>'<div class="archive-synopsis">'+(double?'<h4>'+escapeHtml(entry.title)+'</h4>':'')+'<p>'+escapeHtml(entry.text)+'</p></div>').join('')+'</div>'}
-function archiveOpenDetail(id){const it=archiveLookup.find(a=>a[0]===id);if(!it)return;$('archiveSections').hidden=true;document.querySelector('.archive-full-toolbar').hidden=true;archiveDetail.hidden=false;let img=archiveImage(it[2]);let zine=Object.keys(readerIssues).find(k=>readerIssues[k].folder===it[0]);archiveDetailContent.innerHTML='<div class="archive-detail-grid"><div><span class="num">KON CLUB / CARPETA '+escapeHtml(it[0])+'</span><h3>'+escapeHtml(it[1])+'</h3>'+archiveSynopsis(it[0])+(zine?'<button type="button" class="zine-link" id="archiveReadZine">HOJEAR FANZINE ↗</button><a class="zine-link" href="'+readerIssues[zine].print+'" download="KonClub_'+it[0]+'_para_imprimir.jpg">↓ IMPRIMIR FANZINE</a>':'')+'</div><div>'+(img?'<div class="archive-detail-poster">'+img+'</div>':'<div class="archive-index-cover placeholder" style="min-height:320px"><span>'+it[0]+'</span><strong>'+escapeHtml(it[1])+'</strong></div>')+'</div></div>';if(zine)$('archiveReadZine').onclick=()=>openZine(zine);archivePage.scrollTop=0;}
-function archiveBack(){archiveDetail.hidden=true;$('archiveSections').hidden=false;document.querySelector('.archive-full-toolbar').hidden=false;archivePage.scrollTop=0}
-function archiveSync(){let show=location.hash==='#archivo-completo';archivePage.classList.toggle('is-open',show);archivePage.setAttribute('aria-hidden',String(!show));if(show){archivePaint();archiveBack();$('mobileNav').classList.remove('open');$('menuButton').setAttribute('aria-expanded','false');archivePage.scrollTop=0;document.body.classList.add('no-scroll')}else {document.body.classList.remove('no-scroll')}}
-$('closeFullArchive').onclick=()=>{location.hash='#archivo'}; $('archiveBack').onclick=archiveBack;archiveSearch.addEventListener('input',()=>{archiveBack();archivePaint()});window.addEventListener('hashchange',archiveSync);archiveSync();
+
+function archiveImage(asset){
+  const src=asset&&assets[asset]?String(assets[asset]):'';
+  return src?'<img alt="Flyer original de Kon Club" src="'+escapeHtml(src)+'" loading="lazy" decoding="async">':null;
+}
+function archiveCard(it){
+  const img=archiveImage(it[2]);
+  return '<button class="archive-index-card" type="button" data-archive-id="'+escapeHtml(it[0])+'" aria-label="Abrir edición '+escapeHtml(it[1])+'"><div class="archive-index-cover '+(img?'':'placeholder')+'">'+(img||'<span>'+escapeHtml(it[0])+'</span><strong>'+escapeHtml(it[1])+'</strong>')+'</div><div class="archive-index-meta"><small>EDICIÓN N.º '+escapeHtml(it[0])+'</small><strong>'+escapeHtml(it[1])+'</strong><span class="archive-index-cta">ABRIR FICHA ↗</span></div></button>';
+}
+function archivePaint(){
+  const q=archiveSearch.value.trim().toLocaleLowerCase('es');
+  const regular=archiveCatalog.filter(it=>(it[0]+' '+it[1]).toLocaleLowerCase('es').includes(q));
+  archiveGrid.innerHTML=regular.map(archiveCard).join('');
+  $('regularCount').textContent=regular.length+' EDICIONES';
+  $('archiveResultCount').textContent=regular.length+' EDICIONES DEL KON';
+  $('archiveEmpty').hidden=regular.length!==0;
+  archiveGrid.querySelectorAll('[data-archive-id]').forEach(b=>b.onclick=()=>{location.hash='#archivo-completo/'+b.dataset.archiveId;});
+}
+function archiveSynopsis(folder){
+  const entries=window.KON_CONFIG.archiveSynopses?.[folder]||[];
+  if(!entries.length)return '<p>Estamos preparando la sinopsis de esta edición.</p>';
+  const double=entries.length>1;
+  return '<div class="archive-synopses"><span class="archive-synopsis-kicker">'+(double?'SINOPSIS / DOBLE FUNCIÓN':'SINOPSIS / SIN SPOILERS')+'</span>'+entries.map(entry=>'<div class="archive-synopsis">'+(double?'<h4>'+escapeHtml(entry.title)+'</h4>':'')+'<p>'+escapeHtml(entry.text)+'</p></div>').join('')+'</div>';
+}
+// Solo mostramos imágenes oficiales alojadas en la carpeta pública, nunca enlaces arbitrarios.
+function archiveMediaSrc(src){
+  const value=String(src||'');
+  return /^public\/media\/[A-Za-z0-9/_-]+\.(png|jpg|jpeg|webp)$/i.test(value)?value:null;
+}
+function archiveMediaGrid(items,kind){
+  return '<div class="archive-issue-gallery">'+items.map((item,i)=>{
+    const src=archiveMediaSrc(item.src);
+    const label=escapeHtml(item.description||item.alt||'Registro original del Kon Club');
+    return '<button type="button" class="archive-issue-photo" data-archive-media="'+kind+'" data-archive-index="'+i+'" aria-label="Ampliar: '+label+'"><img src="'+escapeHtml(src)+'" alt="'+label+'" loading="lazy" decoding="async"><span>VER FOTO ↗</span></button>';
+  }).join('')+'</div>';
+}
+const archiveHero=document.querySelector('.archive-full-hero');
+let archiveActiveId=null;
+let archiveViewerItems=[],archiveViewerIndex=0;
+const archiveViewer=$('archiveMediaViewer');
+function archiveViewerPaint(){
+  const item=archiveViewerItems[archiveViewerIndex];
+  if(!item)return;
+  $('archiveViewerImage').src=archiveMediaSrc(item.src);
+  $('archiveViewerImage').alt=item.description||item.alt||'Imagen del Kon Club';
+  $('archiveViewerTitle').textContent=(item.description||item.alt||'REGISTRO DEL KON').toUpperCase();
+  $('archiveViewerCount').textContent=String(archiveViewerIndex+1).padStart(2,'0')+' / '+String(archiveViewerItems.length).padStart(2,'0');
+  $('archiveViewerPrev').disabled=archiveViewerIndex===0;
+  $('archiveViewerNext').disabled=archiveViewerIndex>=archiveViewerItems.length-1;
+}
+function archiveViewerOpen(items,index){
+  archiveViewerItems=items;archiveViewerIndex=index;
+  if(!archiveViewerItems[index])return;
+  archiveViewerPaint();
+  if(!archiveViewer.open)archiveViewer.showModal();
+}
+$('archiveViewerClose').onclick=()=>archiveViewer.close();
+$('archiveViewerPrev').onclick=()=>{if(archiveViewerIndex>0){archiveViewerIndex--;archiveViewerPaint();}};
+$('archiveViewerNext').onclick=()=>{if(archiveViewerIndex<archiveViewerItems.length-1){archiveViewerIndex++;archiveViewerPaint();}};
+archiveViewer.addEventListener('click',e=>{if(e.target===archiveViewer)archiveViewer.close();});
+document.addEventListener('keydown',e=>{
+  if(!archiveViewer.open)return;
+  if(e.key==='ArrowLeft'&&archiveViewerIndex>0){e.preventDefault();archiveViewerIndex--;archiveViewerPaint();}
+  if(e.key==='ArrowRight'&&archiveViewerIndex<archiveViewerItems.length-1){e.preventDefault();archiveViewerIndex++;archiveViewerPaint();}
+});
+function archiveOpenDetail(id){
+  const it=archiveLookup.find(a=>a[0]===String(id));
+  if(!it){archiveBack();return;}
+  const folder=it[0],zineKey=Object.keys(readerIssues).find(k=>readerIssues[k].folder===folder),zine=zineKey?readerIssues[zineKey]:null;
+  const photos=(window.KON_CONFIG.photoAlbum||[]).filter(x=>Number(x.edition)===Number(folder)&&archiveMediaSrc(x.src));
+  const reviews=(window.KON_CONFIG.archiveReviews?.[folder]||[]).filter(x=>archiveMediaSrc(x.src));
+  archiveActiveId=folder;
+  $('archiveSections').hidden=true;
+  document.querySelector('.archive-full-toolbar').hidden=true;
+  archiveHero.hidden=true;
+  archiveDetail.hidden=false;
+  const img=archiveImage(it[2]);
+  const idx=archiveCatalog.findIndex(a=>a[0]===folder);
+  const nextNewer=idx>0?archiveCatalog[idx-1]:null;
+  const nextOlder=idx<archiveCatalog.length-1?archiveCatalog[idx+1]:null;
+  const zineHtml=zine?
+    '<div class="archive-issue-zine"><div class="archive-issue-zine-cover"><img src="'+escapeHtml(zine.pages[0])+'" alt="Portada del fanzine '+escapeHtml(it[1])+'" loading="lazy"></div><div class="archive-issue-zine-info"><span class="archive-issue-kicker">PUBLICACIÓN DEL KON / N.º '+escapeHtml(zine.number)+'</span><h5>EL FANZINE<br>DE ESTA FECHA.</h5><p>Ocho páginas para volver a recorrer la edición, hojear online o imprimir en casa.</p><div class="archive-issue-actions"><button type="button" class="archive-issue-action" id="archiveReadZine">HOJEAR FANZINE ↗</button><a class="archive-issue-action outline" href="'+escapeHtml(zine.print)+'" download="KonClub_'+escapeHtml(folder)+'_para_imprimir.jpg">↓ BAJAR PARA IMPRIMIR</a></div></div></div>'
+    :'<div class="archive-issue-empty"><span>✳</span><p>Todavía no hay un fanzine digital cargado para esta edición.</p></div>';
+  const photosHtml=photos.length?archiveMediaGrid(photos,'photo'):'<div class="archive-issue-empty"><span>↗</span><p>Aún no hay fotografías publicadas de esta fecha en el archivo.</p></div>';
+  const reviewsHtml=reviews.length?archiveMediaGrid(reviews,'review'):'<div class="archive-issue-empty archive-issue-reviews-empty"><span>✳</span><div><strong>LAS RESEÑAS TAMBIÉN SON PARTE DE LA FUNCIÓN.</strong><p>Estamos preparando este espacio para las reseñas escritas a mano por el público. Todavía no hay imágenes de esta edición cargadas.</p></div></div>';
+  const info='<div class="archive-issue-facts"><span>'+String(window.KON_CONFIG.archiveSynopses?.[folder]?.length||1).padStart(2,'0')+' PELÍCULA(S)</span><span>'+(zine?'FANZINE DISPONIBLE':'FANZINE PENDIENTE')+'</span><span>'+photos.length+' FOTO(S) EN EL ARCHIVO</span></div>';
+  archiveDetailContent.innerHTML=
+   '<header class="archive-issue-meta"><span>ARCHIVO VIVO / KON CLUB</span><span>EDICIÓN N.º '+escapeHtml(folder)+' · DESDE PAPRIKA</span><button id="archiveShare" type="button">COMPARTIR FICHA ↗</button></header>'+
+   '<div class="archive-detail-grid archive-issue-intro"><div><span class="num">[ FICHA '+escapeHtml(folder)+' / CINE Y MÁS ]</span><h3>'+escapeHtml(it[1])+'</h3>'+info+archiveSynopsis(folder)+
+   '<div class="archive-issue-jumps"><button type="button" data-archive-jump="archiveIssueZine">FANZINE ↓</button><button type="button" data-archive-jump="archiveIssuePhotos">FOTOS ↓</button><button type="button" data-archive-jump="archiveIssueReviews">RESEÑAS ↓</button></div>'+
+   '</div><div>'+(img?'<figure class="archive-detail-poster">'+img+'<figcaption>AFICHE ORIGINAL / EDICIÓN '+escapeHtml(folder)+'</figcaption></figure>':'<div class="archive-index-cover placeholder" style="min-height:320px"><span>'+escapeHtml(folder)+'</span><strong>'+escapeHtml(it[1])+'</strong></div>')+'</div></div>'+
+   '<section class="archive-issue-chapter" id="archiveIssueZine"><header><span>[01] / EDICIÓN IMPRESA</span><h4>LO QUE<br>IMPRIMIMOS<span>.</span></h4></header>'+zineHtml+'</section>'+
+   '<section class="archive-issue-chapter" id="archiveIssuePhotos"><header><span>[02] / REGISTRO FOTOGRÁFICO</span><h4>ESTUVIMOS<br>AHÍ<span>.</span></h4><small>'+photos.length+' FOTOGRAFÍA(S) · EDICIÓN '+escapeHtml(folder)+'</small></header>'+photosHtml+'</section>'+
+   '<section class="archive-issue-chapter" id="archiveIssueReviews"><header><span>[03] / VOCES DEL KON</span><h4>LO QUE DIJO<br>EL PÚBLICO<span>.</span></h4><small>RESEÑAS MANUSCRITAS ORIGINALES</small></header>'+reviewsHtml+'</section>'+
+   '<nav class="archive-issue-pagination" aria-label="Más ediciones"><div>'+(nextNewer?'<button type="button" data-archive-go="'+escapeHtml(nextNewer[0])+'">← EDICIÓN '+escapeHtml(nextNewer[0])+'<strong>'+escapeHtml(nextNewer[1])+'</strong></button>':'')+'</div><div>'+(nextOlder?'<button type="button" data-archive-go="'+escapeHtml(nextOlder[0])+'">EDICIÓN '+escapeHtml(nextOlder[0])+' →<strong>'+escapeHtml(nextOlder[1])+'</strong></button>':'')+'</div></nav>';
+  if(zine)$('archiveReadZine').onclick=()=>openZine(zineKey);
+  $('archiveShare').onclick=async()=>{
+    const url=location.origin+location.pathname+'#archivo-completo/'+folder;
+    try{
+      if(navigator.share){await navigator.share({title:'Kon Club · '+it[1],url});return;}
+      if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);notify('ENLACE A LA EDICIÓN COPIADO');return;}
+      window.prompt('Copiá el enlace de esta edición:',url);
+    }catch(e){if(e.name!=='AbortError')notify('NO SE PUDO COPIAR EL ENLACE');}
+  };
+  archiveDetailContent.querySelectorAll('[data-archive-jump]').forEach(b=>b.onclick=()=>{document.getElementById(b.dataset.archiveJump)?.scrollIntoView({behavior:'smooth',block:'start'});});
+  archiveDetailContent.querySelectorAll('[data-archive-go]').forEach(b=>b.onclick=()=>{location.hash='#archivo-completo/'+b.dataset.archiveGo;});
+  archiveDetailContent.querySelectorAll('[data-archive-media]').forEach(b=>b.onclick=()=>{
+    const collection=b.dataset.archiveMedia==='review'?reviews:photos;
+    archiveViewerOpen(collection,Number(b.dataset.archiveIndex));
+  });
+  archivePage.scrollTop=0;
+}
+function archiveBack(){
+  archiveActiveId=null;
+  archiveDetail.hidden=true;
+  $('archiveSections').hidden=false;
+  document.querySelector('.archive-full-toolbar').hidden=false;
+  archiveHero.hidden=false;
+  archivePage.scrollTop=0;
+}
+function archiveSync(){
+  const match=location.hash.match(/^#archivo-completo(?:\/(\d+))?$/);
+  const show=Boolean(match);
+  archivePage.classList.toggle('is-open',show);
+  archivePage.setAttribute('aria-hidden',String(!show));
+  if(archiveViewer.open)archiveViewer.close();
+  if(show){
+    archivePaint();
+    if(match[1]&&archiveCatalog.some(a=>a[0]===match[1]))archiveOpenDetail(match[1]);else archiveBack();
+    $('mobileNav').classList.remove('open');$('menuButton').setAttribute('aria-expanded','false');
+    document.body.classList.add('no-scroll');
+  }else if(location.hash!=='#fanzinoteca-completa'&&!zrRoot.classList.contains('open')){
+    document.body.classList.remove('no-scroll');
+  }
+}
+$('closeFullArchive').onclick=()=>{location.hash='#archivo';};
+$('archiveBack').onclick=()=>{location.hash='#archivo-completo';};
+archiveSearch.addEventListener('input',()=>{archivePaint();});
+window.addEventListener('hashchange',archiveSync);
+archiveSync();
 
 // Fanzinoteca: página interna de catálogo completo; la home solo muestra 2 números.
 const fullFanzinePage=$('fanzinoteca-completa');
@@ -74,7 +206,7 @@ function syncFanzinePage(){
   const show=location.hash==='#fanzinoteca-completa';
   fullFanzinePage.classList.toggle('is-open',show);
   fullFanzinePage.setAttribute('aria-hidden',String(!show));
-  document.body.classList.toggle('no-scroll',show||location.hash==='#archivo-completo'||zrRoot.classList.contains('open'));
+  document.body.classList.toggle('no-scroll',show||location.hash.startsWith('#archivo-completo')||zrRoot.classList.contains('open'));
   if(show){fullFanzinePage.scrollTop=0; $('mobileNav').classList.remove('open');$('menuButton').setAttribute('aria-expanded','false');}
 }
 const fanzineFilter=$('fanzineFullSearch');

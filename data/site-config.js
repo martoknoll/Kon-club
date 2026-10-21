@@ -90,6 +90,9 @@ window.KON_CONFIG = {
     }
   ],
   editionDefaults: {halloween:{tag:'HALLOWEEN / DOBLE FUNCIÓN',title:'EL KON|SE DISFRAZA.',lead:'LA CASA LOBO × THE ROCKY HORROR PICTURE SHOW',date:'DOM. 25 OCTUBRE | 17:00 A 23:00 HS',place:'VIRREY OLAGUER Y FELIÚ 3121 | BUENOS AIRES',price:'$9.000',poster:'halloween',logo:'logoHalloween2026',palette:{bg:'#230519',on:'#fff4e6',paper:'#f4dec4',ink:'#291021',accent:'#f26c37',secondary:'#d64350'}},wag:{tag:'KON CLUB RECOMIENDA',title:'CINE,|MENTIRAS Y TV.',lead:'WAG THE DOG',date:'DOM. 04 OCTUBRE | 18:00 A 23:00 HS',place:'VIRREY OLAGUER Y FELIÚ 3121 | BUENOS AIRES',price:'CONSULTAR',poster:'wag',logo:'logoWag',palette:{bg:'#081853',on:'#f6f1de',paper:'#f0e2c9',ink:'#102051',accent:'#eab0ad',secondary:'#d12c39'}},flcl:{tag:'KON CLUB / ANIME',title:'UN VIAJE|SIN FRENOS.',lead:'FLCL',date:'DOM. 30 AGOSTO | 18:00 A 23:00 HS',place:'VIRREY OLAGUER Y FELIÚ 3121 | BUENOS AIRES',price:'CONSULTAR',poster:'flcl',logo:'logoFlcl',palette:{bg:'#34132e',on:'#fff0d5',paper:'#f5e7c9',ink:'#32122f',accent:'#e97c37',secondary:'#d4476f'}},paprika:{tag:'KON CLUB / CINE',title:'SOÑÁ|DESPIERTO.',lead:'PAPRIKA',date:'SÁB. 03 ENERO | 20:00 A 01:00 HS',place:'MANUEL UGARTE 2789 | BUENOS AIRES',price:'CONSULTAR',poster:'paprika',logo:'logoPaprika',palette:{bg:'#872427',on:'#fff1d5',paper:'#fbe1b9',ink:'#661a20',accent:'#ff8c57',secondary:'#e43b40'}}},
+  // Reseñas manuscritas aprobadas por edición (#17+). Vacío hasta recibir las fotos originales.
+  // Formato futuro: "35": [{src:"public/media/resenas/35/archivo.webp", description:"Reseña del público"}].
+  archiveReviews: {},
   // Sinopsis originales, breves y sin spoilers, vinculadas al número de carpeta.
   archiveSynopses: {
     "17": [

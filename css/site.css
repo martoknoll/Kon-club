@@ -423,3 +423,74 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
 @media(max-width:760px){.photo-carousel-card{flex-basis:calc((100% - 12px)/2)}.photo-carousel-controls{align-items:start}.photo-carousel-controls p{max-width:210px}}
 @media(max-width:480px){.photo-carousel-card{flex-basis:82%;aspect-ratio:5/4}.photo-carousel-controls p{font-size:10px;max-width:145px}.photo-carousel-buttons button{padding:9px 10px}.photo-carousel-footer{font-size:10px}.photo-viewer-head,.photo-viewer-bottom{padding:8px;font-size:11px}.photo-viewer-bottom button{padding:9px}}
 @media(prefers-reduced-motion:reduce){.photo-carousel-viewport{scroll-behavior:auto}.photo-carousel-card img{transition:none}}
+
+
+/* ARCHIVO VIVO / fichas de edición con fotografías, fanzines y futuras reseñas */
+.archive-index-cta{margin-top:auto;padding-top:7px;color:var(--ink);font:800 11px 'Barlow Condensed',Arial,sans-serif;letter-spacing:.10em}
+.archive-issue-meta{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:space-between;border-bottom:1px solid var(--on);padding:9px 0 20px;font-size:11px;font-weight:900;letter-spacing:.12em}
+.archive-issue-meta>span:nth-child(2){color:var(--accent)}
+.archive-issue-meta button,.archive-issue-jumps button{border:1.5px solid var(--on);color:var(--on);background:transparent;padding:11px 13px;font:800 11px 'Barlow',Arial,sans-serif;letter-spacing:.06em;cursor:pointer}
+.archive-issue-meta button:hover,.archive-issue-jumps button:hover{color:var(--ink);background:var(--accent);border-color:var(--accent)}
+.archive-issue-intro{margin:32px 0 52px;gap:clamp(25px,5vw,70px)}
+.archive-issue-intro h3{font-family:'Barlow Condensed',Impact,Arial,sans-serif;font-weight:700;font-size:clamp(60px,9vw,134px);line-height:.83;letter-spacing:-.055em;max-width:12ch;margin:22px 0 25px;text-transform:uppercase}
+.archive-issue-facts{display:flex;flex-wrap:wrap;gap:8px;font:800 10px 'Barlow',Arial,sans-serif;letter-spacing:.07em}
+.archive-issue-facts span{border:1px solid var(--on);padding:9px 10px}
+.archive-issue-jumps{display:flex;flex-wrap:wrap;gap:8px;margin:23px 0 12px}
+.archive-issue-intro .archive-detail-poster{max-width:640px;margin:6px auto 20px}
+.archive-issue-intro .archive-detail-poster figcaption{font:800 10px 'Barlow',Arial,sans-serif;letter-spacing:.12em;padding-top:14px;color:var(--on);text-align:right}
+.archive-issue-chapter{padding:clamp(32px,5vw,68px) 0;border-top:2px solid var(--on);scroll-margin-top:90px}
+.archive-issue-chapter>header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:10px 30px;margin-bottom:28px}
+.archive-issue-chapter>header>span{font:900 11px 'Barlow',Arial,sans-serif;letter-spacing:.13em;color:var(--accent);flex-basis:100%}
+.archive-issue-chapter h4{font:700 clamp(48px,7.5vw,110px)/.85 'Barlow Condensed',Impact,Arial,sans-serif;letter-spacing:-.045em;margin:0;text-transform:uppercase}
+.archive-issue-chapter h4 span{color:var(--accent)}
+.archive-issue-chapter>header small{font:800 11px 'Barlow',Arial,sans-serif;letter-spacing:.08em}
+.archive-issue-zine{display:grid;grid-template-columns:minmax(180px,.7fr) minmax(0,1fr);gap:clamp(25px,5vw,80px);align-items:center;background:var(--paper);color:var(--ink);padding:clamp(18px,3vw,40px);border:2px solid var(--on)}
+.archive-issue-zine-cover{max-width:370px;background:#16101a;border:5px solid var(--ink);box-shadow:9px 9px 0 #1114;transform:rotate(-2deg)}
+.archive-issue-zine-cover img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:contain}
+.archive-issue-zine-info{min-width:0}
+.archive-issue-kicker{font:900 11px 'Barlow',Arial,sans-serif;letter-spacing:.12em}
+.archive-issue-zine-info h5{font:700 clamp(39px,5.3vw,80px)/.88 'Barlow Condensed',Impact,Arial,sans-serif;letter-spacing:-.04em;margin:22px 0}
+.archive-detail .archive-issue-zine-info p{font-size:clamp(15px,1.35vw,18px);line-height:1.5}
+.archive-issue-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:23px}
+.archive-issue-action{padding:13px 16px;border:2px solid var(--ink);color:var(--paper);background:var(--ink);font:900 12px 'Barlow',Arial,sans-serif;letter-spacing:.06em;text-decoration:none;cursor:pointer}
+.archive-issue-action.outline{color:var(--ink);background:transparent}
+.archive-issue-action:focus-visible,.archive-issue-meta button:focus-visible,.archive-issue-photo:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.archive-issue-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.archive-issue-photo{display:flex;flex-direction:column;position:relative;border:2px solid var(--on);padding:0;background:var(--paper);cursor:pointer;min-width:0;overflow:hidden}
+.archive-issue-photo img{display:block;width:100%;height:100%;aspect-ratio:4/3;object-fit:cover;transition:transform .24s}
+.archive-issue-photo:hover img{transform:scale(1.035)}
+.archive-issue-photo span{position:absolute;bottom:8px;left:8px;color:var(--ink);background:var(--paper);padding:7px 10px;font:900 10px 'Barlow',Arial,sans-serif;letter-spacing:.08em}
+.archive-issue-empty{border:1.5px dashed var(--on);min-height:145px;display:flex;align-items:center;gap:22px;padding:clamp(20px,3vw,32px);background:color-mix(in srgb,var(--paper) 7%,transparent)}
+.archive-issue-empty>span{font:700 57px 'Barlow Condensed',Impact,Arial,sans-serif;color:var(--accent)}
+.archive-detail .archive-issue-empty p{font:600 clamp(15px,1.5vw,19px)/1.5 'Barlow',Arial,sans-serif;max-width:57ch;margin:0}
+.archive-issue-reviews-empty strong{display:block;font-size:clamp(18px,2vw,27px);font-family:'Barlow Condensed',Impact,Arial,sans-serif;line-height:1.1;margin-bottom:7px}
+.archive-issue-pagination{border-top:2px solid var(--on);display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:23px 0}
+.archive-issue-pagination>div:last-child{text-align:right}
+.archive-issue-pagination button{text-align:inherit;border:0;background:transparent;color:var(--on);font:800 11px 'Barlow',Arial,sans-serif;letter-spacing:.1em;cursor:pointer;max-width:100%}
+.archive-issue-pagination strong{display:block;font:700 clamp(19px,3vw,36px)/1 'Barlow Condensed',Impact,Arial,sans-serif;letter-spacing:-.02em;margin-top:7px;overflow-wrap:anywhere}
+.archive-issue-pagination button:hover strong{color:var(--accent)}
+.archive-media-viewer{border:0;color:var(--paper);background:#170e1c;width:min(100vw,1050px);height:min(94vh,1000px);max-width:none;max-height:none;padding:16px;box-sizing:border-box}
+.archive-media-viewer::backdrop{background:#080209e8;backdrop-filter:blur(5px)}
+.archive-media-viewer[open]{display:flex;flex-direction:column;gap:14px}
+.archive-viewer-bar,.archive-viewer-footer{display:flex;gap:12px;align-items:center;justify-content:space-between;font:800 11px 'Barlow',Arial,sans-serif;letter-spacing:.08em}
+.archive-viewer-bar button,.archive-viewer-footer button{background:transparent;color:var(--paper);border:1px solid var(--paper);padding:10px 14px;font:900 11px 'Barlow',Arial,sans-serif;cursor:pointer}
+.archive-viewer-footer button:disabled{opacity:.35;cursor:default}
+.archive-media-viewer img{min-height:0;max-width:100%;max-height:100%;flex:1;object-fit:contain;align-self:center}
+@media(max-width:850px){
+ .archive-issue-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .archive-issue-zine{grid-template-columns:minmax(140px,.7fr) 1fr}
+}
+@media(max-width:730px){
+ .archive-issue-intro{margin:26px 0 40px}
+ .archive-issue-meta>span:nth-child(2){flex-basis:100%;order:3}
+ .archive-issue-intro .archive-detail-poster{max-width:470px}
+ .archive-issue-zine{grid-template-columns:1fr}
+ .archive-issue-zine-cover{max-width:230px;justify-self:center}
+ .archive-issue-gallery{gap:8px}
+ .archive-issue-chapter h4{font-size:clamp(46px,12vw,74px)}
+ .archive-issue-photo span{font-size:9px}
+ .archive-issue-pagination{gap:8px}
+ .archive-media-viewer{height:94dvh;width:100vw;padding:12px}
+ .archive-viewer-bar{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.archive-issue-photo img{transition:none}}
