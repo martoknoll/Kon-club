@@ -3,19 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,follow">
   <meta name="theme-color" content="#230519">
   <meta name="description" content="Elegí tus entradas y fanzines para la próxima fecha de Kon Club.">
   <title>Entradas — Kon Club</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
-  <link href="css/checkout.css?v=20261020" rel="stylesheet">
+  <link href="css/checkout.css" rel="stylesheet">
   <script src="data/site-config.js" defer></script>
-  <script src="data/checkout-preview-config.js?v=20261020" defer></script>
-  <script src="js/checkout-preview.js?v=20261020" defer></script>
+  <script src="data/checkout-config.js" defer></script>
+  <script src="data/supabase-public.js" defer></script>
+  <script src="js/checkout.js" defer></script>
 </head>
 <body>
-  <div class="preview-banner" id="demoBanner" role="status">VISTA PREVIA · NO HAY VENTAS WEB · NO TRANSFIERAS DINERO NI INGRESES DATOS REALES</div>
+  <div class="preview-banner" id="demoBanner" role="status">VISTA PREVIA · NO ENVÍES COMPROBANTES REALES NI HAGAS TRANSFERENCIAS PARA PROBAR ESTA PÁGINA</div>
   <div class="ticker" aria-hidden="true">✳ KON CLUB — CINE · JUEGOS DE MESA · CONSOLAS · D&amp;D · COMIDA ✳ EL CINE ES LA EXCUSA ✳</div>
   <header class="header">
     <a class="brand" href="./index.html" aria-label="Volver a Kon Club">
@@ -30,8 +32,8 @@
       <p class="kicker">KON CLUB / ENTRADAS</p>
       <h1>VENÍ<br><em>AL KON.</em></h1>
       <p>LA CASA LOBO × THE ROCKY HORROR PICTURE SHOW · <strong>DOMINGO 25 DE OCTUBRE</strong>.</p>
-      <p>Conocé cómo funcionará la compra de entradas. Esta demostración no acepta pedidos, pagos ni reservas.</p>
-      <p class="subtle">Probá el recorrido con datos inventados. Las reservas reales continúan por el canal habitual.</p>
+      <p id="checkoutIntro">Vista previa del sistema de entradas. Las ventas todavía no están habilitadas.</p>
+      <p class="subtle" id="checkoutInstructions">Esta pantalla es una demostración: no reserves cupos ni hagas transferencias. Las compras solo se habilitarán cuando lo anunciemos.</p>
       <p class="subtle" id="apiStatus" role="status">CARGANDO CATÁLOGO DE ENTRADAS...</p>
     </div>
 
@@ -46,12 +48,12 @@
         <section class="step" data-step="1" aria-labelledby="chooseHeading">
           <div class="heading"><span>01 / TU PLAN</span><h2 id="chooseHeading">¿QUÉ LLEVAMOS?</h2><p>Podés combinar entradas generales, post-película y fanzines.</p></div>
           <div id="products" class="products"></div>
-          <p class="hint">Las cantidades y los precios se ajustan para cada edición. Esta vista previa no muestra stock en tiempo real ni reserva cupos.</p>
+          <p class="hint">Las cantidades y los precios se ajustan para cada edición. La disponibilidad definitiva se confirma después del pago.</p>
           <div class="actions"><button type="button" class="primary" id="continueToPay">SEGUIR CON EL PEDIDO <span>→</span></button></div>
         </section>
 
         <section class="step" data-step="2" aria-labelledby="detailsHeading" hidden>
-          <div class="heading"><span>02 / DATOS DEL COMPRADOR</span><h2 id="detailsHeading">¿QUIÉN VIENE?</h2><p>Usá <strong>datos ficticios</strong> para probar esta pantalla. No guardamos ni enviamos tus respuestas.</p></div>
+          <div class="heading"><span>02 / DATOS DEL COMPRADOR</span><h2 id="detailsHeading">¿QUIÉN VIENE?</h2><p>Completá tus datos para registrar el pedido y verificar los cupos <strong>antes de hacer la transferencia</strong>.</p></div>
           <form id="orderForm" autocomplete="on">
             <div class="form-fields">
               <label>Nombre y apellido <abbr title="obligatorio">*</abbr><input name="fullName" required autocomplete="name" maxlength="100" placeholder="Tu nombre completo"></label>
@@ -67,37 +69,37 @@
                   <option value="Otro">Otro</option>
                 </select>
               </label>
-              <div class="checkboxline"><label><input type="checkbox" name="consent" required> Entiendo que esta es una demostración sin reservas, pedidos ni pagos.</label></div>
+              <div class="checkboxline"><label><input type="checkbox" name="consent" required> Entiendo que el pedido queda pendiente hasta que Kon Club compruebe la acreditación de la transferencia.</label></div>
               <p class="hint">Usamos tus datos exclusivamente para gestionar esta inscripción y contactarte por el evento. El comprobante se guarda de forma privada y solo puede consultarlo el equipo autorizado. Para consultas o correcciones, escribinos a <a href="mailto:kon.club@proton.me">kon.club@proton.me</a>.</p>
             </div>
             <p class="hint" id="formError" role="alert" hidden></p>
-            <div class="actions"><button type="button" class="secondary" data-back="1">← ANTERIOR</button><button type="submit" class="primary">CONTINUAR LA DEMO <span>→</span></button></div>
+            <div class="actions"><button type="button" class="secondary" data-back="1">← ANTERIOR</button><button type="submit" class="primary">REGISTRAR PEDIDO Y SEGUIR <span>→</span></button></div>
           </form>
         </section>
 
         <section class="step" data-step="3" aria-labelledby="payHeading" hidden>
-          <div class="heading"><span>03 / TRANSFERENCIA</span><h2 id="payHeading">TRANSFERÍ Y LISTO.</h2><p>Así se vería el paso de transferencia cuando habilitemos las ventas. <strong>NO hagas ninguna transferencia.</strong></p></div>
+          <div class="heading"><span>03 / TRANSFERENCIA</span><h2 id="payHeading">TRANSFERÍ Y LISTO.</h2><p>Tu pedido ya fue registrado. Transferí el importe exacto y subí el comprobante para que lo revisemos.</p></div>
           <div class="payment-card">
-            <span class="kicker">ALIAS DE REFERENCIA · NO TRANSFERIR</span>
-            <div class="alias-line"><strong id="payAlias">KON.CLUB.GL</strong><button type="button" id="copyAlias" class="secondary" disabled title="Las transferencias están deshabilitadas">DEMO</button></div>
+            <span class="kicker">ALIAS PARA TRANSFERIR</span>
+            <div class="alias-line"><strong id="payAlias">KON.CLUB.GL</strong><button type="button" id="copyAlias" class="secondary">COPIAR <span aria-hidden="true">⧉</span></button></div>
             <div class="total-line"><span>TOTAL DEL PEDIDO</span><strong id="payTotal">$0</strong></div>
             <p class="hint" id="registeredCode">La inscripción definitiva se confirma después de verificar el pago.</p>
             <p>La transferencia es manual. <strong>Un comprobante por sí solo no confirma la acreditación bancaria.</strong></p>
           </div>
-          <div class="demo-note" id="paymentNotice"><strong>SOLO VISTA PREVIA.</strong> No hagas transferencias. No se realiza ninguna reserva.</div>
+          <div class="demo-note" id="paymentNotice"><strong>ESTO ES UNA DEMO.</strong> No transfieras dinero ni uses un comprobante real.</div>
           <form id="proofForm">
             <div class="form-fields" style="margin-top:20px">
-              <div class="demo-note">En la venta real, acá podrás adjuntar el comprobante. Esta demostración no permite subir archivos.</div>
+              <label class="file-field">Subí el comprobante <abbr title="obligatorio">*</abbr><input name="proof" type="file" id="proof" required accept=".png,.jpg,.jpeg,.pdf,image/png,image/jpeg,application/pdf"><small>PNG, JPG o PDF · Máximo 10 MB · Usá un archivo de prueba, no uno real.</small></label>
             </div>
             <p class="hint" id="proofError" role="alert" hidden></p>
-            <div class="actions"><button type="button" class="secondary" id="returnToDetails" data-back="2">← DATOS</button><button type="submit" class="primary">VER RESUMEN SIMULADO <span>→</span></button></div>
+            <div class="actions"><button type="button" class="secondary" id="returnToDetails" data-back="2">← DATOS</button><button type="submit" class="primary">ENVIAR COMPROBANTE <span>→</span></button></div>
           </form>
         </section>
 
         <section class="step" data-step="4" aria-labelledby="completeHeading" hidden>
-          <div class="heading"><span>VISTA PREVIA / NO ENVIADO</span><h2 id="completeHeading">ASÍ QUEDARÍA.</h2><p>Revisá tu pedido. <strong>No se guardó ni envió ningún dato. Esto no constituye una reserva.</strong></p></div>
+          <div class="heading"><span>VISTA PREVIA / NO ENVIADO</span><h2 id="completeHeading">ASÍ QUEDARÍA.</h2><p>Revisá tu pedido. <strong>No se guardaron los datos ni se subió el comprobante.</strong></p></div>
           <div id="confirmation" class="confirmation"></div>
-          <div class="demo-note" id="completionNotice"><strong>DEMO COMPLETADA.</strong> No se registró un pedido, no se hizo ningún cobro y no se reservó ningún cupo.</div>
+          <div class="demo-note" id="completionNotice"><strong>FALTA CONECTAR EL SISTEMA REAL.</strong> La confirmación automática, el almacenamiento privado del comprobante y la validación del pago se implementarán antes de habilitar la venta.</div>
           <div class="actions"><button type="button" class="secondary" data-back="3">← CORREGIR</button><a class="primary as-link" href="./index.html">VOLVER AL KON <span>↗</span></a></div>
         </section>
       </section>
@@ -111,7 +113,7 @@
           <h3>TU PEDIDO</h3>
           <div id="summaryLines" aria-live="polite"></div>
           <div class="summary-total"><span>TOTAL</span><strong id="summaryTotal">$0</strong></div>
-          <p class="summary-foot">Vista previa únicamente. No se registran pedidos ni se reservan cupos.</p>
+          <p class="summary-foot" id="summaryFoot">Los cupos no se reservan al completar la demo.</p>
         </div>
       </aside>
     </div>

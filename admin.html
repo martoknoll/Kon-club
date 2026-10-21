@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Administración · Kon Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="css/admin.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="data/supabase-public.js" defer></script>
+<script src="js/admin.js" defer></script>
+</head>
+<body>
+<header class="topbar"><a class="wordmark" href="index.html">KON CLUB <span>● PANEL</span></a><a class="back" href="index.html">← VOLVER A LA WEB</a></header>
+<main class="wrap">
+<div class="notice"><strong>PRUEBAS CONTROLADAS</strong> · Google Sheets está conectado. Los correos automáticos para asistentes siguen desactivados. Todo pago debe verificarse contra la cuenta bancaria.</div>
+<div class="topcopy"><p class="kicker">ACCESO RESTRINGIDO / KON CLUB</p><h1>LA LISTA<br><em>DEL KON.</em></h1><p>Pedidos, comprobantes y verificaciones en un solo lugar.</p></div>
+<section id="signin" class="panel" aria-labelledby="signinTitle">
+ <h2 id="signinTitle">ENTRAR AL PANEL.</h2>
+ <p>Iniciá sesión con tu correo autorizado. Solo los colaboradores habilitados pueden ver pedidos y verificar pagos.</p>
+ <form id="loginForm" class="login"><label>EMAIL <input type="email" name="email" autocomplete="email" placeholder="tu@email.com" maxlength="180" required></label><button type="submit">RECIBIR ENLACE DE ACCESO →</button></form>
+ <p id="loginMessage" class="message" role="status"></p>
+ <p class="explain">El enlace llega por correo. Ya están autorizadas las cuentas que Google Drive identificó como editoras de FECHAS. Si cambia el equipo, también actualizaremos la lista de acceso del panel.</p>
+ <p class="explain"><strong>¿El enlace del correo te manda a una página inexistente?</strong> Antes de solicitar otro, configurá en <a href="https://supabase.com/dashboard/project/ogrzuiwlyfobhtknjuzu/auth/url-configuration" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;font-weight:700">Supabase → Authentication → URL Configuration</a> la dirección de esta página en <strong>Redirect URLs</strong> y el dominio oficial en <strong>Site URL</strong>. Después solicitá un enlace nuevo.</p>
+</section>
+<section id="dashboard" hidden>
+ <div class="toolbar"><div><p class="kicker" id="adminContext">PEDIDOS REALES · HALLOWEEN</p><h2>INSCRIPCIONES.</h2></div><div class="toolbar-actions"><button id="openTestCheckout" type="button">🧪 CHECKOUT PRUEBA</button><button id="pairMail" type="button">✉ CONFIGURAR EMAIL</button><button id="pairTestSheets" type="button">🧪 PROBAR SHEETS</button><button id="pairSheets" type="button">⧉ CONECTAR SHEETS</button><button id="refresh" type="button">↻ ACTUALIZAR</button><button id="signout" type="button">SALIR</button></div></div>
+ <div class="stats"><div><small>TOTAL PEDIDOS</small><strong id="statTotal">0</strong></div><div><small>PENDIENTES</small><strong id="statPending">0</strong></div><div><small>APROBADOS</small><strong id="statVerified">0</strong></div><div><small>RECAUDACIÓN VERIFICADA</small><strong id="statRevenue">$0</strong></div></div>
+ <section class="inventory-board" aria-labelledby="inventoryTitle">
+  <div class="inventory-heading">
+   <div><p class="kicker">FORMULARIO ANTERIOR + CHECKOUT NUEVO</p>
+   <h2 id="inventoryTitle">CONTROL DE CUPOS.</h2></div>
+   <p id="inventorySyncState" role="status">Consultando capacidad compartida...</p>
+  </div>
+  <div id="inventoryCards" class="inventory-grid" aria-live="polite"></div>
+  <p class="inventory-note">Las entradas anteriores se cuentan desde FECHAS y las nuevas desde Supabase. El registro en la planilla se conserva tal como estaba. Para publicar, también hay que confirmar la capacidad de cada categoría.</p>
+ </section>
+ <div class="filters"><label for="environmentFilter">AMBIENTE</label><select id="environmentFilter" aria-label="Ambiente"><option value="real">REAL · HALLOWEEN</option><option value="test">PRUEBA · NO REAL</option></select><label for="statusFilter">MOSTRAR</label><select id="statusFilter"><option value="all">TODOS</option><option value="pending">PENDIENTES</option><option value="verified">VERIFICADOS</option><option value="rejected">RECHAZADOS</option><option value="courtesy">CORTESÍAS</option><option value="cancelled">CANCELADOS</option></select><span id="syncHint">Sincronización Sheets: pendiente de configurar</span></div>
+ <div id="orders" class="order-list" aria-live="polite"></div>
+ <section class="planned-section" aria-labelledby="plannedTitle">
+  <div class="planned-heading"><div><p class="kicker">AGENDA INTERNA · SIN PUBLICAR</p><h2 id="plannedTitle">PRÓXIMAS FECHAS.</h2></div>
+   <p>Fechas del calendario del equipo. Las películas, flyers y horarios se completan cuando estén definidos.</p></div>
+  <div id="plannedDates" class="planned-grid" aria-live="polite"><p class="explain">Cargando fechas...</p></div>
+  <p class="planned-note" id="plannedConflict" hidden></p>
+ </section>
+ <p class="explain">Los pedidos web se sincronizan con Google Sheets. Los correos automáticos todavía requieren autorizar la cuenta de Gmail y completar una prueba antes de habilitar el envío a compradores.</p>
+</section>
+<dialog id="pairDialog" aria-labelledby="pairTitle">
+  <div class="dialog-head"><div><small>KON CLUB / INTEGRACIÓN</small><h2 id="pairTitle">CONECTAR GOOGLE SHEETS</h2></div><button type="button" id="closePair" aria-label="Cerrar">×</button></div>
+  <p id="pairDescription">Este código permite conectar la planilla de FECHAS. Se muestra solo una vez: guardalo como <strong>KON_SYNC_TOKEN</strong> en las propiedades del script de Google.</p>
+  <label class="field">TOKEN DE SINCRONIZACIÓN (PRIVADO)<textarea id="pairToken" rows="3" readonly placeholder="Generá un token desde el botón de abajo."></textarea></label>
+  <p class="explain">Generar otro token invalida el anterior. No lo compartas ni lo pegues en GitHub.</p>
+  <div class="dialog-actions"><button type="button" class="secondary" id="generatePair">GENERAR TOKEN</button><button type="button" id="copyPair" disabled>COPIAR TOKEN</button></div>
+  <p>Luego instalá el <a id="pairScriptLink" style="text-decoration:underline;font-weight:700" href="https://github.com/martoknoll/Kon-club/blob/feature/checkout-transferencias/scripts/kon-sheets-sync.gs" target="_blank" rel="noopener noreferrer">script de Google Sheets</a>, siguiendo el instructivo.</p>
+</dialog>
+<dialog id="mailDialog" aria-labelledby="mailTitle">
+  <div class="dialog-head"><div><small>KON CLUB / NOTIFICACIONES</small>
+  <h2 id="mailTitle">CONECTAR GMAIL</h2></div>
+  <button type="button" id="closeMail" aria-label="Cerrar">×</button></div>
+  <p>Vamos a enviar los mensajes desde <strong>konclub.entradas@gmail.com</strong> y recibir las respuestas en <strong>kon.club@proton.me</strong>.</p>
+  <p><strong>Envíos reales DESACTIVADOS.</strong> Generar esta clave no manda ningún correo a asistentes.</p>
+  <label class="field">TOKEN PRIVADO PARA EL SCRIPT DE CORREOS
+   <textarea id="mailToken" rows="3" readonly placeholder="Generá una clave para conectar el mailer."></textarea>
+  </label>
+  <p class="explain">La clave se muestra una sola vez. Guardala como <strong>KON_MAIL_TOKEN</strong> en las propiedades del nuevo Apps Script de <strong>konclub.entradas@gmail.com</strong>. No la compartas ni la pegues en GitHub.</p>
+  <div class="dialog-actions"><button id="generateMailToken" type="button" class="secondary">GENERAR CLAVE DE EMAIL</button>
+  <button id="copyMailToken" type="button" disabled>COPIAR TOKEN</button></div>
+  <p>Después abrí el <a style="text-decoration:underline;font-weight:700"
+  href="https://github.com/martoknoll/Kon-club/blob/feature/checkout-transferencias/scripts/kon-gmail-mailer.gs"
+  target="_blank" rel="noopener noreferrer">script de correo de Kon Club</a>.
+  No lo pegues en el proyecto de Google Sheets.</p>
+</dialog>
+<div id="notification" class="toast" role="status" hidden></div>
+</main>
+<dialog id="reviewDialog" aria-labelledby="reviewTitle">
+ <form id="reviewForm" method="dialog">
+  <div class="dialog-head"><div><small>KON CLUB / CONTROL DE PAGO</small><h2 id="reviewTitle">VERIFICAR PEDIDO</h2></div><button type="button" id="closeDialog" aria-label="Cerrar">×</button></div>
+  <div id="reviewDetails"></div>
+  <label class="field">ACCIÓN<select id="reviewAction" required><option value="verified">Aprobar pago</option><option value="rejected">Rechazar pago</option><option value="courtesy">Marcar cortesía</option><option value="cancelled">Cancelar pedido</option></select></label>
+  <label class="field" id="receivedLabel">IMPORTE ACREDITADO ($)<input type="number" id="receivedAmount" min="0" step="1" required></label>
+  <label class="field">OBSERVACIONES (OPCIONAL)<textarea id="reviewNote" maxlength="500" rows="3" placeholder="Promoción, diferencia de pago, motivo de rechazo..."></textarea></label>
+  <label class="confirmation"><input type="checkbox" id="bankChecked" required><span>Verifiqué el pago acreditado en la cuenta bancaria. No me basé solamente en el comprobante.</span></label>
+  <div class="dialog-actions"><button type="button" class="secondary" id="cancelReview">CANCELAR</button><button type="submit" id="saveReview">GUARDAR DECISIÓN →</button></div>
+ </form>
+</dialog>
+</body></html>
