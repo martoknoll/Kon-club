@@ -7,8 +7,8 @@
 window.KON_CHECKOUT = {
   eventKey: "halloween",
   currency: "ARS",
-  allowLive: false, // Cambiar solo después de probar el backend, Sheets y los permisos
-  legacyFormPublic: false, // No mostrar el enlace al Form mientras preparamos el lanzamiento
+  allowLive: true, // Registro de pedidos por transferencia externa; la API exige sales_open y stock sincronizado
+  legacyFormPublic: false, // El formulario anterior sigue funcionando por separado, sin enlace público duplicado
   legacyFormUrl: "https://forms.gle/gJzzsfNnDLNY2eok6", // Google Form anterior: sigue vendiendo en paralelo
   alias: "KON.CLUB.GL",
   proofMaxBytes: 10 * 1024 * 1024,

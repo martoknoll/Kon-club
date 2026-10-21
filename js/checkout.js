@@ -119,8 +119,8 @@ async function loadCatalog(){
    byId('checkoutInstructions').textContent='Los cupos se reservan temporalmente al registrar el pedido. Transferí solo después de recibir tu código de pedido.';
    byId('summaryFoot').textContent='La compra queda pendiente hasta que verifiquemos la acreditación bancaria.';
    byId('copyAlias').disabled=false;
-   byId('paymentNotice').innerHTML='<strong>IMPORTANTE:</strong> La transferencia se verificará manualmente. Recibirás la confirmación cuando Kon Club apruebe el pago.';
-   byId('completionNotice').innerHTML='<strong>PEDIDO RECIBIDO.</strong> Tu inscripción queda pendiente hasta que verifiquemos la acreditación. Todavía no enviamos correos automáticos.';
+   byId('paymentNotice').innerHTML='<strong>IMPORTANTE:</strong> Realizá la transferencia desde tu banco o billetera y adjuntá el comprobante. Kon Club verificará la acreditación manualmente.';
+   byId('completionNotice').innerHTML='<strong>PEDIDO RECIBIDO.</strong> Guardá tu código. El equipo de Kon Club verificará la transferencia manualmente. No se envían correos automáticos por ahora.';
    proof.parentElement.querySelector('small').textContent='PNG, JPG o PDF · Máximo 10 MB';
   }else{
    byId('copyAlias').disabled=true;
