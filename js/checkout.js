@@ -113,6 +113,8 @@ async function loadCatalog(){
   if(liveReady()){
    status.textContent='INSCRIPCIONES ABIERTAS · PAGOS POR TRANSFERENCIA';
    byId('demoBanner').hidden=true;
+   byId('payHeading').textContent='TRANSFERÍ Y LISTO.';
+   byId('payExplanation').textContent='Tu pedido ya fue registrado. Transferí el importe exacto y subí el comprobante para que lo revisemos.';
    byId('checkoutIntro').textContent='Elegí tus entradas, completá tus datos y aboná por transferencia. Tu entrada se confirma cuando el equipo verifica el pago.';
    byId('checkoutInstructions').textContent='Los cupos se reservan temporalmente al registrar el pedido. Transferí solo después de recibir tu código de pedido.';
    byId('summaryFoot').textContent='La compra queda pendiente hasta que verifiquemos la acreditación bancaria.';
