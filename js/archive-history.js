@@ -25,7 +25,7 @@ function section(folder){
   const current=items[0];
   const empty='<div class="archive-issue-empty"><span>✳</span><p>Esta pieza todavía no está disponible en el archivo digital.</p></div>';
   root.innerHTML='<header><span>[01] / ARCHIVO DE PAPEL</span><h4>LA ENTRADA<br>DE ESA <em>FECHA.</em></h4><small>'+label(folder)+'</small></header>'+
-    (!current?empty:'<div class="kon-archive-ticket-layout"><div class="kon-archive-ticket-card" id="konTicketCard"><div class="kon-ticket-backdrop"><span>KON CLUB / ARCHIVO</span><strong>ENTRADA<br>ORIGINAL</strong></div><img id="konTicketImage" alt="Entrada del Kon" src="'+thumb(current.id)+'" loading="lazy"></div><div class="kon-archive-ticket-copy"><span class="archive-issue-kicker">PIEZAS ORIGINALES / SIN REDISEÑAR</span><h5>UNA ENTRADA.<br>UN RECUERDO.</h5><p>La entrada física que diseñamos para esta función. Un recorrido por la evolución gráfica del club desde Paprika.</p><strong id="konTicketName"></strong><div class="kon-archive-ticket-actions"><a id="konTicketOpen" href="'+external(current.id)+'" target="_blank" rel="noopener noreferrer">VER ORIGINAL ↗</a>'+(items.length>1?'<button type="button" id="konTicketNext">OTRA VERSIÓN ↻</button>':'')+'</div>'+(items.length>1?'<small id="konTicketPosition"></small>':'')+'<small>Vista previa servida desde Drive; puede requerir permisos. No es una entrada digital válida para ingresar.</small></div></div>');
+    (!current?empty:'<div class="kon-archive-ticket-layout"><div class="kon-ticket-stage"><div class="kon-archive-ticket-card" id="konTicketCard" role="button" tabindex="0" aria-label="Explorar entrada original"><div class="kon-ticket-backdrop"><span>KON CLUB / ARCHIVO</span><strong>ENTRADA<br>ORIGINAL</strong></div><img id="konTicketImage" alt="Entrada del Kon" src="'+thumb(current.id)+'" loading="lazy"><span class="kon-ticket-corner">EXPLORAR ↗</span></div></div><div class="kon-archive-ticket-copy"><span class="archive-issue-kicker">PIEZAS ORIGINALES / SIN REDISEÑAR</span><h5>UNA ENTRADA.<br>UN RECUERDO.</h5><p>La entrada física que diseñamos para esta función. Un recorrido por la evolución gráfica del club desde Paprika.</p><strong id="konTicketName"></strong><div class="kon-archive-ticket-actions"><a id="konTicketOpen" href="'+external(current.id)+'" target="_blank" rel="noopener noreferrer">VER ORIGINAL ↗</a>'+(items.length>1?'<button type="button" id="konTicketNext">OTRA VERSIÓN ↻</button>':'')+'</div>'+(items.length>1?'<small id="konTicketPosition"></small>':'')+'<small>Vista previa servida desde Drive; puede requerir permisos. No es una entrada digital válida para ingresar.</small></div></div>');
   if(items.length){
     let index=0;const frame=root.querySelector('#konTicketCard'),img=root.querySelector('#konTicketImage'),link=root.querySelector('#konTicketOpen'),name=root.querySelector('#konTicketName'),position=root.querySelector('#konTicketPosition');
     img.addEventListener('error',()=>frame.classList.add('fallback'));
@@ -34,11 +34,33 @@ function section(folder){
       const item=items[index];frame.classList.remove('fallback');img.src=thumb(item.id);
       img.alt='Entrada original de '+item.name;link.href=external(item.id);
       name.textContent=item.name;
+      frame.setAttribute('aria-label',items.length>1?'Ver otra versión de '+item.name:'Ver entrada original de '+item.name+' en Google Drive');
+      const hint=frame.querySelector('.kon-ticket-corner');
+      if(hint)hint.textContent=items.length>1?'OTRA ENTRADA ↻':'VER ENTRADA ↗';
       if(position)position.textContent=(index+1)+' / '+items.length+' VARIANTES';
+    };
+    const advance=()=>{
+      index=(index+1)%items.length;
+      paint();
+      img.classList.remove('kon-card-enter');
+      void img.offsetWidth;
+      img.classList.add('kon-card-enter');
     };
     paint();
     const next=root.querySelector('#konTicketNext');
-    if(next)next.addEventListener('click',()=>{index=(index+1)%items.length;paint();});
+    if(next)next.addEventListener('click',advance);
+    frame.parentElement.classList.toggle('has-variants',items.length>1);
+    frame.addEventListener('click',()=>{
+      if(items.length>1)advance();
+      else window.open(external(items[0].id),'_blank','noopener,noreferrer');
+    });
+    frame.addEventListener('keydown',event=>{
+      if(event.key==='Enter'||event.key===' '){event.preventDefault();frame.click();}
+    });
+    if(window.VanillaTilt&&window.matchMedia('(hover: hover) and (pointer: fine)').matches&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      frame.dataset.konTilt='enabled';
+      window.VanillaTilt.init(frame,{max:7,perspective:1200,scale:1.015,speed:450,glare:true,'max-glare':0.08,gyroscope:false});
+    }
     if(img.complete&&!img.naturalWidth)frame.classList.add('fallback');
   }
   return root;

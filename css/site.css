@@ -521,3 +521,29 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
 .kon-archive-ticket-actions button{background:transparent;color:var(--on)}
 @media(max-width:760px){.kon-archive-ticket-layout{grid-template-columns:1fr}.kon-archive-ticket-card{max-width:640px;margin:auto}.kon-archive-ticket h4{font-size:clamp(50px,11vw,78px)}}
 @media(prefers-reduced-motion:reduce){.kon-archive-ticket-card{transition:none}}
+
+
+/* Ediciones coleccionables: tilt suave en desktop, mazo para variantes. */
+.kon-ticket-stage{position:relative;isolation:isolate;padding:16px 13px 19px;min-width:0;perspective:1200px}
+.kon-ticket-stage.has-variants::before,.kon-ticket-stage.has-variants::after{
+ content:'';position:absolute;inset:16px 15px 19px;border:2px solid var(--on);
+ background:var(--paper);box-shadow:5px 6px 0 #0005;pointer-events:none;z-index:-1;
+}
+.kon-ticket-stage.has-variants::before{transform:translate(11px,9px) rotate(3deg)}
+.kon-ticket-stage.has-variants::after{transform:translate(-8px,-5px) rotate(-3deg);background:var(--accent)}
+.kon-archive-ticket-card{cursor:pointer;outline-offset:5px;touch-action:pan-y;transform-style:preserve-3d;will-change:transform}
+.kon-archive-ticket-card[data-kon-tilt="enabled"]{transform:none;transition:filter .25s}
+.kon-archive-ticket-card[data-kon-tilt="enabled"]:hover{transform:none}
+.kon-archive-ticket-card:focus-visible{outline:3px solid var(--accent)}
+.kon-archive-ticket-card::before,.kon-archive-ticket-card::after{pointer-events:none}
+.kon-archive-ticket-card img{pointer-events:none}
+.kon-ticket-corner{position:absolute;z-index:4;bottom:12px;right:12px;font:900 11px 'Barlow',Arial,sans-serif;letter-spacing:.09em;padding:9px 12px;color:var(--ink);background:var(--paper);border:1px solid var(--ink);box-shadow:3px 3px 0 #0005;pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .24s,transform .24s}
+.kon-archive-ticket-card:hover .kon-ticket-corner,.kon-archive-ticket-card:focus-visible .kon-ticket-corner{opacity:1;transform:translateY(0)}
+.kon-archive-ticket-card .js-tilt-glare{pointer-events:none}
+.kon-card-enter{animation:konTicketReveal .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes konTicketReveal{from{opacity:.35;filter:blur(2px);transform:translateX(10px) scale(.985)}to{opacity:1;filter:blur(0);transform:translateX(0) scale(1)}}
+@media(hover:none){.kon-ticket-corner{opacity:1;transform:none;font-size:9px;padding:7px 9px}}
+@media(prefers-reduced-motion:reduce){
+ .kon-archive-ticket-card,.kon-card-enter,.kon-ticket-corner{animation:none!important;transition:none!important}
+ .kon-archive-ticket-card{will-change:auto}
+}
