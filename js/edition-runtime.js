@@ -63,7 +63,7 @@ async function publicEd(){
  const r=await fetch(api+"?view=public",{headers:{apikey:settings.publishableKey},cache:"no-store"});
  if(!r.ok)throw Error("CMS unavailable");
  const data=await r.json();if(!data.ok)throw Error("CMS returned error");
- if(data.active)apply(data.active,false);
+ if(data.active&&data.active.slug!=="halloween")apply(data.active,false); // La edición original sigue idéntica mientras Halloween esté activa.
  if(Array.isArray(data.archive)&&typeof window.KON_ADD_ARCHIVED==="function")window.KON_ADD_ARCHIVED(data.archive);
 }
 function loadSdk(){

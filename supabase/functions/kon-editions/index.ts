@@ -6,9 +6,9 @@ const fallback=JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS")||"{}");
 const role=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||fallback.default;
 if(!url||!role)throw new Error("Missing Supabase service configuration");
 const db=createClient(url,role,{auth:{persistSession:false,autoRefreshToken:false}});
-const trusted=new Set(["https://kon-club.vercel.app"]);
+const trusted=origin=>origin==="https://kon-club.vercel.app"||/^https:\/\/kon-club-[a-z0-9]{8,20}-martoknoll-8366s-projects\.vercel\.app$/.test(origin||"");
 const bucket="kon-edition-media";
-function headers(origin:string|null){return {"Content-Type":"application/json; charset=utf-8","Access-Control-Allow-Origin":origin&&trusted.has(origin)?origin:"null","Access-Control-Allow-Headers":"authorization, apikey, content-type","Access-Control-Allow-Methods":"GET, POST, OPTIONS","Cache-Control":"no-store","Vary":"Origin"};}
+function headers(origin:string|null){return {"Content-Type":"application/json; charset=utf-8","Access-Control-Allow-Origin":origin&&trusted(origin)?origin:"null","Access-Control-Allow-Headers":"authorization, apikey, content-type","Access-Control-Allow-Methods":"GET, POST, OPTIONS","Cache-Control":"no-store","Vary":"Origin"};}
 function send(data:unknown,code:number,origin:string|null){return new Response(JSON.stringify(data),{status:code,headers:headers(origin)});}
 function bad(error:string,code:number,origin:string|null){return send({ok:false,error},code,origin);}
 const uuid=(v:unknown)=>typeof v==="string"&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(v);
@@ -52,7 +52,7 @@ function validated(input:Record<string,unknown>){
 Deno.serve(async(req:Request)=>{
  const origin=req.headers.get("origin");
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:headers(origin)});
- if(origin&&!trusted.has(origin))return bad("origin_denied",403,origin);
+ if(origin&&!trusted(origin))return bad("origin_denied",403,origin);
  const q=new URL(req.url);
  try{
   if(req.method==="GET"&&q.searchParams.get("view")==="public"){
