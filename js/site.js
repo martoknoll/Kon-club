@@ -18,7 +18,36 @@ function zrBuild(){zrBook.querySelectorAll('.zr-sheet').forEach(e=>e.remove());f
  leaf.innerHTML='<div class="zr-face front"><img draggable="false" alt="Página '+(2*i+1)+'" src="'+zrCurrent().pages[2*i]+'"></div><div class="zr-face back"><img draggable="false" alt="Página '+(2*i+2)+'" src="'+zrCurrent().pages[2*i+1]+'"></div>';
  zrBook.appendChild(leaf)} zrMobileImg.src=zrCurrent().pages[zrMobileIndex];zrMobileImg.alt='Página '+(zrMobileIndex+1)+' de '+zrCurrent().name;zrSetLayers()}
 function zrNav(){let pages=zrVisible();zr('zrCount').textContent=pages.map(x=>String(x+1).padStart(2,'0')).join(' — ')+' / 08';zr('zrPlace').textContent=pages.length===2?'DOBLE PÁGINA':pages[0]===0?'PORTADA':pages[0]===7?'CONTRATAPA':'PÁGINA';zr('zrPrev').disabled=zrIsMobile()?zrMobileIndex===0:zrTurn===0;zr('zrNext').disabled=zrIsMobile()?zrMobileIndex===7:zrTurn===4;zr('zrDots').innerHTML=Array.from({length:8},(_,i)=>'<span class="zr-dot '+(pages.includes(i)?'here':'')+'"></span>').join('')}
-function zrPickMarkup(){zr('zrPicks').innerHTML=Object.entries(readerIssues).map(([k,it])=>'<button class="zr-pick '+(k===zrKey?'selected':'')+'" type="button" data-reader-issue="'+k+'" aria-pressed="'+(k===zrKey)+'"><img src="'+it.pages[0]+'" alt="Tapa de '+it.name+'"><div><small>REVISTA Nº '+it.number+'</small><strong>'+it.name+'</strong></div></button>').join('');zrRoot.querySelectorAll('[data-reader-issue]').forEach(b=>b.onclick=()=>zrSelect(b.dataset.readerIssue))}
+function zrPickMarkup(){
+  const picks=zr('zrPicks');
+  // No regenerar la lista en cada cambio: se conservarán el scroll y el foco del usuario.
+  if(!picks.children.length){
+    picks.innerHTML=Object.entries(readerIssues).map(([k,it])=>'<button class="zr-pick" type="button" data-reader-issue="'+k+'" aria-pressed="false"><img src="'+it.pages[0]+'" alt="Tapa de '+it.name+'" loading="lazy"><div><small>REVISTA Nº '+it.number+'</small><strong>'+it.name+'</strong></div></button>').join('');
+    picks.querySelectorAll('[data-reader-issue]').forEach(b=>b.onclick=()=>zrSelect(b.dataset.readerIssue));
+  }
+  let current=null;
+  picks.querySelectorAll('[data-reader-issue]').forEach(button=>{
+    const selected=button.dataset.readerIssue===zrKey;
+    button.classList.toggle('selected',selected);
+    button.setAttribute('aria-pressed',String(selected));
+    if(selected)current=button;
+  });
+  if(current){
+    // Solo se desplaza el selector, sin saltos en la revista ni en la pantalla completa.
+    const mobile=zrMobileQuery.matches;
+    const start=mobile?current.offsetLeft-picks.offsetLeft:current.offsetTop-picks.offsetTop;
+    const extent=mobile?current.offsetWidth:current.offsetHeight;
+    const viewport=mobile?picks.clientWidth:picks.clientHeight;
+    const scroll=mobile?picks.scrollLeft:picks.scrollTop;
+    const margin=mobile?12:8;
+    if(start<scroll+margin||start+extent>scroll+viewport-margin){
+      const target=Math.max(0,start-(viewport-extent)/2);
+      const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(mobile)picks.scrollTo({left:target,behavior:reduced?'instant':'smooth'});
+      else picks.scrollTo({top:target,behavior:reduced?'instant':'smooth'});
+    }
+  }
+}
 function zrSelect(key){if(!readerIssues[key]||zrBusy)return;zrKey=key;zrTurn=0;zrMobileIndex=0;zrRoot.style.setProperty('--zrbase',zrCurrent().bg);zrRoot.style.setProperty('--zron',zrCurrent().on);zr('zrNum').textContent='N.º '+zrCurrent().number;zr('zrTitle').textContent=zrCurrent().name;let pl=zr('zrPrint');pl.href=zrCurrent().print;pl.download='KonClub_'+zrCurrent().folder+'_para_imprimir.jpg';zrPickMarkup();zrBuild();zrNav()}
 function openZine(key){zrReturnFocus=document.activeElement; if(modal.classList.contains('open'))closeModal(); if(zr('adminPanel').classList.contains('open'))closePanel();zrRoot.classList.add('open');zrRoot.setAttribute('aria-hidden','false');document.body.classList.add('no-scroll');zrRoot.scrollTop=0;zrSelect(key);zr('zrClose').focus()}
 function closeZine(){zrRoot.classList.remove('open');zrRoot.setAttribute('aria-hidden','true');document.body.classList.toggle('no-scroll',location.hash==='#fanzinoteca-completa'||location.hash.startsWith('#archivo-completo'));if(zr('zrZoom').open)zr('zrZoom').close();zrReturnFocus?.focus?.()}

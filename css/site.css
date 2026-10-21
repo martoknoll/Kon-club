@@ -706,3 +706,67 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
 @media(prefers-reduced-motion:reduce){
   .kon-ticket-stage .kon-archive-ticket-card,.kon-ticket-stage .kon-archive-ticket-card:active{transition:none!important}
 }
+
+
+/* FANZINOTECA / selector compacto independiente del lector.
+   Desktop: columna vertical scrolleable. Mobile: un solo carril horizontal. */
+#zineReader .zr-sidebar{
+  position:sticky;top:100px;
+  max-height:calc(100dvh - 118px);min-height:0;
+}
+#zineReader .zr-picks{
+  display:flex;flex-direction:column;flex:1 1 auto;
+  min-height:104px;max-height:min(59dvh,590px);
+  gap:8px;padding:4px 9px 10px 3px;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;
+  scrollbar-width:thin;scrollbar-color:#f3bb6f #302633;
+}
+#zineReader .zr-pick{
+  flex:0 0 auto;min-width:0;min-height:66px;
+  padding:6px 8px;gap:9px;box-shadow:3px 3px 0 #0005;
+}
+#zineReader .zr-pick img{width:39px;height:53px;object-fit:cover}
+#zineReader .zr-pick div{min-width:0;flex:1}
+#zineReader .zr-pick strong{font-size:clamp(17px,1.5vw,21px);overflow-wrap:anywhere}
+#zineReader .zr-pick small{font-size:9px}
+#zineReader .zr-pick:focus-visible{outline:3px solid #f3bb6f;outline-offset:2px}
+@media(max-width:700px){
+  #zineReader .zr-sidebar{position:static;max-height:none;gap:8px;min-height:0}
+  #zineReader .zr-pickhead{
+    display:flex;padding:1px 1px 5px;align-items:center;gap:10px;
+    font-size:10px;border-bottom:0
+  }
+  #zineReader .zr-pickhead span:last-child{font-size:0}
+  #zineReader .zr-pickhead span:last-child::after{
+    content:'DESLIZÁ ↔';font-size:10px;color:#f3bb6f
+  }
+  #zineReader .zr-picks{
+    display:flex;flex-direction:row;flex-wrap:nowrap;
+    width:100%;max-width:100%;min-height:0;max-height:none;
+    gap:9px;padding:3px 12px 11px 2px;
+    overflow-x:auto;overflow-y:hidden;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;
+    touch-action:pan-x;
+    scrollbar-width:none;
+  }
+  #zineReader .zr-picks::-webkit-scrollbar{display:none}
+  #zineReader .zr-pick{
+    flex:0 0 clamp(170px,54vw,218px);
+    width:clamp(170px,54vw,218px);
+    height:72px;min-height:72px;
+    padding:6px;gap:8px;
+    scroll-snap-align:start;
+    box-shadow:3px 3px 0 #0005;
+  }
+  #zineReader .zr-pick img{width:41px;height:56px}
+  #zineReader .zr-pick strong{font-size:17px;line-height:1}
+  #zineReader .zr-pick small{font-size:8px;letter-spacing:.07em;margin-bottom:4px}
+  #zineReader .zr-pick:hover{transform:none}
+  #zineReader .zr-stage{margin-top:1px}
+}
+@media(prefers-reduced-motion:reduce){
+  #zineReader .zr-picks{scroll-behavior:auto}
+  #zineReader .zr-pick{transition:none}
+}
