@@ -41,7 +41,23 @@ zr('zrDownload').onclick=()=>{let i=zrZoomPage();const a=document.createElement(
 document.addEventListener('keydown',e=>{if(!zrRoot.classList.contains('open'))return;if(e.key==='Escape'){if(!zr('zrZoom').open)closeZine();return}if(zr('zrZoom').open)return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();zrFlip(e.key==='ArrowRight'?1:-1)}});
 document.querySelectorAll('[data-zine]').forEach(b=>b.onclick=()=>openZine(b.dataset.zine));document.querySelectorAll('[data-photo]').forEach(b=>b.onclick=()=>{openModal('<div class="eyebrow">ÁLBUM / FEAR AND LOATHING</div><h3 id="dialogTitle">FOTOS DEL KON</h3><img class="dialog-image" src="'+assets[b.dataset.photo]+'" alt="Registro fotográfico de Kon Club">')});$('menuButton').onclick=()=>{let n=$('mobileNav'),state=!n.classList.contains('open');n.classList.toggle('open',state);$('menuButton').setAttribute('aria-expanded',String(state))};document.querySelectorAll('.mobile-nav a').forEach(a=>a.onclick=()=>{$('mobileNav').classList.remove('open');$('menuButton').setAttribute('aria-expanded','false')});
 // Archivo público interno: contenido editorial, sin enlaces a Google Drive.
-const archiveCatalog=window.KON_CONFIG.archiveCatalog;const archiveLookup=archiveCatalog;const archivePage=$('archivo-completo'),archiveGrid=$('archiveAllGrid'),archiveDetail=$('archiveDetail'),archiveDetailContent=$('archiveDetailContent');
+const archiveCatalog=window.KON_CONFIG.archiveCatalog;const archiveLookup=archiveCatalog;
+window.KON_ADD_ARCHIVED=function(entries){
+ if(!Array.isArray(entries))return;
+ for(const e of entries){
+  const folder=String(e.archive_number||"");
+  if(!/^\d+$/.test(folder)||Number(folder)<17||archiveCatalog.some(it=>it[0]===folder))continue;
+  const key="cms-"+String(e.slug||"").replace(/[^a-z0-9-]/g,"");
+  const url=String(e.flyer_url||"");
+  if(!/^\/public\/media\/[A-Za-z0-9_.-]+$/.test(url)&&!/^https:\/\/ogrzuiwlyfobhtknjuzu\.supabase\.co\/storage\/v1\/object\/public\/kon-edition-media\/[A-Za-z0-9/_.-]+$/.test(url))continue;
+  assets[key]=url;
+  archiveCatalog.unshift([folder,String(e.film_title||e.title||"KON CLUB"),key]);
+  const synopsis=String(e.synopsis||"").slice(0,1800);
+  window.KON_CONFIG.archiveSynopses[folder]=synopsis?[{title:String(e.film_title||""),text:synopsis}]:[];
+ }
+ archiveCatalog.sort((a,b)=>Number(b[0])-Number(a[0]));
+ archivePaint();
+};const archivePage=$('archivo-completo'),archiveGrid=$('archiveAllGrid'),archiveDetail=$('archiveDetail'),archiveDetailContent=$('archiveDetailContent');
 const archiveSearch=$('archiveSearch');
 function archiveImage(asset){return asset&&assets[asset]?'<img alt="Flyer original de Kon Club" src="'+assets[asset]+'" loading="lazy" decoding="async">':null}
 function archiveCard(it){let img=archiveImage(it[2]);return '<button class="archive-index-card" type="button" data-archive-id="'+it[0]+'" aria-label="Abrir edición '+escapeHtml(it[1])+'"><div class="archive-index-cover '+(img?'':'placeholder')+'">'+(img||'<span>'+it[0]+'</span><strong>'+escapeHtml(it[1])+'</strong>')+'</div><div class="archive-index-meta"><small>ARCHIVO KON CLUB / CARPETA '+it[0]+'</small><strong>'+escapeHtml(it[1])+'</strong></div></button>'}
