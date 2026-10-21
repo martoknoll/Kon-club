@@ -634,3 +634,39 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
  .kon-archive-ticket-copy h5{font-size:clamp(38px,11vw,58px)}
 }
 @media(prefers-reduced-motion:reduce){.kon-ticket-stage{transition:none}}
+
+
+/* ENTRADAS: experiencia táctil real (arrastrar, soltar, deslizar y ampliar). */
+.kon-ticket-mobile-help{display:none!important}
+.kon-ticket-stage .kon-archive-ticket-card.kon-ticket-grabbing{
+  cursor:grabbing;filter:drop-shadow(0 18px 13px rgba(0,0,0,.22));z-index:2
+}
+.kon-ticket-stage .kon-archive-ticket-card{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.kon-ticket-stage .kon-archive-ticket-card img{-webkit-user-drag:none;user-select:none}
+.kon-card-enter-reverse{animation:konTicketRevealReverse .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes konTicketRevealReverse{
+  from{opacity:.35;filter:blur(2px);transform:translateX(-10px) scale(.985)}
+  to{opacity:1;filter:blur(0);transform:translateX(0) scale(1)}
+}
+@media(hover:none), (pointer:coarse){
+  .kon-ticket-mobile-help{display:block!important;font:800 11px/1.55 'Barlow',Arial,sans-serif;letter-spacing:.075em;opacity:.82;margin:13px 0 2px!important}
+  .kon-ticket-stage .kon-archive-ticket-card{touch-action:pan-y;cursor:grab;transition:transform .56s cubic-bezier(.2,1.3,.3,1)}
+  .kon-ticket-stage .kon-archive-ticket-card.kon-ticket-grabbing{transition:none}
+  .kon-ticket-stage.has-variants::before{transform:translate(9px,7px) rotate(2.7deg)}
+  .kon-ticket-stage.has-variants::after{transform:translate(-6px,-5px) rotate(-2.5deg)}
+}
+@media(hover:none) and (max-width:900px), (pointer:coarse) and (max-width:900px){
+  .kon-ticket-stage.kon-ticket-before-reveal{opacity:0;transform:translateY(28px) rotate(3deg)}
+  .kon-ticket-stage.kon-ticket-revealed{
+    animation:konTicketPlace .72s cubic-bezier(.18,1,.3,1) both
+  }
+  @keyframes konTicketPlace{
+    from{opacity:0;transform:translateY(28px) rotate(3deg) scale(.96)}
+    to{opacity:1;transform:translateY(0) rotate(0) scale(1)}
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .kon-ticket-stage.kon-ticket-before-reveal{opacity:1;transform:none}
+  .kon-ticket-stage.kon-ticket-revealed,.kon-card-enter-reverse{animation:none!important}
+  .kon-ticket-stage .kon-archive-ticket-card{transition:none!important}
+}
