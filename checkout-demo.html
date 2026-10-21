@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#230519">
+  <meta name="description" content="Elegí tus entradas y fanzines para la próxima fecha de Kon Club.">
+  <title>Entradas — Kon Club</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="css/checkout.css?v=20261020" rel="stylesheet">
+  <script src="data/site-config.js" defer></script>
+  <script src="data/checkout-preview-config.js?v=20261020" defer></script>
+  <script src="js/checkout-preview.js?v=20261020" defer></script>
+</head>
+<body>
+  <div class="preview-banner" id="demoBanner" role="status">VISTA PREVIA · NO HAY VENTAS WEB · NO TRANSFIERAS DINERO NI INGRESES DATOS REALES</div>
+  <div class="ticker" aria-hidden="true">✳ KON CLUB — CINE · JUEGOS DE MESA · CONSOLAS · D&amp;D · COMIDA ✳ EL CINE ES LA EXCUSA ✳</div>
+  <header class="header">
+    <a class="brand" href="./index.html" aria-label="Volver a Kon Club">
+      <img id="headerLogo" alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
+      <span>KON<br>CLUB<small>CINE CLUB · BUENOS AIRES</small></span>
+    </a>
+    <a class="back" href="./index.html">← VOLVER A LA WEB</a>
+  </header>
+
+  <main class="shell">
+    <div class="lead">
+      <p class="kicker">KON CLUB / ENTRADAS</p>
+      <h1>VENÍ<br><em>AL KON.</em></h1>
+      <p>LA CASA LOBO × THE ROCKY HORROR PICTURE SHOW · <strong>DOMINGO 25 DE OCTUBRE</strong>.</p>
+      <p>Conocé cómo funcionará la compra de entradas. Esta demostración no acepta pedidos, pagos ni reservas.</p>
+      <p class="subtle">Probá el recorrido con datos inventados. Las reservas reales continúan por el canal habitual.</p>
+      <p class="subtle" id="apiStatus" role="status">CARGANDO CATÁLOGO DE ENTRADAS...</p>
+    </div>
+
+    <div class="checkout-grid">
+      <section class="checkout" aria-label="Compra de entradas">
+        <nav class="steps" aria-label="Pasos de inscripción">
+          <span data-step-marker="1" class="is-active">01 <b>ARMÁ TU PEDIDO</b></span>
+          <span data-step-marker="2">02 <b>TUS DATOS</b></span>
+          <span data-step-marker="3">03 <b>TRANSFERENCIA</b></span>
+        </nav>
+
+        <section class="step" data-step="1" aria-labelledby="chooseHeading">
+          <div class="heading"><span>01 / TU PLAN</span><h2 id="chooseHeading">¿QUÉ LLEVAMOS?</h2><p>Podés combinar entradas generales, post-película y fanzines.</p></div>
+          <div id="products" class="products"></div>
+          <p class="hint">Las cantidades y los precios se ajustan para cada edición. Esta vista previa no muestra stock en tiempo real ni reserva cupos.</p>
+          <div class="actions"><button type="button" class="primary" id="continueToPay">SEGUIR CON EL PEDIDO <span>→</span></button></div>
+        </section>
+
+        <section class="step" data-step="2" aria-labelledby="detailsHeading" hidden>
+          <div class="heading"><span>02 / DATOS DEL COMPRADOR</span><h2 id="detailsHeading">¿QUIÉN VIENE?</h2><p>Usá <strong>datos ficticios</strong> para probar esta pantalla. No guardamos ni enviamos tus respuestas.</p></div>
+          <form id="orderForm" autocomplete="on">
+            <div class="form-fields">
+              <label>Nombre y apellido <abbr title="obligatorio">*</abbr><input name="fullName" required autocomplete="name" maxlength="100" placeholder="Tu nombre completo"></label>
+              <label>Email <abbr title="obligatorio">*</abbr><input name="email" type="email" required autocomplete="email" maxlength="150" placeholder="tu@email.com"></label>
+              <label>Instagram <abbr title="obligatorio">*</abbr><input name="instagram" required maxlength="80" placeholder="@usuario"></label>
+              <fieldset><legend>¿Es la primera vez que venís? <abbr title="obligatorio">*</abbr></legend><div class="radio-row"><label><input type="radio" name="firstTime" value="si" required> Sí</label><label><input type="radio" name="firstTime" value="no" required> No</label></div></fieldset>
+              <label id="discoveryField" hidden>¿Cómo nos conociste? <abbr title="obligatorio">*</abbr>
+                <select name="discovery" id="discovery" disabled>
+                  <option value="">Elegí una opción</option>
+                  <option value="Publicidad en Instagram">Publicidad en Instagram</option>
+                  <option value="Un amigo/a me contó">Un amigo/a me contó</option>
+                  <option value="Los encontré por mi cuenta">Los encontré por mi cuenta</option>
+                  <option value="Otro">Otro</option>
+                </select>
+              </label>
+              <div class="checkboxline"><label><input type="checkbox" name="consent" required> Entiendo que esta es una demostración sin reservas, pedidos ni pagos.</label></div>
+              <p class="hint">Usamos tus datos exclusivamente para gestionar esta inscripción y contactarte por el evento. El comprobante se guarda de forma privada y solo puede consultarlo el equipo autorizado. Para consultas o correcciones, escribinos a <a href="mailto:kon.club@proton.me">kon.club@proton.me</a>.</p>
+            </div>
+            <p class="hint" id="formError" role="alert" hidden></p>
+            <div class="actions"><button type="button" class="secondary" data-back="1">← ANTERIOR</button><button type="submit" class="primary">CONTINUAR LA DEMO <span>→</span></button></div>
+          </form>
+        </section>
+
+        <section class="step" data-step="3" aria-labelledby="payHeading" hidden>
+          <div class="heading"><span>03 / TRANSFERENCIA</span><h2 id="payHeading">TRANSFERÍ Y LISTO.</h2><p>Así se vería el paso de transferencia cuando habilitemos las ventas. <strong>NO hagas ninguna transferencia.</strong></p></div>
+          <div class="payment-card">
+            <span class="kicker">ALIAS DE REFERENCIA · NO TRANSFERIR</span>
+            <div class="alias-line"><strong id="payAlias">KON.CLUB.GL</strong><button type="button" id="copyAlias" class="secondary" disabled title="Las transferencias están deshabilitadas">DEMO</button></div>
+            <div class="total-line"><span>TOTAL DEL PEDIDO</span><strong id="payTotal">$0</strong></div>
+            <p class="hint" id="registeredCode">La inscripción definitiva se confirma después de verificar el pago.</p>
+            <p>La transferencia es manual. <strong>Un comprobante por sí solo no confirma la acreditación bancaria.</strong></p>
+          </div>
+          <div class="demo-note" id="paymentNotice"><strong>SOLO VISTA PREVIA.</strong> No hagas transferencias. No se realiza ninguna reserva.</div>
+          <form id="proofForm">
+            <div class="form-fields" style="margin-top:20px">
+              <div class="demo-note">En la venta real, acá podrás adjuntar el comprobante. Esta demostración no permite subir archivos.</div>
+            </div>
+            <p class="hint" id="proofError" role="alert" hidden></p>
+            <div class="actions"><button type="button" class="secondary" id="returnToDetails" data-back="2">← DATOS</button><button type="submit" class="primary">VER RESUMEN SIMULADO <span>→</span></button></div>
+          </form>
+        </section>
+
+        <section class="step" data-step="4" aria-labelledby="completeHeading" hidden>
+          <div class="heading"><span>VISTA PREVIA / NO ENVIADO</span><h2 id="completeHeading">ASÍ QUEDARÍA.</h2><p>Revisá tu pedido. <strong>No se guardó ni envió ningún dato. Esto no constituye una reserva.</strong></p></div>
+          <div id="confirmation" class="confirmation"></div>
+          <div class="demo-note" id="completionNotice"><strong>DEMO COMPLETADA.</strong> No se registró un pedido, no se hizo ningún cobro y no se reservó ningún cupo.</div>
+          <div class="actions"><button type="button" class="secondary" data-back="3">← CORREGIR</button><a class="primary as-link" href="./index.html">VOLVER AL KON <span>↗</span></a></div>
+        </section>
+      </section>
+
+      <aside class="summary" aria-label="Resumen del pedido">
+        <div class="event">
+          <img id="poster" alt="Flyer de la edición activa" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
+          <div><span class="kicker">PRÓXIMA EDICIÓN</span><h3 id="eventTitle">KON CLUB</h3><p id="eventDate"></p></div>
+        </div>
+        <div class="summary-body">
+          <h3>TU PEDIDO</h3>
+          <div id="summaryLines" aria-live="polite"></div>
+          <div class="summary-total"><span>TOTAL</span><strong id="summaryTotal">$0</strong></div>
+          <p class="summary-foot">Vista previa únicamente. No se registran pedidos ni se reservan cupos.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+  <footer>✳ EL CINE ES LA EXCUSA ✳ KON CLUB · BUENOS AIRES</footer>
+</body>
+</html>

@@ -18,5 +18,11 @@ jobs:
         run: |
           node --check data/site-config.js
           node --check js/site.js
+          node --check js/checkout.js
+          node --check js/admin.js
+          node --check js/checkout-test.js
+          node --check scripts/build-cloudflare.mjs
       - name: Verificar imágenes y catálogo
         run: node scripts/check-site.mjs
+      - name: Validar compilación Cloudflare (sin publicar)
+        run: node scripts/build-cloudflare.mjs
