@@ -363,6 +363,7 @@ $("copyPair").addEventListener("click",async()=>{
  catch(_err){$("pairToken").focus();$("pairToken").select();notice("Copiá el texto seleccionado.");}
 });
 
+$("manageEditions").addEventListener("click",()=>window.location.assign("ediciones.html"));
 $("pairMail").addEventListener("click",()=>{
  $("mailToken").value="";
  $("copyMailToken").disabled=true;

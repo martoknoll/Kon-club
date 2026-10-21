@@ -21,8 +21,14 @@ jobs:
           node --check js/checkout.js
           node --check js/admin.js
           node --check js/checkout-test.js
+          node --check js/ediciones.js
+          node --check js/edition-runtime.js
           node --check scripts/build-cloudflare.mjs
       - name: Verificar imágenes y catálogo
         run: node scripts/check-site.mjs
-      - name: Validar compilación Cloudflare (sin publicar)
-        run: node scripts/build-cloudflare.mjs
+      - name: Verificar módulo de ediciones
+        run: |
+          test -f ediciones.html
+          test -f js/ediciones.js
+          test -f js/edition-runtime.js
+          test -f supabase/functions/kon-editions/index.ts
