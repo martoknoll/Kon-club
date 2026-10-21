@@ -23,6 +23,7 @@ jobs:
           node --check js/checkout-test.js
           node --check js/ediciones.js
           node --check js/edition-runtime.js
+          node --check js/photos-carousel.js
           node --check scripts/build-cloudflare.mjs
       - name: Verificar imágenes y catálogo
         run: node scripts/check-site.mjs

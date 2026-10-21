@@ -393,3 +393,33 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
   text-wrap:pretty;
 }
 @media(max-width:730px){.archive-synopses{margin-top:21px;padding-top:16px}}
+
+
+/* === El álbum / carrusel fotográfico original de Kon Club (#17+) === */
+.photo-carousel{width:100%;min-width:0}
+.photo-carousel-controls{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px;flex-wrap:wrap}
+.photo-carousel-controls p{margin:0;font-size:11px;font-weight:950;letter-spacing:.1em;line-height:1.4}
+.photo-carousel-buttons{display:flex;gap:7px}
+.photo-carousel-buttons button,.photo-viewer button{cursor:pointer;font:900 13px Impact,'Arial Black',sans-serif;letter-spacing:.055em;border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:9px 13px}
+.photo-carousel-buttons button:hover,.photo-carousel-buttons button:focus-visible{background:var(--ink);color:var(--paper)}
+.photo-carousel-buttons button:focus-visible,.photo-carousel-viewport:focus-visible,.photo-carousel-card:focus-visible,.photo-viewer button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.photo-carousel-viewport{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:none;scroll-snap-type:x mandatory;scroll-behavior:smooth;touch-action:pan-x pan-y;min-width:0}
+.photo-carousel-viewport::-webkit-scrollbar{display:none}
+.photo-carousel-rail{display:flex;gap:12px;min-width:0}
+.photo-carousel-card{border:0;padding:0;flex:0 0 calc((100% - 36px)/4);position:relative;display:block;aspect-ratio:4/3;overflow:hidden;color:#fff;background:#171717;scroll-snap-align:start;text-align:left;cursor:zoom-in;isolation:isolate}
+.photo-carousel-card img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.9);transition:transform .3s ease,filter .3s}
+.photo-carousel-card:hover img,.photo-carousel-card:focus-visible img{transform:scale(1.05);filter:saturate(1.08)}
+.photo-carousel-card .photo-card-title{position:absolute;inset:auto 0 0;z-index:1;padding:35px 12px 12px;background:linear-gradient(transparent,rgba(0,0,0,.88));display:flex;align-items:end;justify-content:space-between;gap:6px;font-size:12px;letter-spacing:.05em;font-weight:950;line-height:1.2;text-shadow:0 1px 3px #111}
+.photo-carousel-card .photo-card-title b{font:900 21px Impact,'Arial Black',sans-serif}
+.photo-carousel-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px 0 0;font-weight:950;font-size:11px;letter-spacing:.09em}
+.photo-carousel-footer span:last-child{font-family:Impact,'Arial Black',sans-serif;font-size:19px;min-width:70px;text-align:right}
+.photo-viewer{border:0;padding:0;background:#161616;color:#f5f4ef;width:min(1100px,96vw);max-width:96vw;max-height:94vh;box-shadow:0 15px 70px #0009}
+.photo-viewer::backdrop{background:rgba(0,0,0,.9)}
+.photo-viewer-head,.photo-viewer-bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;font-weight:900;letter-spacing:.055em;font-size:12px}
+.photo-viewer img{display:block;margin:auto;max-width:100%;max-height:calc(94vh - 126px);width:auto;height:auto;object-fit:contain}
+.photo-viewer button{background:transparent;border-color:#aaa;color:#fff}
+.photo-viewer button:hover{background:#fff;color:#151515}
+@media(max-width:1050px){.photo-carousel-card{flex-basis:calc((100% - 24px)/3)}}
+@media(max-width:760px){.photo-carousel-card{flex-basis:calc((100% - 12px)/2)}.photo-carousel-controls{align-items:start}.photo-carousel-controls p{max-width:210px}}
+@media(max-width:480px){.photo-carousel-card{flex-basis:82%;aspect-ratio:5/4}.photo-carousel-controls p{font-size:10px;max-width:145px}.photo-carousel-buttons button{padding:9px 10px}.photo-carousel-footer{font-size:10px}.photo-viewer-head,.photo-viewer-bottom{padding:8px;font-size:11px}.photo-viewer-bottom button{padding:9px}}
+@media(prefers-reduced-motion:reduce){.photo-carousel-viewport{scroll-behavior:auto}.photo-carousel-card img{transition:none}}
