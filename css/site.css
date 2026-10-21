@@ -494,3 +494,30 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
  .archive-viewer-bar{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.archive-issue-photo img{transition:none}}
+
+/* Historia del Kon y entradas físicas originales, desde Paprika */
+.kon-archive-ticket{border-top:2px solid var(--on);padding:clamp(32px,5vw,70px) 0;scroll-margin-top:95px}
+.kon-archive-ticket>header{display:flex;justify-content:space-between;align-items:end;gap:10px 30px;flex-wrap:wrap;margin-bottom:25px}
+.kon-archive-ticket>header>span{font-weight:900;font-size:11px;letter-spacing:.13em;color:var(--accent);flex-basis:100%}
+.kon-archive-ticket h4{font:700 clamp(50px,7vw,105px)/.85 'Barlow Condensed',Impact,Arial,sans-serif;letter-spacing:-.04em;margin:0}
+.kon-archive-ticket h4 em{color:var(--accent);font-style:normal}
+.kon-archive-ticket>header small{font-weight:800;letter-spacing:.1em}
+.kon-archive-ticket-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(230px,.85fr);gap:clamp(24px,5vw,65px);align-items:center}
+.kon-archive-ticket-card{width:100%;position:relative;min-width:0;aspect-ratio:1.6;background:#1e1125;border:2px solid var(--on);box-shadow:10px 10px 0 #0006;transform:rotate(-1.5deg);overflow:hidden;transition:transform .2s}
+.kon-archive-ticket-card:hover{transform:rotate(0) translateY(-3px)}
+.kon-archive-ticket-card::before,.kon-archive-ticket-card::after{content:'';position:absolute;z-index:3;top:calc(50% - 12px);width:24px;height:24px;border-radius:50%;background:var(--bg)}
+.kon-archive-ticket-card::before{left:-13px}.kon-archive-ticket-card::after{right:-13px}
+.kon-archive-ticket-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#1e1125}
+.kon-archive-ticket-card.fallback img{display:none}
+.kon-archive-ticket-card .kon-ticket-backdrop{padding:24px;display:flex;flex-direction:column;justify-content:space-between;width:100%;height:100%;box-sizing:border-box}
+.kon-ticket-backdrop>span{font-weight:900;font-size:11px;letter-spacing:.16em}
+.kon-ticket-backdrop>strong{font:700 clamp(35px,5vw,72px)/.85 'Barlow Condensed',Impact,sans-serif;color:var(--accent)}
+.kon-archive-ticket-copy h5{font:700 clamp(40px,4vw,75px)/.9 'Barlow Condensed',Impact,Arial,sans-serif;margin:12px 0 20px;letter-spacing:-.03em}
+.kon-archive-ticket-copy p{font-size:clamp(15px,1.6vw,19px);line-height:1.5}
+.kon-archive-ticket-copy>strong{display:block;margin-top:14px}
+.kon-archive-ticket-copy small{display:block;margin-top:14px;line-height:1.5;font-size:11px;opacity:.75}
+.kon-archive-ticket-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}
+.kon-archive-ticket-actions a,.kon-archive-ticket-actions button{border:2px solid var(--on);background:var(--accent);color:var(--ink);padding:13px 16px;font:900 12px 'Barlow',Arial,sans-serif;text-decoration:none;cursor:pointer}
+.kon-archive-ticket-actions button{background:transparent;color:var(--on)}
+@media(max-width:760px){.kon-archive-ticket-layout{grid-template-columns:1fr}.kon-archive-ticket-card{max-width:640px;margin:auto}.kon-archive-ticket h4{font-size:clamp(50px,11vw,78px)}}
+@media(prefers-reduced-motion:reduce){.kon-archive-ticket-card{transition:none}}

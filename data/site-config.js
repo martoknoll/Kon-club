@@ -93,6 +93,10 @@ window.KON_CONFIG = {
   // Reseñas manuscritas aprobadas por edición (#17+). Vacío hasta recibir las fotos originales.
   // Formato futuro: "35": [{src:"public/media/resenas/35/archivo.webp", description:"Reseña del público"}].
   archiveReviews: {},
+  // Numeración editorial desde Paprika (#1); no equivale a carpetas de Drive.
+  archiveEditionNumbers: {"17":1,"19":2,"21":3,"22":4,"24":5,"26":6,"28":7,"29":8,"30":9,"31":10,"32":11,"33":12,"34":13,"35":14,"36":15},
+  // Piezas físicas originales: fuentes verificadas en Google Drive, no copias públicas optimizadas.
+  archiveTickets: {"17":[{"name":"Paprika","id":"1JuBjlMljvTLRiH4hkGUplq7GXR6IMynD"}],"19":[{"name":"Humanist Vampire","id":"1y1xrIY3S0xFEKPEoOFAwrABxJ-vmxtsq"}],"21":[{"name":"Black Dynamite","id":"1byH0GpEb7ybkhgZ_of_raN5WDJmZGlZc"}],"22":[{"name":"Fantastic Mr. Fox","id":"1qY4NdB0_uQDP5ZHrUltvv9CTtUzs-Tkg"}],"24":[{"name":"Scott Pilgrim","id":"1sTFg5odR6hUxROSD7rRGb_OUzoSL7Hxj"}],"26":[{"name":"After Hours / Kon Club Lite","id":"14Ih-OerKehcMUJRkEgLCCZtlXSCzbOCI"}],"28":[{"name":"Whiplash","id":"16qZcnMq5C-85Edz0j8hhPjJ2hbbanB-g"}],"29":[{"name":"Fear and Loathing (post-película)","id":"1o48CjIUorFUOkGvJLj6b8s7yvgoamA0O"}],"30":[{"name":"Walter Mitty","id":"1awHLaoCnn7BId-pLp1f9fegoazQAsV3f"}],"32":[{"name":"Chungking Express","id":"1EKOozwhRDvySATDBbR8slb7Wp7MKre0B"}],"33":[{"name":"FLCL / diseño 1","id":"10MxDKkm6nwrsSJJqxKvjmU0V721wloLc"},{"name":"FLCL / diseño 2","id":"1NSJQsY5n_twSW5D5K-buJ9UVXRsSpRLS"},{"name":"FLCL / diseño 3","id":"1ypOPXN2H2L-Y8EstNX6PyKLl0xZ6gEdi"},{"name":"FLCL / diseño 4","id":"1RqjzTvRK0LbCMXLX2DUGj5z-Id0rzRHF"},{"name":"FLCL / diseño 5","id":"1LSsKwN_NfiSn3msTkWJJdrfmDSurHjNk"}],"34":[{"name":"Nirvanna the Band","id":"1nc_aQQ1QhDhTFgU4DshPt_oidQPsefGt"}],"35":[{"name":"Wag the Dog","id":"1U2CVYgwLtw_rS24oYZFcOLON0vlN66NE"}],"36":[{"name":"Halloween / diseño C","id":"1KdOabfMe3f2gCvIE6gx--bnRbA_dExnM"},{"name":"Halloween / diseño R","id":"1Vn9G9K8euy9Wq5ny72WPs4Iw8FaAMaHB"}]},
   // Sinopsis originales, breves y sin spoilers, vinculadas al número de carpeta.
   archiveSynopses: {
     "17": [
