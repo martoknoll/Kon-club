@@ -6,6 +6,8 @@ const api=settings.url+"/functions/v1/kon-editions";
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
 const previewId=params.get("edition_preview");
+// La maqueta estática de una próxima edición no debe ser reemplazada por CMS público.
+if(params.get("preview")==="1"&&params.get("kon_draft")==="beavers"&&!previewId)return;
 function safeSrc(url){return typeof url==="string"&&(/^\/public\/media\/[A-Za-z0-9_.-]+$/.test(url)||url.startsWith(settings.url+"/storage/v1/object/public/kon-edition-media/"))?url:null}
 function prettyDate(iso){
  const d=new Date(iso);
