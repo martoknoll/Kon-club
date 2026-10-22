@@ -45,6 +45,7 @@ function paint(force){
  root.style.setProperty('--music-fg',album.source.on);
  root.style.setProperty('--music-accent',album.source.on);
  document.getElementById('konMusicTheme')?.setAttribute('content',album.source.bg);
+ document.dispatchEvent(new CustomEvent('kon:albumchange',{detail:{artist:album.artist,title:album.title,issue:album.n}}));
 }
 collection.forEach((album,i)=>{
  const button=document.createElement('button');

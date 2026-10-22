@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Barlow:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/music.css?v=20261022-ref-kon-v2"></head>
+<link rel="stylesheet" href="css/music.css?v=20261022-preview-v1"></head>
 <body class="kon-music"><div class="music-shell">
 <header class="music-header"><a class="music-brand" href="index.html" aria-label="Volver a la web del Kon Club"><span>KON<br>CLUB</span><small>✳ EL CINE ES LA EXCUSA</small></a><nav aria-label="Navegación musical"><a href="index.html#fanzinoteca-completa">FANZINOTECA ↗</a><a class="music-back" href="index.html">← VOLVER AL KON</a></nav></header>
 <main>
@@ -18,7 +18,30 @@
 <section class="music-deck" aria-label="Explorar los álbumes recomendados">
 <div class="deck-top"><span>✳ SELECCIONÁ UN DISCO</span><span>DESLIZÁ PARA NAVEGAR ↔</span></div>
 <div class="deck-window"><div id="recordRail" class="record-rail" tabindex="0" aria-label="Carrusel de tapas de discos. Deslizá o usá las flechas para navegar."></div></div>
-<div class="deck-navigation"><button type="button" id="recordPrev" aria-label="Disco anterior">←</button><span id="recordNumber" aria-live="polite" aria-atomic="true">01 / 01</span><button type="button" id="recordNext" aria-label="Disco siguiente">→</button></div></section>
+<div class="deck-navigation"><button type="button" id="recordPrev" aria-label="Disco anterior">←</button><span id="recordNumber" aria-live="polite" aria-atomic="true">01 / 01</span><button type="button" id="recordNext" aria-label="Disco siguiente">→</button></div>
+<div class="kon-preview-player" id="konPreviewPlayer" aria-label="Escuchar un fragmento del álbum">
+  <div class="kon-preview-ident">
+    <span class="kon-preview-kicker">✳ UN PEDACITO DEL DISCO / 30 SEGUNDOS</span>
+    <strong class="kon-preview-song" id="konPreviewSong">Cargando selección musical…</strong>
+  </div>
+  <div class="kon-preview-controls">
+    <button type="button" id="konPreviewToggle" class="kon-preview-toggle" aria-label="Reproducir fragmento" disabled>▶</button>
+    <div class="kon-preview-track">
+      <div class="kon-preview-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="kon-preview-progress" role="progressbar" aria-label="Progreso de reproducción" aria-valuemin="0" aria-valuemax="30" aria-valuenow="0" id="konPreviewProgress"><span id="konPreviewFill"></span></div>
+    </div>
+    <span id="konPreviewTime" class="kon-preview-time" aria-hidden="true">0:00 / 0:30</span>
+    <button type="button" id="konPreviewAnother" class="kon-preview-next" hidden>OTRO TEMA ↻</button>
+  </div>
+  <div class="kon-preview-bottom">
+    <span id="konPreviewStatus" role="status" aria-live="polite">Buscando un fragmento oficial…</span>
+    <div class="kon-preview-credit" id="konPreviewCredit" hidden>
+      <span>Fragmento cortesía de iTunes.</span>
+      <a id="konPreviewApple" target="_blank" rel="noopener noreferrer" href="https://music.apple.com/" aria-label="Escuchar el disco en Apple Music">Escuchar en Apple Music ↗</a>
+    </div>
+  </div>
+</div>
+</section>
 <section class="record-description" aria-labelledby="recordTitle">
 <div class="record-description-top"><span id="recordTag">KON CLUB / REVISTA</span><span id="recordYear">AÑO</span></div>
 <div class="record-description-main"><div class="record-description-heading"><span id="recordArtist" class="record-artist">ARTISTA</span><h2 id="recordTitle">UN DISCO DEL KON</h2><div class="record-tags"><span id="recordGenre"></span><span id="recordDuration"></span></div></div>
@@ -30,5 +53,6 @@
 </div>
 <script defer src="data/site-config.js?v=20261022-beavers-draft"></script>
 <script defer src="data/music-recs.js?v=20261022-original-covers-v2"></script>
-<script defer src="js/music.js?v=20261022-original-covers-v2"></script>
+<script defer src="js/music.js?v=20261022-preview-v1"></script>
+<script defer src="js/music-preview.js?v=20261022-preview-v1"></script>
 </body></html>
