@@ -908,3 +908,13 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
   padding:10px 16px;font:900 12px/1.45 'Barlow',Arial,sans-serif;letter-spacing:.1em;
   border-bottom:3px solid #18232a;}
 button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
+
+/* Acceso a La Disquería desde la home. */
+.kon-music-entrance{background:#111927;color:#fff0d5;min-height:355px;border-top:3px solid #ffe3b6;border-bottom:3px solid #111927;display:flex;align-items:flex-end;justify-content:space-between;gap:25px;padding-top:clamp(40px,5vw,75px);padding-bottom:clamp(36px,4vw,65px);background-image:radial-gradient(circle at 84% 20%,#e75d4955,transparent 36%),radial-gradient(#ffffff14 1px,transparent 1px);background-size:auto,12px 12px}
+.kon-music-entrance .music-entry-kicker{font:900 12px 'Barlow',Arial,sans-serif;letter-spacing:.1em;color:#ffc08b}
+.kon-music-entrance h2{font:900 clamp(65px,8vw,125px)/.78 'Barlow Condensed',Impact,Arial,sans-serif;margin:23px 0 20px;letter-spacing:-.06em}
+.kon-music-entrance p{font:800 12px/1.6 'Barlow',Arial,sans-serif;letter-spacing:.07em;max-width:440px}
+.kon-music-entrance>a{display:inline-flex;min-height:56px;align-items:center;justify-content:center;text-align:center;white-space:nowrap;border:2px solid #fff0d5;background:#f36e2b;color:#1c1420;box-shadow:7px 7px 0 #0009;padding:18px 22px;text-decoration:none;font:900 13px 'Barlow',Arial,sans-serif;letter-spacing:.07em;transition:transform .2s}
+.kon-music-entrance>a:hover{transform:translateY(-4px)}
+@media(max-width:760px){.kon-music-entrance{min-height:0;flex-direction:column;align-items:flex-start;gap:18px}.kon-music-entrance h2{font-size:clamp(62px,12vw,93px)}.kon-music-entrance>a{align-self:stretch;width:100%}}
+@media(prefers-reduced-motion:reduce){.kon-music-entrance>a{transition:none}}
