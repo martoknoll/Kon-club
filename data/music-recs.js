@@ -1,4 +1,4 @@
-/* Álbumes de la página «Recomendación musical» de los fanzines #01 al #14 */
+/* Portadas provistas por Kon Club; recomendaciones musicales de los fanzines. Agregar un registro por cada nueva edición. */
 window.KON_MUSIC_RECOMMENDATIONS = [
   {
     "n": 14,
@@ -10,7 +10,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "58 min",
     "by": "Marto",
     "headline": "Nostalgia de algo que nunca pasó",
-    "blurb": "Melodías pegadizas, guitarras envolventes y arreglos que siempre revelan algo nuevo."
+    "blurb": "Melodías pegadizas, guitarras envolventes y arreglos que siempre revelan algo nuevo.",
+    "cover": "public/media/discos/sweet-trip-you-will-never-know-why.webp"
   },
   {
     "n": 13,
@@ -22,7 +23,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "38 min",
     "by": "Lep",
     "headline": "Eternamente adolescentes",
-    "blurb": "Guitarras pegadizas, humor adolescente y nostalgia en un clásico del pop punk."
+    "blurb": "Guitarras pegadizas, humor adolescente y nostalgia en un clásico del pop punk.",
+    "cover": "public/media/discos/blink-182-enema-of-the-state.webp"
   },
   {
     "n": 12,
@@ -34,7 +36,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "42 min",
     "by": "Panie",
     "headline": "Una explosión de plumas",
-    "blurb": "Rock alternativo japonés, guitarras enérgicas y el espíritu musical de FLCL."
+    "blurb": "Rock alternativo japonés, guitarras enérgicas y el espíritu musical de FLCL.",
+    "cover": "public/media/discos/the-pillows-happy-bivouac.webp"
   },
   {
     "n": 11,
@@ -46,7 +49,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "38 min",
     "by": "Marto",
     "headline": "Una magia como no hay",
-    "blurb": "Un debut crudo y magnético que mezcla post-punk, reggae y la voz de Luca Prodan."
+    "blurb": "Un debut crudo y magnético que mezcla post-punk, reggae y la voz de Luca Prodan.",
+    "cover": "public/media/discos/sumo-divididos-por-la-felicidad.webp"
   },
   {
     "n": 10,
@@ -58,7 +62,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "66 min",
     "by": "Lep",
     "headline": "Arquitectura sonora sin igual",
-    "blurb": "Un laboratorio de melodías y texturas que recompensa cada nueva escucha."
+    "blurb": "Un laboratorio de melodías y texturas que recompensa cada nueva escucha.",
+    "cover": "public/media/discos/cornelius-fantasma.webp"
   },
   {
     "n": 9,
@@ -70,7 +75,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "39 min",
     "by": "Panie",
     "headline": "Sucio, barato y sin pedir permiso",
-    "blurb": "Riffs pegadizos, guitarras filosas y rock directo, sin pedir permiso."
+    "blurb": "Riffs pegadizos, guitarras filosas y rock directo, sin pedir permiso.",
+    "cover": "public/media/discos/acdc-dirty-deeds.webp"
   },
   {
     "n": 8,
@@ -82,7 +88,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "40 min",
     "by": "Marto",
     "headline": "Un viaje al cielo, pero con el cuerpo en tensión",
-    "blurb": "Ritmos hipnóticos, capas de guitarra, viento y percusión en una mezcla de math rock y trance."
+    "blurb": "Ritmos hipnóticos, capas de guitarra, viento y percusión en una mezcla de math rock y trance.",
+    "cover": "public/media/discos/horse-lords-demand-to-be-taken.webp"
   },
   {
     "n": 7,
@@ -94,7 +101,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "49 min",
     "by": "Lep",
     "headline": "Un lindo adiós desde Japón",
-    "blurb": "Ritmo y percusión al frente en una música japonesa que convierte el caos en armonía."
+    "blurb": "Ritmo y percusión al frente en una música japonesa que convierte el caos en armonía.",
+    "cover": "public/media/discos/toe-for-long-tomorrow.webp"
   },
   {
     "n": 6,
@@ -106,7 +114,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "54 min",
     "by": "Panie",
     "headline": "Out of the Octopus's Garden",
-    "blurb": "Canciones cálidas que suenan a una tarde larga de domingo."
+    "blurb": "Canciones cálidas que suenan a una tarde larga de domingo.",
+    "cover": "public/media/discos/george-harrison-cloud-nine.webp"
   },
   {
     "n": 5,
@@ -118,7 +127,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "56 min",
     "by": "Marto",
     "headline": "Luna roja en mi corazón de ameba",
-    "blurb": "Una pared de guitarras y texturas que te transporta a otro lugar."
+    "blurb": "Una pared de guitarras y texturas que te transporta a otro lugar.",
+    "cover": "public/media/discos/soda-stereo-dynamo.webp"
   },
   {
     "n": 4,
@@ -130,7 +140,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "70 min",
     "by": "Lep",
     "headline": "Una inundación de sonido",
-    "blurb": "Una travesía sonora hecha de repeticiones y transiciones que crece como un tsunami."
+    "blurb": "Una travesía sonora hecha de repeticiones y transiciones que crece como un tsunami.",
+    "cover": "public/media/discos/boris-flood.webp"
   },
   {
     "n": 3,
@@ -142,7 +153,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "78 min",
     "by": "Panie",
     "headline": "Un viaje por el espacio",
-    "blurb": "Una extensa suite de rock progresivo, complejidad instrumental y ambición épica."
+    "blurb": "Una extensa suite de rock progresivo, complejidad instrumental y ambición épica.",
+    "cover": "public/media/discos/transatlantic-the-whirlwind.webp"
   },
   {
     "n": 2,
@@ -154,7 +166,8 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "49 min",
     "by": "Marto",
     "headline": "Conectarse con algo mayor",
-    "blurb": "Un álbum entre guitarras eléctricas y canciones íntimas que siempre acompaña."
+    "blurb": "Un álbum entre guitarras eléctricas y canciones íntimas que siempre acompaña.",
+    "cover": "public/media/discos/yo-la-tengo-painful.webp"
   },
   {
     "n": 1,
@@ -166,6 +179,7 @@ window.KON_MUSIC_RECOMMENDATIONS = [
     "duration": "42 min",
     "by": "Lep",
     "headline": "Melancólico, íntimo y hermoso",
-    "blurb": "Melodías delicadas, humor sutil y una melancolía cálida y familiar."
+    "blurb": "Melodías delicadas, humor sutil y una melancolía cálida y familiar.",
+    "cover": "public/media/discos/belle-and-sebastian-if-youre-feeling-sinister.webp"
   }
 ];

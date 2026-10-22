@@ -4,10 +4,10 @@ const albums=window.KON_MUSIC_RECOMMENDATIONS, issues=window.KON_CONFIG?.readerI
 const rail=document.getElementById('recordRail'),index=document.getElementById('musicIndex');
 const prev=document.getElementById('recordPrev'),next=document.getElementById('recordNext');
 if(!Array.isArray(albums)||!issues||!rail||!index||!prev||!next)return;
-const collection=albums.filter(a=>issues[a.issue]?.pages?.[3]).map(a=>({...a,source:issues[a.issue],cover:issues[a.issue].pages[3]}));
+const collection=albums.filter(a=>issues[a.issue]&&(a.cover||issues[a.issue].pages?.[3])).map(a=>({...a,source:issues[a.issue],cover:a.cover||issues[a.issue].pages[3]}));
 if(!collection.length)return;
 const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
-const coverEl=(album,name)=>{const el=document.createElement('span');el.className=name;el.style.backgroundImage='url("'+album.cover+'")';el.setAttribute('role','img');el.setAttribute('aria-label','Tapa del álbum '+album.title+' tal como apareció en el fanzine');return el};
+const coverEl=(album,name)=>{const el=document.createElement('span');el.className=name;el.style.backgroundImage='url("'+album.cover+'")';el.setAttribute('role','img');el.setAttribute('aria-label','Portada del álbum '+album.title+' de '+album.artist);return el};
 let current=0,lastPaint=-1,framePending=false;
 const cards=[],rows=[];
 function select(index,animate){
@@ -29,7 +29,7 @@ function paint(force){
  }
  document.getElementById('recordNumber').textContent=String(current+1).padStart(2,'0')+' / '+String(collection.length).padStart(2,'0');
  document.getElementById('recordTag').textContent='FANZINE Nº '+String(album.n).padStart(2,'0')+' / '+album.source.name;
- document.getElementById('recordYear').textContent='AÑO '+album.year+' / '+album.duration;
+ document.getElementById('recordYear').textContent=album.year+' · '+album.duration;
  document.getElementById('recordArtist').textContent=album.artist;
  document.getElementById('recordTitle').textContent=album.title;
  document.title=album.title+' — '+album.artist+' · La disquería del Kon';
@@ -50,13 +50,12 @@ collection.forEach((album,i)=>{
  const button=document.createElement('button');
  button.type='button';button.className='record-card';
  button.setAttribute('aria-label','Seleccionar '+album.title+' de '+album.artist);
- const record=document.createElement('span');record.className='vinyl-disc';record.setAttribute('aria-hidden','true');
+ // La portada original es protagonista: sin vinilo decorativo.
  const cover=coverEl(album,'record-cover');
- const stamp=document.createElement('span');stamp.className='record-stamp';stamp.textContent='#'+String(album.n).padStart(2,'0');cover.appendChild(stamp);
  const label=document.createElement('span');label.className='record-label';
  const subtitle=document.createElement('small');subtitle.textContent=album.artist;
  const title=document.createElement('span');title.textContent=album.title;
- label.append(subtitle,title);button.append(record,cover,label);
+ label.append(subtitle,title);button.append(cover,label);
  button.addEventListener('click',()=>select(i,true));
  rail.append(button);cards.push(button);
  const row=document.createElement('button');
