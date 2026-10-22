@@ -155,7 +155,83 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft'&&archiveViewerIndex>0){e.preventDefault();archiveViewerIndex--;archiveViewerPaint();}
   if(e.key==='ArrowRight'&&archiveViewerIndex<archiveViewerItems.length-1){e.preventDefault();archiveViewerIndex++;archiveViewerPaint();}
 });
+// Lectura integrada en la ficha: desktop en doble página y móvil en página única.
+let archiveInlineZineCleanup=null;
+function initArchiveInlineZine(issue){
+  const view=$('archiveInlinePages'),back=$('archiveInlinePrev'),forward=$('archiveInlineNext'),count=$('archiveInlineCount');
+  if(!view||!back||!forward||!count||!issue?.pages?.length)return()=>{};
+  const mobile=window.matchMedia('(max-width:700px)');
+  let currentPage=0,gesture=null;
+  const pageGroups=()=>{
+    if(mobile.matches)return issue.pages.map((_,i)=>[i]);
+    const groups=[[0]];
+    for(let i=1;i<issue.pages.length-1;i+=2)groups.push([i,...(i+1<issue.pages.length-1?[i+1]:[])]);
+    if(issue.pages.length>1)groups.push([issue.pages.length-1]);
+    return groups;
+  };
+  function groupIndex(groups){
+    const index=groups.findIndex(group=>group.includes(currentPage));
+    return index<0?0:index;
+  }
+  function draw(){
+    const groups=pageGroups(),index=groupIndex(groups),visible=groups[index];
+    view.replaceChildren();
+    view.classList.toggle('single',visible.length===1);
+    for(const pageNo of visible){
+      const figure=document.createElement('figure');
+      const photo=document.createElement('img');
+      photo.src=issue.pages[pageNo];
+      photo.alt='Página '+(pageNo+1)+' de '+issue.pages.length+' · '+issue.name;
+      photo.loading='lazy';
+      photo.decoding='async';
+      figure.appendChild(photo);
+      view.appendChild(figure);
+    }
+    const numbered=visible.map(i=>String(i+1).padStart(2,'0')).join(' — ');
+    count.textContent=numbered+' / '+String(issue.pages.length).padStart(2,'0');
+    view.setAttribute('aria-label','Páginas '+numbered+' de '+issue.pages.length+' de '+issue.name+'. Usá las flechas para avanzar.');
+    back.disabled=index===0;
+    forward.disabled=index===groups.length-1;
+  }
+  function turn(direction){
+    const groups=pageGroups(),next=groupIndex(groups)+direction;
+    if(next<0||next>=groups.length)return;
+    currentPage=groups[next][0];
+    draw();
+  }
+  back.addEventListener('click',()=>turn(-1));
+  forward.addEventListener('click',()=>turn(1));
+  view.addEventListener('keydown',event=>{
+    if(event.key==='ArrowLeft'||event.key==='ArrowRight'){
+      event.preventDefault();
+      turn(event.key==='ArrowRight'?1:-1);
+    }
+  });
+  view.addEventListener('touchstart',event=>{
+    if(!mobile.matches||event.touches.length!==1){gesture=null;return;}
+    const touch=event.touches[0];gesture={x:touch.clientX,y:touch.clientY};
+  },{passive:true});
+  view.addEventListener('touchend',event=>{
+    if(!gesture||event.changedTouches.length!==1){gesture=null;return;}
+    const touch=event.changedTouches[0];
+    const dx=touch.clientX-gesture.x,dy=touch.clientY-gesture.y;
+    gesture=null;
+    if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.3)turn(dx<0?1:-1);
+  },{passive:true});
+  view.addEventListener('touchcancel',()=>{gesture=null;},{passive:true});
+  const onLayoutChange=()=>draw();
+  if(mobile.addEventListener)mobile.addEventListener('change',onLayoutChange);
+  else if(mobile.addListener)mobile.addListener(onLayoutChange);
+  draw();
+  return()=>{
+    if(mobile.removeEventListener)mobile.removeEventListener('change',onLayoutChange);
+    else if(mobile.removeListener)mobile.removeListener(onLayoutChange);
+  };
+}
+
 function archiveOpenDetail(id){
+  archiveInlineZineCleanup?.();
+  archiveInlineZineCleanup=null;
   const it=archiveLookup.find(a=>a[0]===String(id));
   if(!it){archiveBack();return;}
   const folder=it[0],zineKey=Object.keys(readerIssues).find(k=>readerIssues[k].folder===folder),zine=zineKey?readerIssues[zineKey]:null;
@@ -171,7 +247,12 @@ function archiveOpenDetail(id){
   const nextNewer=idx>0?archiveCatalog[idx-1]:null;
   const nextOlder=idx<archiveCatalog.length-1?archiveCatalog[idx+1]:null;
   const zineHtml=zine?
-    '<div class="archive-issue-zine"><div class="archive-issue-zine-cover"><img src="'+escapeHtml(zine.pages[0])+'" alt="Portada del fanzine '+escapeHtml(it[1])+'" loading="lazy"></div><div class="archive-issue-zine-info"><span class="archive-issue-kicker">PUBLICACIÓN DEL KON / N.º '+escapeHtml(zine.number)+'</span><h5>EL FANZINE<br>DE ESTA FECHA.</h5><p>Ocho páginas para volver a recorrer la edición, hojear online o imprimir en casa.</p><div class="archive-issue-actions"><button type="button" class="archive-issue-action" id="archiveReadZine">HOJEAR FANZINE ↗</button><a class="archive-issue-action outline" href="'+escapeHtml(zine.print)+'" download="KonClub_'+escapeHtml(folder)+'_para_imprimir.jpg">↓ BAJAR PARA IMPRIMIR</a></div></div></div>'
+    '<div class="archive-embedded-zine" id="archiveInlineZine" style="--zine-bg:'+escapeHtml(zine.bg)+';--zine-on:'+escapeHtml(zine.on)+'" aria-label="Fanzine de '+escapeHtml(it[1])+'">'+
+      '<div class="archive-embedded-zine-header"><div><span>PUBLICACIÓN DEL KON / REVISTA N.º '+escapeHtml(zine.number)+'</span><h5>EL FANZINE<br>DE ESTA FECHA.</h5><p>'+zine.pages.length+' PÁGINAS · UNA REVISTA PARA HOJEAR</p></div><span class="archive-embedded-zine-symbol" aria-hidden="true">✳</span></div>'+
+      '<div class="archive-embedded-zine-pages single" id="archiveInlinePages" tabindex="0" role="group" aria-label="Páginas de la revista. Usá las flechas para avanzar."></div>'+
+      '<div class="archive-embedded-zine-navigation"><button id="archiveInlinePrev" type="button" aria-label="Página anterior">← ANTERIOR</button><span id="archiveInlineCount" aria-live="polite" aria-atomic="true">01 / '+String(zine.pages.length).padStart(2,'0')+'</span><button id="archiveInlineNext" type="button" aria-label="Página siguiente">SIGUIENTE →</button></div>'+
+      '<div class="archive-embedded-zine-footer"><p>Pasá las páginas acá mismo. En el celular también podés deslizar hacia los costados.</p><div class="archive-embedded-zine-actions"><button type="button" id="archiveReadZine">VER EN PANTALLA COMPLETA ↗</button><a href="'+escapeHtml(zine.print)+'" download="KonClub_'+escapeHtml(folder)+'_para_imprimir.jpg">↓ BAJAR PARA IMPRIMIR</a></div></div>'+
+    '</div>'
     :'<div class="archive-issue-empty"><span>✳</span><p>Todavía no hay un fanzine digital cargado para esta edición.</p></div>';
   const photosHtml=photos.length?archiveMediaGrid(photos,'photo'):'<div class="archive-issue-empty"><span>↗</span><p>Aún no hay fotografías publicadas de esta fecha en el archivo.</p></div>';
   const reviewsHtml=reviews.length?archiveMediaGrid(reviews,'review'):'<div class="archive-issue-empty archive-issue-reviews-empty"><span>✳</span><div><strong>LAS RESEÑAS TAMBIÉN SON PARTE DE LA FUNCIÓN.</strong><p>Estamos preparando este espacio para las reseñas escritas a mano por el público. Todavía no hay imágenes de esta edición cargadas.</p></div></div>';
@@ -185,7 +266,10 @@ function archiveOpenDetail(id){
    '<section class="archive-issue-chapter" id="archiveIssueZine"><header><span>[02] / EDICIÓN IMPRESA</span><h4>LO QUE<br>IMPRIMIMOS<span>.</span></h4></header>'+zineHtml+'</section>'+
    '<section class="archive-issue-chapter" id="archiveIssuePhotos"><header><span>[03] / REGISTRO FOTOGRÁFICO</span><h4>ESTUVIMOS<br>AHÍ<span>.</span></h4><small>'+photos.length+' FOTOGRAFÍA(S) · EDICIÓN '+escapeHtml(folder)+'</small></header>'+photosHtml+'</section>'+
    '<nav class="archive-issue-pagination" aria-label="Más ediciones"><div>'+(nextNewer?'<button type="button" data-archive-go="'+escapeHtml(nextNewer[0])+'">← EDICIÓN '+escapeHtml(nextNewer[0])+'<strong>'+escapeHtml(nextNewer[1])+'</strong></button>':'')+'</div><div>'+(nextOlder?'<button type="button" data-archive-go="'+escapeHtml(nextOlder[0])+'">EDICIÓN '+escapeHtml(nextOlder[0])+' →<strong>'+escapeHtml(nextOlder[1])+'</strong></button>':'')+'</div></nav>';
-  if(zine)$('archiveReadZine').onclick=()=>openZine(zineKey);
+  if(zine){
+    archiveInlineZineCleanup=initArchiveInlineZine(zine);
+    $('archiveReadZine').onclick=()=>openZine(zineKey);
+  }
   $('archiveShare').onclick=async()=>{
     const url=location.origin+location.pathname+'#archivo-completo/'+folder;
     try{
@@ -203,6 +287,8 @@ function archiveOpenDetail(id){
   archivePage.scrollTop=0;
 }
 function archiveBack(){
+  archiveInlineZineCleanup?.();
+  archiveInlineZineCleanup=null;
   archiveActiveId=null;
   archiveDetail.hidden=true;
   $('archiveSections').hidden=false;

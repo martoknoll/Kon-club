@@ -770,3 +770,82 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
   #zineReader .zr-picks{scroll-behavior:auto}
   #zineReader .zr-pick{transition:none}
 }
+
+
+/* Fanzines integrados al archivo de cada edición: página única en celular y doble en escritorio. */
+.archive-embedded-zine{
+  --zine-bg:#182b55;--zine-on:#fff3dc;
+  background:var(--zine-bg);color:var(--zine-on);
+  border:2px solid var(--on);padding:clamp(16px,3.5vw,43px);
+  display:flex;flex-direction:column;gap:clamp(16px,3vw,28px);
+  overflow:hidden;
+}
+.archive-embedded-zine-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.archive-embedded-zine-header span:first-child{font:900 11px 'Barlow',Arial,sans-serif;letter-spacing:.11em;opacity:.85}
+.archive-embedded-zine-header h5{
+  font:700 clamp(42px,5.4vw,84px)/.9 'Barlow Condensed',Impact,Arial,sans-serif;
+  letter-spacing:-.04em;margin:13px 0 10px;
+}
+.archive-detail .archive-embedded-zine-header p{
+  font:800 11px 'Barlow',Arial,sans-serif;letter-spacing:.1em;margin:0;
+}
+.archive-embedded-zine-symbol{font-size:clamp(55px,9vw,130px);font-weight:900;line-height:1;opacity:.32;flex-shrink:0}
+.archive-embedded-zine-pages{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;
+  width:min(100%,780px);margin:0 auto;
+  align-items:stretch;justify-items:stretch;
+  padding:8px 4px 21px;outline-offset:4px;
+  min-width:0;touch-action:pan-y;
+}
+.archive-embedded-zine-pages.single{
+  grid-template-columns:minmax(0,1fr);width:min(100%,365px);
+}
+.archive-embedded-zine-pages figure{
+  margin:0;min-width:0;aspect-ratio:1/1.414;
+  border:1px solid #0002;background:#fff;
+  box-shadow:6px 9px 15px #0005;overflow:hidden;
+}
+.archive-embedded-zine-pages img{display:block;width:100%;height:100%;object-fit:contain}
+.archive-embedded-zine-pages:focus-visible{outline:3px solid var(--zine-on)}
+.archive-embedded-zine-navigation{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,auto) minmax(0,1fr);
+  align-items:center;gap:8px;
+  border-top:1px solid currentColor;border-bottom:1px solid currentColor;
+  padding:12px 0;
+}
+.archive-embedded-zine-navigation button{
+  min-height:44px;cursor:pointer;padding:11px 13px;
+  border:1px solid var(--zine-on);background:transparent;color:var(--zine-on);
+  font:900 11px 'Barlow',Arial,sans-serif;letter-spacing:.06em;
+}
+.archive-embedded-zine-navigation button:last-child{justify-self:end}
+.archive-embedded-zine-navigation button:disabled{opacity:.3;cursor:default}
+.archive-embedded-zine-navigation button:not(:disabled):hover{background:var(--zine-on);color:var(--zine-bg)}
+.archive-embedded-zine-navigation span{font:900 12px 'Barlow',Arial,sans-serif;letter-spacing:.09em;text-align:center}
+.archive-embedded-zine-footer{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.archive-detail .archive-embedded-zine-footer p{
+  max-width:340px;margin:0;font:700 13px/1.5 'Barlow',Arial,sans-serif;
+}
+.archive-embedded-zine-actions{display:flex;gap:9px;flex-wrap:wrap}
+.archive-embedded-zine-actions button,.archive-embedded-zine-actions a{
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+  min-height:45px;padding:10px 13px;font:900 11px 'Barlow',Arial,sans-serif;
+  text-decoration:none;letter-spacing:.04em;
+  color:var(--zine-bg);background:var(--zine-on);border:2px solid var(--zine-on);
+}
+.archive-embedded-zine-actions a{background:transparent;color:var(--zine-on)}
+.archive-embedded-zine-actions button:focus-visible,
+.archive-embedded-zine-actions a:focus-visible,
+.archive-embedded-zine-navigation button:focus-visible{outline:3px solid var(--zine-on);outline-offset:3px}
+@media(max-width:700px){
+  .archive-embedded-zine{gap:15px;padding:14px 12px 18px}
+  .archive-embedded-zine-symbol{font-size:56px}
+  .archive-embedded-zine-header h5{font-size:clamp(38px,11vw,63px)}
+  .archive-embedded-zine-pages,.archive-embedded-zine-pages.single{width:min(100%,345px);grid-template-columns:minmax(0,1fr);padding:7px 5px 12px}
+  .archive-embedded-zine-navigation{grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr);gap:4px}
+  .archive-embedded-zine-navigation button{padding:10px 5px;font-size:10px}
+  .archive-embedded-zine-navigation span{font-size:10px;white-space:nowrap}
+  .archive-embedded-zine-actions{width:100%}
+  .archive-embedded-zine-actions button,.archive-embedded-zine-actions a{flex:1 1 145px}
+}
+@media(prefers-reduced-motion:reduce){.archive-embedded-zine-pages{scroll-behavior:auto}}
