@@ -849,3 +849,37 @@ body, button, input, select, textarea {font-family:'Barlow',Arial,sans-serif;fon
   .archive-embedded-zine-actions button,.archive-embedded-zine-actions a{flex:1 1 145px}
 }
 @media(prefers-reduced-motion:reduce){.archive-embedded-zine-pages{scroll-behavior:auto}}
+
+
+/* HOME | Carrusel cronológico completo, scroll horizontal y avance automático */
+#archivo .kon-archive-carousel{min-width:0;max-width:100%}
+#archivo .kon-archive-carousel-bar{display:flex;align-items:center;justify-content:space-between;gap:15px;border-top:1px solid color-mix(in srgb,var(--on) 45%,transparent);padding:15px 0 13px}
+#archivo .kon-archive-carousel-bar>span:first-child{font:900 12px 'Barlow',Arial,sans-serif;letter-spacing:.1em;font-variant-numeric:tabular-nums}
+#archivo .kon-archive-carousel-hint{font:700 11px 'Barlow',Arial,sans-serif;letter-spacing:.1em;opacity:.76}
+#archivo .kon-archive-carousel-buttons{display:flex;align-items:center;gap:9px}
+#archivo .kon-archive-carousel-buttons button{display:grid;place-items:center;width:43px;height:43px;background:transparent;color:var(--on);border:2px solid var(--on);font:900 24px/1 'Barlow',Arial,sans-serif;cursor:pointer}
+#archivo .kon-archive-carousel-buttons button:hover,#archivo .kon-archive-carousel-buttons button:focus-visible{background:var(--accent);color:var(--ink);border-color:var(--accent)}
+#archivo .kon-archive-carousel-buttons button:focus-visible,#archivo .archive-card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+#archivo #konArchiveTrack.archive-grid{display:grid;grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:calc((100% - 48px)/4);gap:16px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:5px;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--accent) transparent;padding:6px 5px 23px;touch-action:pan-x pan-y}
+#archivo #konArchiveTrack .archive-card{width:100%;min-width:0;max-width:none;min-height:100%;scroll-snap-align:start;transition:transform .18s ease}
+#archivo #konArchiveTrack .archive-card .image-box{padding:12px 12px 0}
+#archivo #konArchiveTrack .archive-card img{width:100%;height:auto;aspect-ratio:4/5;object-fit:contain;background:#1c101c}
+#archivo #konArchiveTrack .archive-card .info{min-height:98px;padding:14px 14px 17px}
+#archivo #konArchiveTrack .archive-card .caps{font:900 10px 'Barlow',Arial,sans-serif;letter-spacing:.075em}
+#archivo #konArchiveTrack .archive-card h3{padding-right:18px;font-size:clamp(16px,1.5vw,22px);line-height:1.04;font-weight:900}
+#archivo #konArchiveTrack .archive-card .arrow{bottom:13px;right:13px}
+@media(min-width:761px) and (max-width:1100px){#archivo #konArchiveTrack.archive-grid{grid-auto-columns:calc((100% - 32px)/3)}}
+@media(max-width:760px){
+ #archivo .kon-archive-carousel-bar{padding:11px 0;gap:8px;flex-wrap:wrap}
+ #archivo .kon-archive-carousel-hint{display:none}
+ #archivo .kon-archive-carousel-buttons button{width:42px;height:42px}
+ #archivo #konArchiveTrack.archive-grid{display:grid;grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:minmax(0,79%);gap:12px;overflow-x:auto;overflow-y:hidden;padding:4px 5px 18px;scrollbar-width:none;scroll-snap-type:x mandatory;scroll-padding-inline:5px;-webkit-overflow-scrolling:touch}
+ #archivo #konArchiveTrack.archive-grid::-webkit-scrollbar{display:none}
+ #archivo #konArchiveTrack .archive-card{min-width:0;max-width:none;width:100%;flex:none;scroll-snap-align:start}
+ #archivo #konArchiveTrack .archive-card .image-box{padding:11px 11px 0}
+ #archivo #konArchiveTrack .archive-card .info{min-height:91px}
+ #archivo #konArchiveTrack .archive-card h3{font-size:20px}
+ #archivo #konArchiveTrack .archive-card:hover{transform:none}
+}
+@media(max-width:440px){#archivo #konArchiveTrack.archive-grid{grid-auto-columns:minmax(0,84%)}}
+@media(prefers-reduced-motion:reduce){#archivo #konArchiveTrack.archive-grid{scroll-behavior:auto}#archivo #konArchiveTrack .archive-card{transition:none}}
