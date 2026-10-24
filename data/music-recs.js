@@ -1,6 +1,19 @@
 /* Portadas provistas por Kon Club; recomendaciones musicales de los fanzines. Agregar un registro por cada nueva edición. */
 window.KON_MUSIC_RECOMMENDATIONS = [
   {
+    "n": 15,
+    "issue": "halloween",
+    "artist": "System of a Down",
+    "title": "Steal This Album!",
+    "year": "2002",
+    "genre": "Alternative metal · Nu metal",
+    "duration": "43 min",
+    "by": "Panie",
+    "headline": "El disco que me robó la cabeza",
+    "blurb": "System of a Down es, sin duda, una de mis bandas favoritas. Estos días estuve un buen rato tratando de definir cuál es mi álbum favorito, y Steal This Album! tiene algo que lo hace destacar por encima de los demás, algo que me cuesta explicar. Todos los temas del álbum tocan una fibra de mí: “Bubbles”, “Innervision”, “Chic ‘N’ Stu”, “Mr. Jack”, “Highway Song”, por nombrar algunas canciones. Si por un casual no lo escuchaste, hacelo. Es un álbum obligatorio para los aficionados al nu metal.",
+    "cover": "public/media/discos/system-of-a-down-steal-this-album.webp"
+  },
+  {
     "n": 14,
     "issue": "wag-the-dog",
     "artist": "Sweet Trip",
