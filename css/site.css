@@ -918,3 +918,9 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
 .kon-music-entrance>a:hover{transform:translateY(-4px)}
 @media(max-width:760px){.kon-music-entrance{min-height:0;flex-direction:column;align-items:flex-start;gap:18px}.kon-music-entrance h2{font-size:clamp(62px,12vw,93px)}.kon-music-entrance>a{align-self:stretch;width:100%}}
 @media(prefers-reduced-motion:reduce){.kon-music-entrance>a{transition:none}}
+
+/* Franja de actividades: dos copias iguales para un recorrido continuo. */
+.marquee-band .strip{gap:0;animation:slide 36s linear infinite}
+.marquee-band .strip>span{display:block;flex-shrink:0;padding-right:32px}
+.marquee-band:hover .strip{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.marquee-band .strip,.introbar .ticker{animation:none}}
