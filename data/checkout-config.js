@@ -5,7 +5,7 @@
  // El checkout real SOLO se habilita cuando también haya sincronización
  // reciente y cupos definidos en Supabase para cada producto.
 window.KON_CHECKOUT = {
-  eventKey: "halloween",
+  eventKey: "beavers",
   currency: "ARS",
   allowLive: true, // Registro de pedidos por transferencia externa; la API exige sales_open y stock sincronizado
   legacyFormPublic: false, // El formulario anterior sigue funcionando por separado, sin enlace público duplicado
@@ -13,8 +13,9 @@ window.KON_CHECKOUT = {
   alias: "KON.CLUB.GL",
   proofMaxBytes: 10 * 1024 * 1024,
   products: [
-    { id:"general", title:"ENTRADA GENERAL", subtitle:"Horario de ingreso por confirmar", price:9000, max:8, unit:"entrada" },
+    { id:"general", title:"ENTRADA GENERAL", subtitle:"Ingresás desde las 18:00", price:9000, max:8, unit:"entrada" },
     { id:"post", title:"POST-PELÍCULA", subtitle:"Acceso post-película · horario a confirmar", price:7000, max:6, unit:"entrada" },
     { id:"fanzine", title:"FANZINE FÍSICO", subtitle:"Para retirar el día del evento", price:4000, max:5, unit:"ejemplar" }
   ]
 };
+

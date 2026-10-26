@@ -20,7 +20,7 @@
 const KON_SYNC = Object.freeze({
   api: 'https://ogrzuiwlyfobhtknjuzu.supabase.co/functions/v1/kon-tickets',
   spreadsheetId: '1DZ_yhLnzOVMHhBhsI_3x2QlLzcKcceDddyCjDDbGC7o',
-  sheetName: 'KON CLUB: (Alimme) - Casa Lobo & Rocky Horror',
+  sheetName: 'KON CLUB: (Alimme) - Hundreds of Beavers',
   header: ['ID_PEDIDO', 'EMAIL', 'ESTADO', 'ORIGEN', 'ULTIMO_CAMBIO', 'CODIGO'],
   states: ['PENDIENTE', 'VERIFICADO', 'RECHAZADO', 'CORTESIA', 'CANCELADO']
 });
@@ -37,7 +37,7 @@ function konSheet_(){
 function konApi_(route,payload){
   const options={
     method:payload?'post':'get',
-    headers:{'x-kon-sheet-token':konToken_()},
+    headers:{'x-kon-sheet-token':konToken_(),'x-kon-sheet-tab':encodeURIComponent(KON_SYNC.sheetName)},
     contentType:'application/json',
     muteHttpExceptions:true
   };

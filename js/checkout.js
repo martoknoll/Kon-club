@@ -28,7 +28,7 @@ byId('headerLogo').src=site.assets[event.logo];
 byId('poster').src=site.assets[event.poster];
 byId('eventTitle').textContent=event.lead;
 byId('eventDate').textContent=event.date.replace(' | ',' · ');
-byId('payAlias').textContent='NO TRANSFERIR · DEMO';
+byId('payAlias').textContent='NO TRANSFERIR · VENTAS PAUSADAS';
 const money=(v)=>'$'+new Intl.NumberFormat('es-AR').format(v);
 const quantities=Object.fromEntries(cfg.products.map((p)=>[p.id,0]));
 const total=()=>cfg.products.reduce((sum,p)=>sum+p.price*quantities[p.id],0);
@@ -91,12 +91,12 @@ renderSummary();
 async function loadCatalog(){
  const status=byId('apiStatus');
  try{
-  const response=await apiCall('catalog');
-  if(!response.event||!Array.isArray(response.products))throw new Error('Catálogo incompleto.');
+  const response=await apiCall('catalog?event='+encodeURIComponent(cfg.eventKey));
+  if(!response.event||response.event.slug!==cfg.eventKey||!Array.isArray(response.products))throw new Error('Catálogo incompleto.');
   catalogLoaded=true;
   salesOpen=Boolean(response.event.sales_open);
   cfg.alias=response.event.bank_alias;
-  byId('payAlias').textContent=liveReady()?cfg.alias:'NO TRANSFERIR · DEMO';
+  byId('payAlias').textContent=liveReady()?cfg.alias:'NO TRANSFERIR · VENTAS PAUSADAS';
   const bySlug=new Map(response.products.map(p=>[p.slug,p]));
   cfg.products.forEach(p=>{
    const real=bySlug.get(p.id);
@@ -125,13 +125,13 @@ async function loadCatalog(){
   }else{
    byId('copyAlias').disabled=true;
    status.textContent=cfg.allowLive
-     ?'VENTAS ONLINE TEMPORALMENTE PAUSADAS · VERIFICAMOS CUPOS CON EL FORMULARIO ANTERIOR'
+     ?'INSCRIPCIONES TEMPORALMENTE PAUSADAS · ESTAMOS ACTUALIZANDO LOS CUPOS'
      :(salesOpen?'CATÁLOGO CONECTADO · COMPRA DE PRUEBA':'CATÁLOGO CONECTADO · VENTA REAL NO HABILITADA');
   }
  }catch(err){
   catalogLoaded=false;
   byId('copyAlias').disabled=true;
-  status.textContent='MODO DEMOSTRACIÓN · NO HAY CONEXIÓN DE VENTA';
+  status.textContent='NO PUDIMOS CONSULTAR LA DISPONIBILIDAD · VOLVÉ A INTENTAR';
   console.warn('Catalog load failed:',err instanceof Error?err.message:err);
  }
 }
@@ -221,6 +221,7 @@ form.addEventListener('submit',async(evt)=>{
    const response=await apiCall('order',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
+     event:cfg.eventKey,
      fullName:String(formData.get('fullName')||''),
      email:String(formData.get('email')||''),
      instagram:String(formData.get('instagram')||''),
@@ -318,3 +319,4 @@ proofForm.addEventListener('submit',async(evt)=>{
 });
 
 })();
+

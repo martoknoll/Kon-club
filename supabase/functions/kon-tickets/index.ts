@@ -66,14 +66,14 @@ async function getInventory(eventId:string){
 }
 async function updateLegacyInventory(req:Request,payload:JsonValue,origin:string|null){
  const access=await sheetAccess(req);
- if(!access||access.event_slug!=="halloween"||
+ if(!access||!["halloween","beavers"].includes(access.event_slug)||
     access.spreadsheet_id!==LIVE_SHEET_ID)
    return fail("sync_not_authorized",401,origin);
  const fields=["general","post","fanzine","legacy_rows"];
  if(fields.some(k=>!Number.isInteger(payload[k])||Number(payload[k])<0||Number(payload[k])>10000))
    return fail("invalid_legacy_counts",400,origin);
  const {data:event,error:lookupError}=await db.from("kon_events")
-   .select("id").eq("slug","halloween").maybeSingle();
+   .select("id").eq("slug",access.event_slug).maybeSingle();
  if(lookupError||!event)return fail("event_unavailable",500,origin);
  const {error}=await db.from("kon_legacy_inventory").upsert({
   event_id:event.id,general_qty:payload.general,post_qty:payload.post,
@@ -87,7 +87,7 @@ async function updateLegacyInventory(req:Request,payload:JsonValue,origin:string
 async function inventorySummary(req:Request,origin:string|null){
  if(!(await adminFromRequest(req)))return fail("unauthorized",401,origin);
  const {data:event,error:eventError}=await db.from("kon_events")
-  .select("id,title,starts_at,sales_open").eq("slug","halloween").maybeSingle();
+  .select("id,title,starts_at,sales_open").eq("slug",new URL(req.url).searchParams.get("event")||"beavers").maybeSingle();
  if(eventError||!event)return fail("event_unavailable",500,origin);
  const [snap,prods,orders]=await Promise.all([
   getInventory(event.id),
@@ -132,7 +132,8 @@ async function inventorySummary(req:Request,origin:string|null){
 async function getCatalog(req:Request, origin:string|null) {
   const isTest=new URL(req.url).searchParams.get("environment")==="test";
   if(isTest && !(await adminFromRequest(req)))return fail("unauthorized",401,origin);
-  const slug=isTest?"halloween-staging":"halloween";
+  const slug=isTest?"halloween-staging":(new URL(req.url).searchParams.get("event")||"halloween");
+  if(!isTest && !["halloween","beavers"].includes(slug))return fail("invalid_event",400,origin);
   const { data: events, error: eventError } = await db.from("kon_events")
     .select("id,slug,title,starts_at,address,sales_open,bank_alias").eq("slug",slug).limit(1);
   if (eventError || !events?.length) throw new Error("Catalog unavailable");
@@ -174,6 +175,8 @@ async function createOrder(req: Request, payload: JsonValue, origin: string | nu
   if(isTest && (!fullName.startsWith("PRUEBA ") || !email.toLowerCase().endsWith("@example.invalid") ||
      instagram!=="@konclub_prueba" || payload.firstTime!==false))
     return fail("test_data_only",400,origin);
+  const eventSlug=isTest?"halloween-staging":String(payload.event||"halloween");
+  if(!isTest && !["halloween","beavers"].includes(eventSlug))return fail("invalid_event",400,origin);
   const tokenBytes=crypto.getRandomValues(new Uint8Array(32));
   const claimToken=Array.from(tokenBytes).map(b=>b.toString(16).padStart(2,"0")).join("");
   const tokenHash=await digest(claimToken);
@@ -185,12 +188,12 @@ async function createOrder(req: Request, payload: JsonValue, origin: string | nu
   if (items.some(x=>!x || !validUuid(x.id) || !Number.isInteger(x.qty) || (x.qty as number)<1 || (x.qty as number)>100))
     return fail("invalid_items",400,origin);
   const { data, error }=await db.rpc("kon_submit_order",{
-    p_event_slug:isTest?"halloween-staging":"halloween",
+    p_event_slug:eventSlug,
     p_name:fullName,p_email:email,p_instagram:instagram,
     p_first_time:payload.firstTime,p_discovery:discovery,p_lines:items,p_token_hash:tokenHash
   });
   if(error){
-    if (/sales_closed/.test(error.message)) return fail("sales_closed",403,origin);
+    if (/sales_closed|inventory_sync_required|capacity_not_configured/.test(error.message)) return fail("sales_closed",403,origin);
     if (/not_enough_capacity/.test(error.message)) return fail("not_enough_capacity",409,origin);
     if (/too_many_orders/.test(error.message)) return fail("rate_limited",429,origin);
     if (/invalid/.test(error.message)) return fail("invalid_order",400,origin);
@@ -258,7 +261,7 @@ async function listOrders(req: Request, origin: string|null){
   if(!admin)return fail("unauthorized",401,origin);
   // Real orders and staging orders are never mixed in administration.
   const environment=new URL(req.url).searchParams.get("environment")==="test"?"test":"real";
-  const slug=environment==="test"?"halloween-staging":"halloween";
+  const slug=environment==="test"?"halloween-staging":(new URL(req.url).searchParams.get("event")||"beavers");
   const {data:event,error:eventError}=await db.from("kon_events").select("id").eq("slug",slug).maybeSingle();
   if(eventError||!event)return fail("event_unavailable",500,origin);
   const {data,error}=await db.from("kon_orders").select(
@@ -278,7 +281,7 @@ async function approveOrder(req:Request,payload:JsonValue,origin:string|null){
   return fail("bank_confirmation_required",400,origin);
  const environment=payload.environment==="test"?"test":"real";
  if(environment==="test"&&status==="verified")return fail("test_payments_not_allowed",400,origin);
- const {data:event}=await db.from("kon_events").select("id").eq("slug",environment==="test"?"halloween-staging":"halloween").maybeSingle();
+ const {data:event}=await db.from("kon_events").select("id").eq("slug",environment==="test"?"halloween-staging":(new URL(req.url).searchParams.get("event")||"beavers")).maybeSingle();
  if(!event)return fail("event_unavailable",404,origin);
  const {data:order}=await db.from("kon_orders").select("id").eq("event_id",event.id).eq("id",payload.order_id).maybeSingle();
  if(!order)return fail("not_found",404,origin);
@@ -302,7 +305,7 @@ async function proofLink(req:Request,origin:string|null){
   const id=params.get("order_id");
   if(!validUuid(id))return fail("invalid_input",400,origin);
   const environment=params.get("environment")==="test"?"test":"real";
-  const {data:event}=await db.from("kon_events").select("id").eq("slug",environment==="test"?"halloween-staging":"halloween").maybeSingle();
+  const {data:event}=await db.from("kon_events").select("id").eq("slug",environment==="test"?"halloween-staging":(new URL(req.url).searchParams.get("event")||"beavers")).maybeSingle();
   if(!event)return fail("event_unavailable",404,origin);
   const {data:order}=await db.from("kon_orders").select("id").eq("id",id).eq("event_id",event.id).maybeSingle();
   if(!order)return fail("not_found",404,origin);
@@ -323,6 +326,8 @@ async function sheetAccess(req:Request){
   .select("id,spreadsheet_id,tab_title,event_slug,secret_sha256,enabled")
   .eq("secret_sha256",hash).eq("enabled",true).maybeSingle();
  if(error||!data||!data.enabled||!data.secret_sha256)return null;
+ // A stale Apps Script must never report another edition's inventory.
+ if(data.event_slug==="beavers" && req.headers.get("x-kon-sheet-tab")!==encodeURIComponent(data.tab_title))return null;
  return data;
 }
 async function sheetExport(req:Request,origin:string|null){
@@ -546,7 +551,7 @@ async function listPlannedDates(req:Request,origin:string|null){
     .select("event_date,label,film_title,flyer_url,starts_at,planning_status")
     .order("event_date",{ascending:true}).limit(50),
   db.from("kon_events").select("slug,title,starts_at,sales_open")
-    .eq("slug","halloween").maybeSingle()
+    .eq("slug","beavers").maybeSingle()
  ]);
  if(plans.error||current.error)return fail("schedule_unavailable",500,origin);
  return respond({ok:true,planned_dates:plans.data||[],
@@ -597,3 +602,4 @@ Deno.serve(async(req:Request)=>{
     return fail("request_failed",500,origin);
   }
 });
+
