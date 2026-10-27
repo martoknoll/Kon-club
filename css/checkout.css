@@ -1,4 +1,4 @@
-:root{--bg:#230519;--on:#fff4e6;--paper:#f4dec4;--ink:#291021;--accent:#f26c37;--secondary:#d64350}
+:root{--bg:#282725;--on:#f1e9da;--paper:#ded6c8;--ink:#29231e;--accent:#b59473;--secondary:#79736b}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:'Barlow',Arial,sans-serif;color:var(--on);background:var(--bg)}button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}a{color:inherit;text-decoration:none}a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}button{border-radius:0}
 [hidden]{display:none!important}.preview-banner{padding:9px 16px;background:#fff0d4;color:#34102d;font-size:12px;font-weight:700;line-height:1.5;text-align:center;letter-spacing:.06em}
 .ticker{height:34px;background:var(--accent);color:var(--ink);overflow:hidden;white-space:nowrap;display:flex;align-items:center;justify-content:center;letter-spacing:.06em;font-size:12px;font-weight:800}
