@@ -27,7 +27,7 @@ for (const [id,title,poster] of config.archiveCatalog) {
     check(!forbidden.has(String(id)), `No publicar carpeta ${id}`);
     check(!!config.assets[poster], `Archivo ${id} sin flyer: ${poster}`);
 }
-check(Object.keys(config.readerIssues).length === 14, 'La Fanzinoteca debe contener 14 publicaciones');
+check(Object.keys(config.readerIssues).length === 15, 'La Fanzinoteca debe contener 15 publicaciones');
 for (const [id,issue] of Object.entries(config.readerIssues)) {
     check(issue.pages.length === 8, `Fanzine ${id} debe tener 8 páginas`);
     issue.pages.forEach((page,index)=>media(page, `${id} página ${index+1}`));
