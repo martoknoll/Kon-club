@@ -92,8 +92,8 @@ function setupKonSync(){
 function konEnsureReelHeader_(sheet){
   const cell=sheet.getRange(1,KON_SYNC.reelColumn);
   const current=String(cell.getValue()||'').trim();
-  if(current && current!=='REEL_PUBLICITADO')throw new Error('R1 ya contiene datos; no se sobrescribió la columna.');
-  if(!current){cell.setValue('REEL_PUBLICITADO');cell.setFontWeight('bold');}
+  if(current && current!=='LLEGO_POR_PUBLICIDAD')throw new Error('R1 ya contiene datos; no se sobrescribió la columna.');
+  if(!current){cell.setValue('LLEGO_POR_PUBLICIDAD');cell.setFontWeight('bold');}
 }
 function konSafeText_(input){
   const s=String(input||'');
