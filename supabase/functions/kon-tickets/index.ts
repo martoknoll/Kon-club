@@ -164,6 +164,7 @@ async function createOrder(req: Request, payload: JsonValue, origin: string | nu
   const email = readString(payload.email,150);
   const instagram = readString(payload.instagram,80);
   const discovery = readString(payload.discovery,150);
+  const fromPromotedReel = payload.fromPromotedReel===true;
   if (fullName.length<2 || fullName.length>100 || email.length>150 ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
       instagram.length>80 || discovery.length>150 || typeof payload.firstTime!=="boolean" ||
@@ -197,6 +198,11 @@ async function createOrder(req: Request, payload: JsonValue, origin: string | nu
     console.error("create_order_failed",error.code);
     return fail("unable_to_create_order",500,origin);
   }
+  // Attribution does not affect inventory, prices or order confirmation.
+  // Update only the row returned by the existing atomic order creation RPC.
+  const {error:attributionError}=await db.from("kon_orders")
+    .update({from_promoted_reel:fromPromotedReel}).eq("id",data.id);
+  if(attributionError)console.error("reel_attribution_failed",attributionError.code);
   return respond({ok:true,order:data,proof_token:claimToken},201,origin);
 }
 function fileType(bytes: Uint8Array){
@@ -331,7 +337,7 @@ async function sheetExport(req:Request,origin:string|null){
  const {data:event}=await db.from("kon_events").select("id").eq("slug",access.event_slug).single();
  if(!event)return fail("event_unavailable",404,origin);
  const {data,error}=await db.from("kon_orders")
-  .select("id,order_code,full_name,email,instagram,source,status,amount_expected_ars,amount_received_ars,admin_note,created_at,sheets_row_key,verified_at,kon_order_lines(quantity,kon_products(slug))")
+  .select("id,order_code,full_name,email,instagram,source,from_promoted_reel,status,amount_expected_ars,amount_received_ars,admin_note,created_at,sheets_row_key,verified_at,kon_order_lines(quantity,kon_products(slug))")
   .eq("event_id",event.id).in("source",["web","manual"])
   .order("created_at",{ascending:true}).limit(300);
  if(error)return fail("sync_unavailable",500,origin);
@@ -345,7 +351,7 @@ async function sheetExport(req:Request,origin:string|null){
   return {id:o.id,code:o.order_code,name:o.full_name,email:o.email,instagram:o.instagram,
    general:quantities.general,post:quantities.post,fanzine:quantities.fanzine,
    status:o.status,expected:o.amount_expected_ars,received:o.amount_received_ars,
-   note:o.admin_note,source:o.source,sheet_row_key:o.sheets_row_key,
+   note:o.admin_note,source:o.source,from_promoted_reel:o.from_promoted_reel===true,sheet_row_key:o.sheets_row_key,
    created_at:o.created_at,verified_at:o.verified_at};
  });
  return respond({ok:true,tab_title:access.tab_title,orders},200,origin);
