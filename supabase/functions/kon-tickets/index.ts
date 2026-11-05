@@ -163,7 +163,10 @@ async function createOrder(req: Request, payload: JsonValue, origin: string | nu
   const fullName = readString(payload.fullName,100);
   const email = readString(payload.email,150);
   const instagram = readString(payload.instagram,80);
-  const discovery = readString(payload.discovery,150);
+  // Publicidad declarada por el comprador; no usar texto arbitrario del cliente.
+  if(payload.fromPromotedReel!==undefined && typeof payload.fromPromotedReel!=="boolean")
+    return fail("invalid_input",400,origin);
+  const discovery = payload.fromPromotedReel===true ? "Publicidad del Kon Club" : "No declarado";
   const fromPromotedReel = payload.fromPromotedReel===true;
   if (fullName.length<2 || fullName.length>100 || email.length>150 ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
@@ -198,11 +201,6 @@ async function createOrder(req: Request, payload: JsonValue, origin: string | nu
     console.error("create_order_failed",error.code);
     return fail("unable_to_create_order",500,origin);
   }
-  // Attribution does not affect inventory, prices or order confirmation.
-  // Update only the row returned by the existing atomic order creation RPC.
-  const {error:attributionError}=await db.from("kon_orders")
-    .update({from_promoted_reel:fromPromotedReel}).eq("id",data.id);
-  if(attributionError)console.error("reel_attribution_failed",attributionError.code);
   return respond({ok:true,order:data,proof_token:claimToken},201,origin);
 }
 function fileType(bytes: Uint8Array){
