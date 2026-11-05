@@ -5,7 +5,7 @@
  // El checkout real SOLO se habilita cuando también haya sincronización
  // reciente y cupos definidos en Supabase para cada producto.
 window.KON_CHECKOUT = {
-  eventKey: "halloween",
+  eventKey: "beavers",
   currency: "ARS",
   allowLive: false, // Cambiar solo después de probar el backend, Sheets y los permisos
   legacyFormPublic: false, // No mostrar el enlace al Form mientras preparamos el lanzamiento
