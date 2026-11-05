@@ -91,7 +91,7 @@ renderSummary();
 async function loadCatalog(){
  const status=byId('apiStatus');
  try{
-  const response=await apiCall('catalog');
+  const response=await apiCall('catalog?event='+encodeURIComponent(cfg.eventKey));
   if(!response.event||!Array.isArray(response.products))throw new Error('Catálogo incompleto.');
   catalogLoaded=true;
   salesOpen=Boolean(response.event.sales_open);
@@ -203,8 +203,9 @@ form.addEventListener('submit',async(evt)=>{
      fullName:String(formData.get('fullName')||''),
      email:String(formData.get('email')||''),
      instagram:String(formData.get('instagram')||''),
+     event:cfg.eventKey,
      firstTime:formData.get('firstTime')==='si',
-     discovery:formData.get('fromPromotedReel')==='on'?'Publicidad en Instagram':'No declarado',
+     discovery:formData.get('fromPromotedReel')==='on'?'Publicidad del Kon Club':'No declarado',
      fromPromotedReel:formData.get('fromPromotedReel')==='on',
      items:cfg.products.filter(p=>quantities[p.id]>0).map(p=>({id:p.backendId,qty:quantities[p.id]}))
     })
