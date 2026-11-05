@@ -172,17 +172,6 @@ byId('copyAlias').addEventListener('click',async()=>{
 });
 
 const form=byId('orderForm');
-const discoveryField=byId('discoveryField');
-const discovery=byId('discovery');
-function updateDiscovery(){
- const firstTime=form.querySelector('input[name="firstTime"]:checked')?.value==='si';
- discoveryField.hidden=!firstTime;
- discovery.disabled=!firstTime;
- discovery.required=firstTime;
- if(!firstTime)discovery.value='';
-}
-form.querySelectorAll('input[name="firstTime"]').forEach(input=>input.addEventListener('change',updateDiscovery));
-updateDiscovery();
 const proof=byId('proof');
 const error=byId('formError');
 function setError(message){
@@ -226,7 +215,8 @@ form.addEventListener('submit',async(evt)=>{
      email:String(formData.get('email')||''),
      instagram:String(formData.get('instagram')||''),
      firstTime:formData.get('firstTime')==='si',
-     discovery:String(formData.get('discovery')||''),
+     discovery:formData.get('fromPromotedReel')==='on'?'Publicidad del Kon Club':'No declarado',
+     fromPromotedReel:formData.get('fromPromotedReel')==='on',
      items:cfg.products.filter(p=>quantities[p.id]>0).map(p=>({id:p.backendId,qty:quantities[p.id]}))
     })
    });
@@ -290,7 +280,7 @@ proofForm.addEventListener('submit',async(evt)=>{
   appendReview(box,'Email',String(formData.get('email')||''));
   appendReview(box,'Instagram',String(formData.get('instagram')||''));
   appendReview(box,'Primera visita',formData.get('firstTime')==='si'?'Sí':'No');
-  if(formData.get('firstTime')==='si')appendReview(box,'Cómo nos conoció',String(formData.get('discovery')||''));
+  appendReview(box,'Llegó por nuestra publicidad',formData.get('fromPromotedReel')==='on'?'Sí':'No');
   cfg.products.forEach(p=>{if(quantities[p.id])appendReview(box,p.title,quantities[p.id]+' × '+money(p.price))});
   appendReview(box,'Total',isReal?money(pendingOrder.order.total):money(total()));
   appendReview(box,'Comprobante',isReal?'Almacenado en forma privada':file.name+' (no enviado)');
