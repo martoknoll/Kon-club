@@ -22,6 +22,7 @@ const KON_SYNC = Object.freeze({
   spreadsheetId: '1DZ_yhLnzOVMHhBhsI_3x2QlLzcKcceDddyCjDDbGC7o',
   sheetName: 'KON CLUB: (Alimme) - Hundreds of Beavers',
   header: ['ID_PEDIDO', 'EMAIL', 'ESTADO', 'ORIGEN', 'ULTIMO_CAMBIO', 'CODIGO'],
+  reelColumn: 18, // R: atribución de publicidad; no alterar columnas históricas
   states: ['PENDIENTE', 'VERIFICADO', 'RECHAZADO', 'CORTESIA', 'CANCELADO']
 });
 function konToken_(){
@@ -86,6 +87,12 @@ function setupKonSync(){
     ScriptApp.newTrigger('konOnFormSubmit').forSpreadsheet(spreadsheet).onFormSubmit().create();
   }
   syncKonToSheet();
+}
+function konEnsureAdvertisingHeader_(sheet){
+  const cell=sheet.getRange(1,KON_SYNC.reelColumn);
+  const current=String(cell.getValue()||'').trim();
+  if(current && current!=='LLEGO_POR_PUBLICIDAD')throw new Error('R1 contiene otro encabezado. No se sobrescribió.');
+  if(!current){cell.setValue('LLEGO_POR_PUBLICIDAD');cell.setFontWeight('bold');}
 }
 function konSafeText_(input){
   const s=String(input||'');
@@ -155,6 +162,7 @@ function syncKonToSheet(){
     const data=konApi_('sync-export');
     if(data.tab_title!==KON_SYNC.sheetName)throw new Error('La pestaña configurada no coincide.');
     const sheet=konSheet_();
+    konEnsureAdvertisingHeader_(sheet);
     const last=Math.max(sheet.getLastRow(),2);
     const names=sheet.getRange(2,1,last-1,1).getValues();
     const storedIds=sheet.getRange(2,12,last-1,1).getValues();
@@ -177,6 +185,9 @@ function syncKonToSheet(){
         ]]);
         map[order.id]=row;
       }
+      const advertisingCell=sheet.getRange(row,KON_SYNC.reelColumn);
+      const advertisingValue=order.from_promoted_reel===true?'SÍ':'NO';
+      if(advertisingCell.getValue()!==advertisingValue)advertisingCell.setValue(advertisingValue);
       if(order.sheet_row_key!==KON_SYNC.sheetName+':'+String(row)){
         konApi_('sync-ack',{order_id:order.id,row:row});
       }
