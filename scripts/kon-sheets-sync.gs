@@ -22,6 +22,7 @@ const KON_SYNC = Object.freeze({
   spreadsheetId: '1DZ_yhLnzOVMHhBhsI_3x2QlLzcKcceDddyCjDDbGC7o',
   sheetName: 'KON CLUB: (Alimme) - Casa Lobo & Rocky Horror',
   header: ['ID_PEDIDO', 'EMAIL', 'ESTADO', 'ORIGEN', 'ULTIMO_CAMBIO', 'CODIGO'],
+  reelColumn: 18, // R: nueva columna para atribución del reel, sin alterar L:Q
   states: ['PENDIENTE', 'VERIFICADO', 'RECHAZADO', 'CORTESIA', 'CANCELADO']
 });
 function konToken_(){
@@ -71,6 +72,7 @@ function setupKonSync(){
   if(!safe)throw new Error('L1:Q1 ya contienen datos. No se tocaron; revisá dónde ubicar metadatos.');
   range.setValues([KON_SYNC.header]);
   range.setFontWeight('bold');
+  konEnsureReelHeader_(sheet);
   const spreadsheet=SpreadsheetApp.openById(KON_SYNC.spreadsheetId);
   const triggers=ScriptApp.getProjectTriggers();
   if(!triggers.some(t=>t.getHandlerFunction()==='konOnEdit')){
@@ -86,6 +88,12 @@ function setupKonSync(){
     ScriptApp.newTrigger('konOnFormSubmit').forSpreadsheet(spreadsheet).onFormSubmit().create();
   }
   syncKonToSheet();
+}
+function konEnsureReelHeader_(sheet){
+  const cell=sheet.getRange(1,KON_SYNC.reelColumn);
+  const current=String(cell.getValue()||'').trim();
+  if(current && current!=='REEL_PUBLICITADO')throw new Error('R1 ya contiene datos; no se sobrescribió la columna.');
+  if(!current){cell.setValue('REEL_PUBLICITADO');cell.setFontWeight('bold');}
 }
 function konSafeText_(input){
   const s=String(input||'');
@@ -155,6 +163,7 @@ function syncKonToSheet(){
     const data=konApi_('sync-export');
     if(data.tab_title!==KON_SYNC.sheetName)throw new Error('La pestaña configurada no coincide.');
     const sheet=konSheet_();
+    konEnsureReelHeader_(sheet);
     const last=Math.max(sheet.getLastRow(),2);
     const names=sheet.getRange(2,1,last-1,1).getValues();
     const storedIds=sheet.getRange(2,12,last-1,1).getValues();
@@ -177,6 +186,9 @@ function syncKonToSheet(){
         ]]);
         map[order.id]=row;
       }
+      const reelCell=sheet.getRange(row,KON_SYNC.reelColumn);
+      const reelValue=order.from_promoted_reel===true?'SÍ':'NO';
+      if(reelCell.getValue()!==reelValue)reelCell.setValue(reelValue);
       if(order.sheet_row_key!==KON_SYNC.sheetName+':'+String(row)){
         konApi_('sync-ack',{order_id:order.id,row:row});
       }
