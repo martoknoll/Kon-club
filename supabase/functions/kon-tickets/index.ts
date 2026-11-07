@@ -164,7 +164,10 @@ async function createOrder(req: Request, payload: JsonValue, origin: string | nu
   const fullName = readString(payload.fullName,100);
   const email = readString(payload.email,150);
   const instagram = readString(payload.instagram,80);
-  const discovery = readString(payload.discovery,150);
+  // Publicidad declarada por el comprador; no usar texto arbitrario del cliente.
+  if(payload.fromPromotedReel!==undefined && typeof payload.fromPromotedReel!=="boolean")
+    return fail("invalid_input",400,origin);
+  const discovery = payload.fromPromotedReel===true ? "Publicidad del Kon Club" : "No declarado";
   if (fullName.length<2 || fullName.length>100 || email.length>150 ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
       instagram.length>80 || discovery.length>150 || typeof payload.firstTime!=="boolean" ||
