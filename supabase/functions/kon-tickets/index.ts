@@ -314,15 +314,18 @@ async function deleteOrder(req:Request,payload:JsonValue,origin:string|null){
   .eq("id",payload.order_id).eq("event_id",event.id).maybeSingle();
  if(orderError||!order)return fail("not_found",404,origin);
  if(order.deleted_at)return fail("already_deleted",409,origin);
- if(!["web","manual"].includes(order.source)||
-   !["pending","rejected","cancelled"].includes(order.status)||
-   order.amount_received_ars!==null)return fail("delete_not_allowed",409,origin);
+ const isTest=payload.environment==="test";
+ const allowedStatuses=isTest?["pending","rejected","cancelled","courtesy"]:["pending","rejected","cancelled"];
+ const unpaid=order.amount_received_ars===null || (isTest && order.amount_received_ars===0);
+ if(order.source!=="web"||!allowedStatuses.includes(order.status)||!unpaid)
+   return fail("delete_not_allowed",409,origin);
  // Keep an audit trail; only a row from the authorized edition may be hidden.
- const {data:updated,error:updateError}=await db.from("kon_orders")
+ let deletion=db.from("kon_orders")
   .update({deleted_at:new Date().toISOString(),deleted_by:admin.email,status:"cancelled",updated_at:new Date().toISOString()})
-  .eq("id",order.id).eq("event_id",event.id).is("deleted_at",null)
-  .in("status",["pending","rejected","cancelled"]).is("amount_received_ars",null)
-  .select("id").maybeSingle();
+  .eq("id",order.id).eq("event_id",event.id).eq("source","web").is("deleted_at",null)
+  .in("status",allowedStatuses);
+ deletion=isTest?deletion.or("amount_received_ars.is.null,amount_received_ars.eq.0"):deletion.is("amount_received_ars",null);
+ const {data:updated,error:updateError}=await deletion.select("id").maybeSingle();
  if(updateError||!updated)return fail("conflicting_order_state",409,origin);
  const {error:auditError}=await db.from("kon_order_audit").insert({
   order_id:order.id,action:"admin_soft_delete",old_status:order.status,new_status:"cancelled",
