@@ -97,6 +97,20 @@ function syncKonToSheet(){
     storedIds.forEach((r,i)=>{if(r[0])map[String(r[0])]=i+2;});
     let finalRow=1;
     names.forEach((r,i)=>{if(String(r[0]||'').trim())finalRow=i+2;});
+    // Limpieza controlada: solo filas web cuyo ID fue dado de baja por el backend.
+    // No borrar filas físicas: moverlas rompería referencias y fórmulas H:J.
+    // Nunca tocar filas sin ID_PEDIDO ni datos ajenos al pedido web.
+    const deleted=new Set(data.deleted_order_ids||[]);
+    storedIds.forEach((r,i)=>{
+      const id=String(r[0]||'').trim();
+      if(!id||!deleted.has(id))return;
+      const row=i+2;
+      const origin=String(sheet.getRange(row,15).getValue()||'').trim().toUpperCase();
+      if(origin!=='WEB')throw new Error('Fila '+row+' tiene ID dado de baja, pero origen distinto de WEB. Revisar manualmente.');
+      sheet.getRange(row,1,1,7).clearContent();
+      sheet.getRange(row,12,1,7).clearContent();
+      delete map[id];
+    });
     (data.orders||[]).forEach(order=>{
       if(!order.id)return;
       let row=map[String(order.id)];
