@@ -304,33 +304,41 @@ async function approveOrder(req:Request,payload:JsonValue,origin:string|null){
 async function deleteOrder(req:Request,payload:JsonValue,origin:string|null){
  const admin=await adminFromRequest(req);
  if(!admin)return fail("unauthorized",401,origin);
- if(!validUuid(payload.order_id)||payload.confirmation!==true||
-   !["real","test"].includes(String(payload.environment)))return fail("invalid_input",400,origin);
+ if(!validUuid(payload.order_id)||!["real","test"].includes(String(payload.environment))||
+   payload.confirmation!==true||payload.confirm_no_real_payment!==true||
+   payload.reason!=="test_record")
+   return fail("delete_confirmation_required",400,origin);
  const slug=payload.environment==="test"?"halloween-staging":"beavers";
  const {data:event,error:eventError}=await db.from("kon_events").select("id").eq("slug",slug).maybeSingle();
  if(eventError||!event)return fail("event_unavailable",404,origin);
  const {data:order,error:orderError}=await db.from("kon_orders")
-  .select("id,status,amount_received_ars,source,deleted_at")
+  .select("id,order_code,status,amount_received_ars,source,deleted_at")
   .eq("id",payload.order_id).eq("event_id",event.id).maybeSingle();
  if(orderError||!order)return fail("not_found",404,origin);
  if(order.deleted_at)return fail("already_deleted",409,origin);
- const isTest=payload.environment==="test";
- const allowedStatuses=isTest?["pending","rejected","cancelled","courtesy"]:["pending","rejected","cancelled"];
- const unpaid=order.amount_received_ars===null || (isTest && order.amount_received_ars===0);
- if(order.source!=="web"||!allowedStatuses.includes(order.status)||!unpaid)
+ if(order.source!=="web"||
+   !["pending","verified","courtesy","rejected","cancelled"].includes(order.status))
    return fail("delete_not_allowed",409,origin);
- // Keep an audit trail; only a row from the authorized edition may be hidden.
- let deletion=db.from("kon_orders")
-  .update({deleted_at:new Date().toISOString(),deleted_by:admin.email,status:"cancelled",updated_at:new Date().toISOString()})
-  .eq("id",order.id).eq("event_id",event.id).eq("source","web").is("deleted_at",null)
-  .in("status",allowedStatuses);
- deletion=isTest?deletion.or("amount_received_ars.is.null,amount_received_ars.eq.0"):deletion.is("amount_received_ars",null);
- const {data:updated,error:updateError}=await deletion.select("id").maybeSingle();
+ // Require deliberate, order-specific confirmation even for approved bookings.
+ if(typeof payload.confirm_code!=="string"||
+    payload.confirm_code.trim().toUpperCase()!==order.order_code)
+   return fail("order_code_confirmation_required",400,origin);
+ // Do not modify bank balances, refunds, or any other attendee's reservation.
+ const {data:updated,error:updateError}=await db.from("kon_orders")
+  .update({deleted_at:new Date().toISOString(),deleted_by:admin.email,
+    status:"cancelled",updated_at:new Date().toISOString()})
+  .eq("id",order.id).eq("event_id",event.id).eq("source","web")
+  .eq("order_code",order.order_code).eq("status",order.status)
+  .is("deleted_at",null)
+  .select("id").maybeSingle();
  if(updateError||!updated)return fail("conflicting_order_state",409,origin);
  const {error:auditError}=await db.from("kon_order_audit").insert({
   order_id:order.id,action:"admin_soft_delete",old_status:order.status,new_status:"cancelled",
   actor_id:admin.id,actor_source:"panel",
-  metadata:{actor_email:admin.email,environment:payload.environment}
+  metadata:{actor_email:admin.email,environment:payload.environment,
+    reason:"test_record",confirmed_code:order.order_code,
+    amount_received_before_delete:order.amount_received_ars,
+    no_real_payment_attested:true}
  });
  if(auditError)console.error("delete_audit_failed",auditError.code);
  return respond({ok:true,sheet_cleanup_pending:true},200,origin);

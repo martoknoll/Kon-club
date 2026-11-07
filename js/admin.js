@@ -253,7 +253,7 @@ function draw(){
    review.addEventListener("click",()=>openReview(order));
    actions.appendChild(review);
   }
-  if(order.source==="web" && ((["pending","rejected","cancelled"].includes(order.status)&&order.amount_received_ars===null)||(isTest&&order.status==="courtesy"&&(order.amount_received_ars===0||order.amount_received_ars===null)))){
+  if(order.source==="web"){
     const remove=el("button","ELIMINAR RESERVA","delete-order-btn");
     remove.type="button";
     remove.addEventListener("click",()=>openDelete(order));
@@ -263,15 +263,24 @@ function draw(){
   list.appendChild(card);
  });
 }
+function canConfirmDelete(){
+ return Boolean(deleteSelection&&!busy&&$("deleteChecked").checked&&
+  $("deleteCode").value.trim().toUpperCase()===deleteSelection.order_code);
+}
+function updateDeleteState(){$("confirmDelete").disabled=!canConfirmDelete();}
 function openDelete(order){
  deleteSelection=order;
  $("deleteChecked").checked=false;
- $("confirmDelete").disabled=true;
+ $("deleteCode").value="";
+ $("deleteCode").placeholder=order.order_code;
+ $("deletePaidWarning").hidden=order.status!=="verified"&&Number(order.amount_received_ars||0)===0;
+ updateDeleteState();
  $("deleteDetails").replaceChildren(
   reviewText("Código",order.order_code),
   reviewText("Comprador",order.full_name),
-  reviewText("Entradas", (order.kon_order_lines||[]).map(l=>l.quantity+" × "+(l.kon_products?.label||"Producto")).join(" · ")||"Sin productos"),
-  reviewText("Estado",label(order.status))
+  reviewText("Entradas",(order.kon_order_lines||[]).map(l=>l.quantity+" × "+(l.kon_products?.label||"Producto")).join(" · ")||"Sin productos"),
+  reviewText("Estado",label(order.status)),
+  reviewText("Importe marcado como recibido",currency(order.amount_received_ars))
  );
  $("deleteDialog").showModal();
 }
@@ -281,20 +290,25 @@ function closeDelete(){
 }
 $("closeDelete").addEventListener("click",closeDelete);
 $("cancelDelete").addEventListener("click",closeDelete);
-$("deleteChecked").addEventListener("change",()=>{$("confirmDelete").disabled=!$("deleteChecked").checked||busy;});
+$("deleteChecked").addEventListener("change",updateDeleteState);
+$("deleteCode").addEventListener("input",updateDeleteState);
 $("confirmDelete").addEventListener("click",async()=>{
- if(busy||!deleteSelection||!$("deleteChecked").checked)return;
+ if(!canConfirmDelete())return;
  const target=deleteSelection;
  busy=true;
- $("confirmDelete").disabled=true;
+ updateDeleteState();
  try{
   const response=await call("delete-order",{method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({order_id:target.id,environment:$("environmentFilter").value,confirmation:true})});
+   body:JSON.stringify({
+    order_id:target.id,environment:$("environmentFilter").value,
+    confirmation:true,reason:"test_record",confirm_code:target.order_code,
+    confirm_no_real_payment:true
+   })});
   closeDelete();
-  notice(response.sheet_cleanup_pending?"Reserva eliminada; limpieza de Sheets pendiente de sincronización.":"Reserva eliminada.");
+  notice(response.sheet_cleanup_pending?"Test eliminado; la planilla se limpiará al sincronizar.":"Test eliminado.");
   await loadOrders();
- }catch(error){notice(error instanceof Error?error.message:"No se pudo eliminar la reserva.");}
- finally{busy=false;$("confirmDelete").disabled=!$("deleteChecked").checked;}
+ }catch(error){notice(error instanceof Error?error.message:"No se pudo eliminar esta reserva.");}
+ finally{busy=false;updateDeleteState();}
 });
 async function openProof(id){
  try{
