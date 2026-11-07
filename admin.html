@@ -37,7 +37,7 @@
   <p class="inventory-note">Las entradas anteriores se cuentan desde FECHAS y las nuevas desde Supabase. El registro en la planilla se conserva tal como estaba. Para publicar, también hay que confirmar la capacidad de cada categoría.</p>
  </section>
  <div class="filters"><label for="environmentFilter">AMBIENTE</label><select id="environmentFilter" aria-label="Ambiente"><option value="real">REAL · HALLOWEEN</option><option value="test">PRUEBA · NO REAL</option></select><label for="statusFilter">MOSTRAR</label><select id="statusFilter"><option value="all">TODOS</option><option value="pending">PENDIENTES</option><option value="verified">VERIFICADOS</option><option value="rejected">RECHAZADOS</option><option value="courtesy">CORTESÍAS</option><option value="cancelled">CANCELADOS</option></select><span id="syncHint">Sincronización Sheets: pendiente de configurar</span></div>
- <p class="delete-help">Podés eliminar reservas de prueba o incorrectas que no tengan pagos verificados. El registro dejará de ocupar cupos y la próxima sincronización limpiará su fila web de Sheets. Las inscripciones del formulario anterior se gestionan desde Sheets.</p>
+ <p class="delete-help">Podés eliminar reservas de prueba o incorrectas que no tengan pagos verificados. El pedido dejará de ocupar cupos. Sheets lo marcará como CANCELADO con el script actual; para borrar la fila de la planilla es necesario instalar la versión nueva del script. Las inscripciones del formulario anterior se gestionan desde Sheets.</p>
  <div id="orders" class="order-list" aria-live="polite"></div>
  <section class="planned-section" aria-labelledby="plannedTitle">
   <div class="planned-heading"><div><p class="kicker">AGENDA INTERNA · SIN PUBLICAR</p><h2 id="plannedTitle">PRÓXIMAS FECHAS.</h2></div>
@@ -50,7 +50,7 @@
 <dialog id="deleteDialog" aria-labelledby="deleteTitle">
   <div class="dialog-head"><div><small>KON CLUB / ELIMINACIÓN CONTROLADA</small><h2 id="deleteTitle">ELIMINAR RESERVA</h2></div><button type="button" id="closeDelete" aria-label="Cerrar">×</button></div>
   <div id="deleteDetails"></div>
-  <p class="delete-warning">Esta acción quita el pedido del panel, libera sus cupos y programa la limpieza de la fila web de Sheets. Se conserva un registro de auditoría. No se puede deshacer desde el panel.</p>
+  <p class="delete-warning">Esta acción quita el pedido del panel y libera sus cupos. En Sheets aparecerá como CANCELADO hasta que se instale el script de limpieza actualizado. Se conserva un registro de auditoría. No se puede deshacer desde el panel.</p>
   <label class="confirmation"><input id="deleteChecked" type="checkbox"><span>Confirmo que esta reserva es una prueba o un error y no tiene un pago acreditado.</span></label>
   <div class="dialog-actions"><button type="button" class="secondary" id="cancelDelete">VOLVER</button><button type="button" id="confirmDelete" disabled>ELIMINAR RESERVA</button></div>
  </dialog>
