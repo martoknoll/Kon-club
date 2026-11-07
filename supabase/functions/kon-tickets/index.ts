@@ -378,7 +378,7 @@ async function sheetExport(req:Request,origin:string|null){
   .order("created_at",{ascending:true}).limit(300);
  if(error)return fail("sync_unavailable",500,origin);
  const deletedOrderIds=(data||[]).filter(o=>o.deleted_at).map(o=>o.id);
- const orders=(data||[]).filter(o=>!o.deleted_at).map(o=>{
+ const orders=(data||[]).filter(o=>!o.deleted_at||Boolean(o.sheets_row_key)).map(o=>{
   const quantities:Record<string,number>={general:0,post:0,fanzine:0};
   (o.kon_order_lines||[]).forEach((l:JsonValue)=>{
    const product=l.kon_products as JsonValue | null;
@@ -387,7 +387,7 @@ async function sheetExport(req:Request,origin:string|null){
   });
   return {id:o.id,code:o.order_code,name:o.full_name,email:o.email,instagram:o.instagram,
    general:quantities.general,post:quantities.post,fanzine:quantities.fanzine,
-   status:o.status,expected:o.amount_expected_ars,received:o.amount_received_ars,
+   status:o.deleted_at?"cancelled":o.status,expected:o.amount_expected_ars,received:o.amount_received_ars,
    note:o.admin_note,source:o.source,from_promoted_reel:o.from_promoted_reel===true,sheet_row_key:o.sheets_row_key,
    created_at:o.created_at,verified_at:o.verified_at};
  });
