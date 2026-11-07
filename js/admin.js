@@ -253,7 +253,7 @@ function draw(){
    review.addEventListener("click",()=>openReview(order));
    actions.appendChild(review);
   }
-  if(["pending","rejected","cancelled"].includes(order.status)&&order.amount_received_ars===null){
+  if(order.source==="web" && ((["pending","rejected","cancelled"].includes(order.status)&&order.amount_received_ars===null)||(isTest&&order.status==="courtesy"&&(order.amount_received_ars===0||order.amount_received_ars===null)))){
     const remove=el("button","ELIMINAR RESERVA","delete-order-btn");
     remove.type="button";
     remove.addEventListener("click",()=>openDelete(order));
