@@ -32,3 +32,11 @@ dialog{max-width:610px;width:calc(100% - 25px);max-height:90vh;overflow:auto;bor
 .inventory-card p{margin:7px 0 0;font-size:12px}
 .inventory-note{font-size:12px;opacity:.8;line-height:1.6;margin:14px 0 0}
 .inventory-warning{background:#f6d28d;color:var(--ink);padding:13px 15px;margin:0;font-size:12px;line-height:1.5;font-weight:700;grid-column:1/-1}
+
+/* Eliminación controlada de reservas web: segundo plano visual, confirmación fuerte. */
+.delete-help{font-size:12px;line-height:1.55;opacity:.82;margin:0 0 14px}
+.order button.delete-order-btn{display:block;background:transparent;color:#8c2732;border:1px solid #a73a45;padding:9px 11px;margin-top:9px}
+.order button.delete-order-btn:hover{background:#fae0de}
+.delete-warning{background:#f3d9cf;border-left:4px solid #a73a45;padding:12px 14px;font-size:13px;line-height:1.5}
+#deleteDetails p{font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+#confirmDelete{background:#8c2732;color:#fff}
