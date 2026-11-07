@@ -94,7 +94,7 @@ async function inventorySummary(req:Request,origin:string|null){
   db.from("kon_products").select("id,slug,label,capacity,price_ars,enabled")
    .eq("event_id",event.id).order("sort_order"),
   db.from("kon_order_lines")
-   .select("quantity,product_id,kon_orders!inner(status,expires_at,proof_received_at,event_id)")
+   .select("quantity,product_id,kon_orders!inner(status,expires_at,proof_received_at,event_id,deleted_at)")
    .eq("kon_orders.event_id",event.id)
  ]);
  if(prods.error||orders.error)return fail("inventory_unavailable",500,origin);
@@ -102,7 +102,7 @@ async function inventorySummary(req:Request,origin:string|null){
  const reserved:Record<string,number>={};
  (orders.data||[]).forEach((line:JsonValue)=>{
   const o=line.kon_orders as JsonValue|null;
-  if(!o||!["pending","verified","courtesy"].includes(String(o.status)))return;
+  if(!o||o.deleted_at||!["pending","verified","courtesy"].includes(String(o.status)))return;
   if(o.status==="pending"&&!o.proof_received_at&&new Date(String(o.expires_at))<current)return;
   reserved[String(line.product_id)]=(reserved[String(line.product_id)]||0)+Number(line.quantity||0);
  });
@@ -164,7 +164,10 @@ async function createOrder(req: Request, payload: JsonValue, origin: string | nu
   const fullName = readString(payload.fullName,100);
   const email = readString(payload.email,150);
   const instagram = readString(payload.instagram,80);
-  const discovery = readString(payload.discovery,150);
+  // Publicidad declarada por el comprador; no usar texto arbitrario del cliente.
+  if(payload.fromPromotedReel!==undefined && typeof payload.fromPromotedReel!=="boolean")
+    return fail("invalid_input",400,origin);
+  const discovery = payload.fromPromotedReel===true ? "Publicidad del Kon Club" : "No declarado";
   if (fullName.length<2 || fullName.length>100 || email.length>150 ||
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
       instagram.length>80 || discovery.length>150 || typeof payload.firstTime!=="boolean" ||
@@ -266,7 +269,7 @@ async function listOrders(req: Request, origin: string|null){
   if(eventError||!event)return fail("event_unavailable",500,origin);
   const {data,error}=await db.from("kon_orders").select(
     "id,order_code,full_name,email,instagram,first_time,source,amount_expected_ars,amount_received_ars,status,verified_at,verified_by,created_at,admin_note,proof_received_at,kon_order_lines(quantity,unit_price_ars,kon_products(label,slug))"
-  ).eq("event_id",event.id).order("created_at",{ascending:false}).limit(150);
+  ).eq("event_id",event.id).is("deleted_at",null).order("created_at",{ascending:false}).limit(150);
   if(error){console.error("orders_error",error.message);return fail("unable_to_list",500,origin);}
   return respond({ok:true,orders:data||[],admin:admin.email,environment},200,origin);
 }
@@ -283,7 +286,7 @@ async function approveOrder(req:Request,payload:JsonValue,origin:string|null){
  if(environment==="test"&&status==="verified")return fail("test_payments_not_allowed",400,origin);
  const {data:event}=await db.from("kon_events").select("id").eq("slug",environment==="test"?"halloween-staging":(new URL(req.url).searchParams.get("event")||"beavers")).maybeSingle();
  if(!event)return fail("event_unavailable",404,origin);
- const {data:order}=await db.from("kon_orders").select("id").eq("event_id",event.id).eq("id",payload.order_id).maybeSingle();
+ const {data:order}=await db.from("kon_orders").select("id").eq("event_id",event.id).eq("id",payload.order_id).is("deleted_at",null).maybeSingle();
  if(!order)return fail("not_found",404,origin);
  const {data,error}=await db.rpc("kon_review_order",{
   p_order_id:payload.order_id,p_status:status,p_amount:status==="verified"?amount:null,
@@ -297,6 +300,40 @@ async function approveOrder(req:Request,payload:JsonValue,origin:string|null){
   return fail("unable_to_review",500,origin);
  }
  return respond({ok:true,status:data.status,unchanged:data.unchanged,email_dispatched:false},200,origin);
+}
+async function deleteOrder(req:Request,payload:JsonValue,origin:string|null){
+ const admin=await adminFromRequest(req);
+ if(!admin)return fail("unauthorized",401,origin);
+ if(!validUuid(payload.order_id)||payload.confirmation!==true||
+   !["real","test"].includes(String(payload.environment)))return fail("invalid_input",400,origin);
+ const slug=payload.environment==="test"?"halloween-staging":"beavers";
+ const {data:event,error:eventError}=await db.from("kon_events").select("id").eq("slug",slug).maybeSingle();
+ if(eventError||!event)return fail("event_unavailable",404,origin);
+ const {data:order,error:orderError}=await db.from("kon_orders")
+  .select("id,status,amount_received_ars,source,deleted_at")
+  .eq("id",payload.order_id).eq("event_id",event.id).maybeSingle();
+ if(orderError||!order)return fail("not_found",404,origin);
+ if(order.deleted_at)return fail("already_deleted",409,origin);
+ const isTest=payload.environment==="test";
+ const allowedStatuses=isTest?["pending","rejected","cancelled","courtesy"]:["pending","rejected","cancelled"];
+ const unpaid=order.amount_received_ars===null || (isTest && order.amount_received_ars===0);
+ if(order.source!=="web"||!allowedStatuses.includes(order.status)||!unpaid)
+   return fail("delete_not_allowed",409,origin);
+ // Keep an audit trail; only a row from the authorized edition may be hidden.
+ let deletion=db.from("kon_orders")
+  .update({deleted_at:new Date().toISOString(),deleted_by:admin.email,status:"cancelled",updated_at:new Date().toISOString()})
+  .eq("id",order.id).eq("event_id",event.id).eq("source","web").is("deleted_at",null)
+  .in("status",allowedStatuses);
+ deletion=isTest?deletion.or("amount_received_ars.is.null,amount_received_ars.eq.0"):deletion.is("amount_received_ars",null);
+ const {data:updated,error:updateError}=await deletion.select("id").maybeSingle();
+ if(updateError||!updated)return fail("conflicting_order_state",409,origin);
+ const {error:auditError}=await db.from("kon_order_audit").insert({
+  order_id:order.id,action:"admin_soft_delete",old_status:order.status,new_status:"cancelled",
+  actor_id:admin.id,actor_source:"panel",
+  metadata:{actor_email:admin.email,environment:payload.environment}
+ });
+ if(auditError)console.error("delete_audit_failed",auditError.code);
+ return respond({ok:true,sheet_cleanup_pending:true},200,origin);
 }
 async function proofLink(req:Request,origin:string|null){
   const admin=await adminFromRequest(req);
@@ -336,11 +373,12 @@ async function sheetExport(req:Request,origin:string|null){
  const {data:event}=await db.from("kon_events").select("id").eq("slug",access.event_slug).single();
  if(!event)return fail("event_unavailable",404,origin);
  const {data,error}=await db.from("kon_orders")
-  .select("id,order_code,full_name,email,instagram,source,status,amount_expected_ars,amount_received_ars,admin_note,created_at,sheets_row_key,verified_at,kon_order_lines(quantity,kon_products(slug))")
+  .select("id,order_code,full_name,email,instagram,source,from_promoted_reel,status,deleted_at,amount_expected_ars,amount_received_ars,admin_note,created_at,sheets_row_key,verified_at,kon_order_lines(quantity,kon_products(slug))")
   .eq("event_id",event.id).in("source",["web","manual"])
   .order("created_at",{ascending:true}).limit(300);
  if(error)return fail("sync_unavailable",500,origin);
- const orders=(data||[]).map(o=>{
+ const deletedOrderIds=(data||[]).filter(o=>o.deleted_at).map(o=>o.id);
+ const orders=(data||[]).filter(o=>!o.deleted_at||Boolean(o.sheets_row_key)).map(o=>{
   const quantities:Record<string,number>={general:0,post:0,fanzine:0};
   (o.kon_order_lines||[]).forEach((l:JsonValue)=>{
    const product=l.kon_products as JsonValue | null;
@@ -349,11 +387,11 @@ async function sheetExport(req:Request,origin:string|null){
   });
   return {id:o.id,code:o.order_code,name:o.full_name,email:o.email,instagram:o.instagram,
    general:quantities.general,post:quantities.post,fanzine:quantities.fanzine,
-   status:o.status,expected:o.amount_expected_ars,received:o.amount_received_ars,
-   note:o.admin_note,source:o.source,sheet_row_key:o.sheets_row_key,
+   status:o.deleted_at?"cancelled":o.status,expected:o.amount_expected_ars,received:o.amount_received_ars,
+   note:o.admin_note,source:o.source,from_promoted_reel:o.from_promoted_reel===true,sheet_row_key:o.sheets_row_key,
    created_at:o.created_at,verified_at:o.verified_at};
  });
- return respond({ok:true,tab_title:access.tab_title,orders},200,origin);
+ return respond({ok:true,tab_title:access.tab_title,orders,deleted_order_ids:deletedOrderIds},200,origin);
 }
 async function sheetAcknowledge(req:Request,payload:JsonValue,origin:string|null){
  const access=await sheetAccess(req);
@@ -570,6 +608,11 @@ Deno.serve(async(req:Request)=>{
     if(req.method==="GET"&&path==="mail-preview")return await mailPreview(req,origin);
     if(req.method==="GET"&&path==="mail-next")return await mailNext(req,origin);
     if(req.method==="POST"&&path==="mail-pair")return await pairMail(req,origin);
+    if(req.method==="POST"&&path==="delete-order"){
+      const len=Number(req.headers.get("content-length")||"0");
+      if(len>2000)return fail("payload_too_large",413,origin);
+      return await deleteOrder(req,await req.json() as JsonValue,origin);
+    }
     if(req.method==="POST"&&path==="sync-inventory"){
       const len=Number(req.headers.get("content-length")||"0");
       if(len>1500)return fail("payload_too_large",413,origin);
