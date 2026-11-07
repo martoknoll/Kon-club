@@ -94,15 +94,15 @@ async function inventorySummary(req:Request,origin:string|null){
   db.from("kon_products").select("id,slug,label,capacity,price_ars,enabled")
    .eq("event_id",event.id).order("sort_order"),
   db.from("kon_order_lines")
-   .select("quantity,product_id,kon_orders!inner(status,expires_at,proof_received_at,event_id)")
-   .eq("kon_orders.event_id",event.id).is("kon_orders.deleted_at",null)
+   .select("quantity,product_id,kon_orders!inner(status,expires_at,proof_received_at,event_id,deleted_at)")
+   .eq("kon_orders.event_id",event.id)
  ]);
  if(prods.error||orders.error)return fail("inventory_unavailable",500,origin);
  const current=new Date();
  const reserved:Record<string,number>={};
  (orders.data||[]).forEach((line:JsonValue)=>{
   const o=line.kon_orders as JsonValue|null;
-  if(!o||!["pending","verified","courtesy"].includes(String(o.status)))return;
+  if(!o||o.deleted_at||!["pending","verified","courtesy"].includes(String(o.status)))return;
   if(o.status==="pending"&&!o.proof_received_at&&new Date(String(o.expires_at))<current)return;
   reserved[String(line.product_id)]=(reserved[String(line.product_id)]||0)+Number(line.quantity||0);
  });
