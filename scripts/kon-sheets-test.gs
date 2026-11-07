@@ -112,7 +112,7 @@ function syncKonToSheet(){
       delete map[id];
     });
     (data.orders||[]).forEach(order=>{
-      if(!order.id)return;
+      if(!order.id||deleted.has(String(order.id)))return;
       let row=map[String(order.id)];
       if(!row){
         row=++finalRow;
