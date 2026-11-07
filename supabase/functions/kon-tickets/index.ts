@@ -370,7 +370,7 @@ async function sheetExport(req:Request,origin:string|null){
  const {data:event}=await db.from("kon_events").select("id").eq("slug",access.event_slug).single();
  if(!event)return fail("event_unavailable",404,origin);
  const {data,error}=await db.from("kon_orders")
-  .select("id,order_code,full_name,email,instagram,source,status,amount_expected_ars,amount_received_ars,admin_note,created_at,sheets_row_key,verified_at,kon_order_lines(quantity,kon_products(slug))")
+  .select("id,order_code,full_name,email,instagram,source,from_promoted_reel,status,deleted_at,amount_expected_ars,amount_received_ars,admin_note,created_at,sheets_row_key,verified_at,kon_order_lines(quantity,kon_products(slug))")
   .eq("event_id",event.id).in("source",["web","manual"])
   .order("created_at",{ascending:true}).limit(300);
  if(error)return fail("sync_unavailable",500,origin);
@@ -385,7 +385,7 @@ async function sheetExport(req:Request,origin:string|null){
   return {id:o.id,code:o.order_code,name:o.full_name,email:o.email,instagram:o.instagram,
    general:quantities.general,post:quantities.post,fanzine:quantities.fanzine,
    status:o.status,expected:o.amount_expected_ars,received:o.amount_received_ars,
-   note:o.admin_note,source:o.source,sheet_row_key:o.sheets_row_key,
+   note:o.admin_note,source:o.source,from_promoted_reel:o.from_promoted_reel===true,sheet_row_key:o.sheets_row_key,
    created_at:o.created_at,verified_at:o.verified_at};
  });
  return respond({ok:true,tab_title:access.tab_title,orders,deleted_order_ids:deletedOrderIds},200,origin);
