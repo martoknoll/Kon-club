@@ -23,6 +23,7 @@ const KON_SYNC = Object.freeze({
   sheetName: 'KON CLUB: (Alimme) - Hundreds of Beavers',
   header: ['ID_PEDIDO', 'EMAIL', 'ESTADO', 'ORIGEN', 'ULTIMO_CAMBIO', 'CODIGO'],
   reelColumn: 18, // R: atribución de publicidad; no alterar columnas históricas
+  firstTimeColumn: 19, // S: primera visita; no alterar columnas históricas
   states: ['PENDIENTE', 'VERIFICADO', 'RECHAZADO', 'CORTESIA', 'CANCELADO']
 });
 function konToken_(){
@@ -94,6 +95,12 @@ function konEnsureAdvertisingHeader_(sheet){
   if(current && current!=='LLEGO_POR_PUBLICIDAD')throw new Error('R1 contiene otro encabezado. No se sobrescribió.');
   if(!current){cell.setValue('LLEGO_POR_PUBLICIDAD');cell.setFontWeight('bold');}
 }
+function konEnsureFirstTimeHeader_(sheet){
+  const cell=sheet.getRange(1,KON_SYNC.firstTimeColumn);
+  const current=String(cell.getValue()||'').trim();
+  if(current&&current!=='ES_PRIMERA_VEZ')throw new Error('S1 ya tiene otro encabezado. No se sobrescribió.');
+  if(!current){cell.setValue('ES_PRIMERA_VEZ');cell.setFontWeight('bold');}
+}
 function konSafeText_(input){
   const s=String(input||'');
   // Prevent CSV/Sheets formula injection from buyer-provided text.
@@ -163,6 +170,7 @@ function syncKonToSheet(){
     if(data.tab_title!==KON_SYNC.sheetName)throw new Error('La pestaña configurada no coincide.');
     const sheet=konSheet_();
     konEnsureAdvertisingHeader_(sheet);
+    konEnsureFirstTimeHeader_(sheet);
     const last=Math.max(sheet.getLastRow(),2);
     const names=sheet.getRange(2,1,last-1,1).getValues();
     const storedIds=sheet.getRange(2,12,last-1,1).getValues();
@@ -181,7 +189,7 @@ function syncKonToSheet(){
       const origin=String(sheet.getRange(row,15).getValue()||'').trim().toUpperCase();
       if(origin!=='WEB')throw new Error('Fila '+row+' tiene ID dado de baja, pero origen distinto de WEB. Revisar manualmente.');
       sheet.getRange(row,1,1,6).clearContent();
-      sheet.getRange(row,12,1,7).clearContent();
+      sheet.getRange(row,12,1,8).clearContent();
       delete map[id];
     });
     (data.orders||[]).forEach(order=>{
@@ -202,6 +210,10 @@ function syncKonToSheet(){
       const advertisingCell=sheet.getRange(row,KON_SYNC.reelColumn);
       const advertisingValue=order.from_promoted_reel===true?'SÍ':'NO';
       if(advertisingCell.getValue()!==advertisingValue)advertisingCell.setValue(advertisingValue);
+      // Null: dato no disponible. No inventar una respuesta.
+      const firstTimeCell=sheet.getRange(row,KON_SYNC.firstTimeColumn);
+      const firstTimeValue=order.first_time===true?'SÍ':order.first_time===false?'NO':'';
+      if(firstTimeCell.getValue()!==firstTimeValue)firstTimeCell.setValue(firstTimeValue);
       if(order.sheet_row_key!==KON_SYNC.sheetName+':'+String(row)){
         konApi_('sync-ack',{order_id:order.id,row:row});
       }
