@@ -107,7 +107,7 @@ function syncKonToSheet(){
       const row=i+2;
       const origin=String(sheet.getRange(row,15).getValue()||'').trim().toUpperCase();
       if(origin!=='WEB')throw new Error('Fila '+row+' tiene ID dado de baja, pero origen distinto de WEB. Revisar manualmente.');
-      sheet.getRange(row,1,1,7).clearContent();
+      sheet.getRange(row,1,1,6).clearContent();
       sheet.getRange(row,12,1,7).clearContent();
       delete map[id];
     });
