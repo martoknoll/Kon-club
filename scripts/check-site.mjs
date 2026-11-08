@@ -22,12 +22,12 @@ for (const [key, entry] of Object.entries(config.editionDefaults)) {
         check(/^#[a-fA-F0-9]{6}$/.test(entry.palette[color]||''), `editionDefaults.${key}: falta color ${color}`);
 }
 const forbidden = new Set(['18','20','23','27','32B','35.B']);
-check(config.archiveCatalog.length === 15, 'El archivo debe tener 15 fechas del ciclo regular');
+check(config.archiveCatalog.length === 16, 'El archivo debe tener 16 fechas del ciclo regular');
 for (const [id,title,poster] of config.archiveCatalog) {
     check(!forbidden.has(String(id)), `No publicar carpeta ${id}`);
     check(!!config.assets[poster], `Archivo ${id} sin flyer: ${poster}`);
 }
-check(Object.keys(config.readerIssues).length === 15, 'La Fanzinoteca debe contener 15 publicaciones');
+check(Object.keys(config.readerIssues).length === 16, 'La Fanzinoteca debe contener 16 publicaciones');
 for (const [id,issue] of Object.entries(config.readerIssues)) {
     check(issue.pages.length === 8, `Fanzine ${id} debe tener 8 páginas`);
     issue.pages.forEach((page,index)=>media(page, `${id} página ${index+1}`));

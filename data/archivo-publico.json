@@ -2,6 +2,11 @@
   "description": "Referencia del catálogo público; la versión web actual usa también su configuración en js/site.js.",
   "regular": [
     {
+      "folder": 37,
+      "name": "Hundreds of Beavers",
+      "assetKey": "beavers"
+    },
+    {
       "folder": 36,
       "name": "Rocky Horror + La Casa Lobo",
       "assetKey": "halloween"
