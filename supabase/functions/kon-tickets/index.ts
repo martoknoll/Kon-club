@@ -299,7 +299,18 @@ async function approveOrder(req:Request,payload:JsonValue,origin:string|null){
   if(/already_reviewed/.test(error.message))return fail("already_reviewed",409,origin);
   return fail("unable_to_review",500,origin);
  }
- return respond({ok:true,status:data.status,unchanged:data.unchanged,email_dispatched:false},200,origin);
+ // Emails are dispatched by the independent Gmail worker, never by this request.
+ // Only future editions can queue them; nothing is backfilled for past screenings.
+ let emailState:string|null=null;
+ if(["verified","courtesy"].includes(String(data.status))){
+  const {data:mailRecord,error:mailError}=await db.from("kon_mail_outbox")
+   .select("state").eq("order_id",order.id).eq("kind",String(data.status)).maybeSingle();
+  if(mailError)console.error("mail_status_lookup_failed",mailError.code);
+  else emailState=mailRecord?.state||null;
+ }
+ return respond({ok:true,status:data.status,unchanged:data.unchanged,
+   email_dispatched:false,email_queued:["queued","sending","sent"].includes(String(emailState)),
+   email_state:emailState},200,origin);
 }
 async function deleteOrder(req:Request,payload:JsonValue,origin:string|null){
  const admin=await adminFromRequest(req);
@@ -548,10 +559,15 @@ async function mailNext(req:Request,origin:string|null){
  if(error){console.error("mail_claim_failed",error.code);return fail("mail_claim_unavailable",500,origin)}
  if(!claimed)return respond({ok:true,enabled:true,mail:null},200,origin);
  const {data:order,error:orderError}=await db.from("kon_orders")
-  .select("id,order_code,full_name,email,status,amount_expected_ars,amount_received_ars,kon_events(slug,title,starts_at,address,bank_alias),kon_order_lines(quantity,kon_products(label,slug))")
+  .select("id,order_code,full_name,email,status,deleted_at,amount_expected_ars,amount_received_ars,kon_events(slug,title,starts_at,address,bank_alias),kon_order_lines(quantity,kon_products(label,slug))")
   .eq("id",claimed.order_id).maybeSingle();
- if(orderError||!order||order.kon_events?.slug!=="halloween"||
+ if(orderError||!order||!order.kon_events||order.deleted_at||
+    ["halloween","halloween-staging","beavers"].includes(String(order.kon_events.slug))||
+    !order.kon_events.starts_at||
+    new Date(String(order.kon_events.starts_at)).getTime()<=Date.now()||
     String(order.email).toLowerCase()!==String(claimed.recipient).toLowerCase()||
+    (claimed.kind==="received"&&order.status!=="pending")||
+    (["verified","courtesy"].includes(String(claimed.kind))&&order.status!==claimed.kind)||
     (claimed.kind==="reminder"&&!["verified","courtesy"].includes(order.status))){
   console.error("mail_invalid_claim");
   return fail("invalid_mail_order",500,origin); // Held for manual reconciliation: never resend blindly.

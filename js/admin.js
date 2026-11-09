@@ -368,7 +368,11 @@ $("reviewForm").addEventListener("submit",async(event)=>{
  try{
   const result=await call("review",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
   closeReview();
-  notice(result.email_dispatched?"Pedido actualizado y correo enviado.":"Pedido actualizado. No se envió correo automático.");
+  if(["verified","courtesy"].includes(action)){
+   notice(result.email_queued
+    ? "Pedido aprobado. Confirmación en cola: el servicio de correo la enviará automáticamente."
+    : "Pedido actualizado. Esta edición no tiene un correo de confirmación programado.");
+  }else notice("Pedido actualizado.");
   await loadOrders();
  }catch(err){notice(err instanceof Error?err.message:"No se pudo actualizar el pedido.");}
  finally{busy=false;$("saveReview").disabled=false;}
