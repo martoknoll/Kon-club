@@ -930,3 +930,14 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
 #app[data-edition="beavers"] .kon-music-entrance{background-color:#302d29;color:var(--on);border-color:var(--secondary);background-image:radial-gradient(circle at 84% 20%,#94765c33,transparent 36%),radial-gradient(#f1e9da12 1px,transparent 1px)}
 #app[data-edition="beavers"] .kon-music-entrance .music-entry-kicker{color:var(--accent)}
 #app[data-edition="beavers"] .kon-music-entrance>a{background:var(--accent);color:var(--ink);border-color:var(--paper)}
+
+/* PRIMETIME × TONY — edición #38 · opciones sin checkout */
+.edition-price-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 22px;max-width:610px}
+.edition-price-grid[hidden]{display:none!important}
+.edition-price-item{min-width:0;border:2px solid var(--on);background:rgba(0,0,0,.15);padding:12px 11px 13px;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.edition-price-item span{font-size:11px;line-height:1.2;letter-spacing:.07em;font-weight:900}
+.edition-price-item strong{font:900 clamp(22px,2.35vw,34px)/1 Impact,'Arial Black',Arial,sans-serif;color:var(--accent);white-space:nowrap}
+.edition-price-item small{font-size:9px;line-height:1.2;font-weight:800;letter-spacing:.06em;opacity:.9}
+#app[data-edition="primetime"] .ticket-copy{max-width:255px;font-size:10px;line-height:1.4}
+@media(max-width:650px){.edition-price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.edition-price-item:last-child{grid-column:span 2}.edition-price-item strong{font-size:26px}}
+@media(min-width:651px) and (max-width:1160px){.edition-price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.edition-price-item:last-child{grid-column:span 2}}

@@ -71,7 +71,13 @@ async function publicEd(){
  const r=await fetch(api+"?view=public",{headers:{apikey:settings.publishableKey},cache:"no-store"});
  if(!r.ok)throw Error("CMS unavailable");
  const data=await r.json();if(!data.ok)throw Error("CMS returned error");
- if(data.active&&data.active.slug!=="halloween")apply(data.active,false); // La edición original sigue idéntica mientras Halloween esté activa.
+ if(data.active&&data.active.slug!=="halloween"){
+  // No dejar que un evento viejo del CMS reemplace al anunciado en la web.
+  const next=window.KON_CONFIG?.plannedEditions?.[window.KON_CONFIG.activeEdition];
+  const staticTime=Date.parse(next?.date||"");
+  const cmsTime=Date.parse(data.active.starts_at||"");
+  if(data.active.slug===window.KON_CONFIG.activeEdition||!Number.isFinite(staticTime)||(Number.isFinite(cmsTime)&&cmsTime>=staticTime))apply(data.active,false);
+}
  if(Array.isArray(data.archive)&&typeof window.KON_ADD_ARCHIVED==="function")window.KON_ADD_ARCHIVED(data.archive);
 }
 function loadSdk(){
