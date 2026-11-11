@@ -108,9 +108,18 @@ async function loadInventorySummary(){
   const clock=response.legacy_last_synced_at?
    date(response.legacy_last_synced_at):"AÚN NO RECIBIDA";
   const state=$("inventorySyncState");
-  state.textContent=response.legacy_fresh
+  state.textContent=response.web_only
+    ?"CUPOS CONTROLADOS EN SUPABASE · SIN FORMULARIO PARALELO"
+    :(response.legacy_fresh
     ?"SINCRONIZACIÓN ACTIVA · "+clock
-    :"SINCRONIZACIÓN PENDIENTE / ANTIGUA · "+clock;
+    :"SINCRONIZACIÓN PENDIENTE / ANTIGUA · "+clock);
+  if(response.web_only){
+    const room=el("article",null,"inventory-card");
+    block(room,"small","SALA / CAPACIDAD COMPARTIDA");
+    block(room,"strong",String(response.shared_room_remaining||0)+" LUGARES LIBRES");
+    block(room,"p","Las entradas individuales y dobles comparten un máximo de 100 asistentes, con 2 lugares de margen preventivo.");
+    target.appendChild(room);
+  }
   (response.products||[]).forEach(p=>{
    const card=el("article",null,"inventory-card");
    block(card,"small",p.label);
@@ -121,9 +130,9 @@ async function loadInventorySummary(){
    block(card,"p","Capacidad total: "+(p.capacity===null?"SIN CONFIGURAR":p.capacity));
    target.appendChild(card);
   });
-  if(!response.legacy_fresh||!response.inventory_configured){
+  if((!response.web_only&&!response.legacy_fresh)||!response.inventory_configured){
    const warning=el("p","CHECKOUT NUEVO BLOQUEADO · "+
-     (!response.legacy_fresh?"Actualizá la sincronización real de Sheets. ":"")+
+     (!response.web_only&&!response.legacy_fresh?"Actualizá la sincronización real de Sheets. ":"")+
      (!response.inventory_configured?"Falta establecer los cupos totales.":""),
     "inventory-warning");
    target.appendChild(warning);

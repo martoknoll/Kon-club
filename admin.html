@@ -9,12 +9,12 @@
 <link href="css/admin.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script src="data/supabase-public.js" defer></script>
-<script src="js/admin.js" defer></script>
+<script src="js/admin.js?v=20261111-primetime-cupos" defer></script>
 </head>
 <body>
 <header class="topbar"><a class="wordmark" href="index.html">KON CLUB <span>● PANEL</span></a><a class="back" href="index.html">← VOLVER A LA WEB</a></header>
 <main class="wrap">
-<div class="notice"><strong>PRUEBAS CONTROLADAS</strong> · Google Sheets está conectado. Los correos automáticos para asistentes siguen desactivados. Todo pago debe verificarse contra la cuenta bancaria.</div>
+<div class="notice"><strong>PRIMETIME × TONY</strong> · Reservas registradas en Supabase. Cada transferencia requiere comprobante y verificación bancaria. La pestaña de FECHAS está creada; el Apps Script debe apuntar a la nueva edición para sincronizar.</div>
 <div class="topcopy"><p class="kicker">ACCESO RESTRINGIDO / KON CLUB</p><h1>LA LISTA<br><em>DEL KON.</em></h1><p>Pedidos, comprobantes y verificaciones en un solo lugar.</p></div>
 <section id="signin" class="panel" aria-labelledby="signinTitle">
  <h2 id="signinTitle">ENTRAR AL PANEL.</h2>
@@ -34,7 +34,7 @@
    <p id="inventorySyncState" role="status">Consultando capacidad compartida...</p>
   </div>
   <div id="inventoryCards" class="inventory-grid" aria-live="polite"></div>
-  <p class="inventory-note">Las entradas anteriores se cuentan desde FECHAS y las nuevas desde Supabase. El registro en la planilla se conserva tal como estaba. Para publicar, también hay que confirmar la capacidad de cada categoría.</p>
+  <p class="inventory-note">Primetime y la doble función comparten el cupo de sala. Los pedidos web quedan registrados en Supabase y se incorporan a FECHAS cuando se actualiza el script de sincronización.</p>
  </section>
  <div class="filters"><label for="environmentFilter">AMBIENTE</label><select id="environmentFilter" aria-label="Ambiente"><option value="real">REAL · PRIMETIME × TONY</option><option value="test">PRUEBA · NO REAL</option></select><label for="statusFilter">MOSTRAR</label><select id="statusFilter"><option value="all">TODOS</option><option value="pending">PENDIENTES</option><option value="verified">VERIFICADOS</option><option value="rejected">RECHAZADOS</option><option value="courtesy">CORTESÍAS</option><option value="cancelled">CANCELADOS</option></select><span id="syncHint">Sincronización Sheets: pendiente de configurar</span></div>
  <p class="delete-help">Podés eliminar pedidos web que sean exclusivamente pruebas, incluso si los marcaste como verificados. El borrado requiere confirmar el código exacto y que no hubo transferencia real. El pedido dejará de ocupar cupos. Sheets lo marcará como CANCELADO con el script actual; para borrar la fila de la planilla es necesario instalar la versión nueva del script. Las inscripciones del formulario anterior se gestionan desde Sheets.</p>
