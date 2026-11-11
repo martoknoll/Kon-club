@@ -20,7 +20,7 @@
 const KON_SYNC = Object.freeze({
   api: 'https://ogrzuiwlyfobhtknjuzu.supabase.co/functions/v1/kon-tickets',
   spreadsheetId: '1DZ_yhLnzOVMHhBhsI_3x2QlLzcKcceDddyCjDDbGC7o',
-  sheetName: 'KON CLUB: (Alimme) - Hundreds of Beavers',
+  sheetName: 'KON CLUB: (Alimme) - Primetime & Tony',
   header: ['ID_PEDIDO', 'EMAIL', 'ESTADO', 'ORIGEN', 'ULTIMO_CAMBIO', 'CODIGO'],
   reelColumn: 18, // R: atribución de publicidad; no alterar columnas históricas
   firstTimeColumn: 19, // S: primera visita; no alterar columnas históricas

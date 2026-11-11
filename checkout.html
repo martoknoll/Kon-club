@@ -10,10 +10,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
   <link href="css/checkout.css?v=20261026-beavers-earth" rel="stylesheet">
-  <script src="data/site-config.js?v=20261026-beavers-earth" defer></script>
-  <script src="data/checkout-config.js?v=20261026-beavers-checkout" defer></script>
+  <script src="data/site-config.js?v=20261111-primetime-ticket" defer></script>
+  <script src="data/checkout-config.js?v=20261111-primetime-ticket" defer></script>
   <script src="data/supabase-public.js" defer></script>
-  <script src="js/checkout.js?v=20261026-beavers-checkout" defer></script>
+  <script src="js/checkout.js?v=20261111-primetime-ticket" defer></script>
 </head>
 <body>
   <div class="preview-banner" id="demoBanner" role="status">ESPERÁ A QUE CONFIRMEMOS LA DISPONIBILIDAD. TRANSFERÍ ÚNICAMENTE DESPUÉS DE REGISTRAR TU PEDIDO.</div>
@@ -30,8 +30,8 @@
     <div class="lead">
       <p class="kicker">KON CLUB / ENTRADAS</p>
       <h1>VENÍ<br><em>AL KON.</em></h1>
-      <p>HUNDREDS OF BEAVERS · <strong>DOMINGO 8 DE NOVIEMBRE · 18 A 23 HS</strong>.</p>
-      <p id="checkoutIntro">Elegí tus entradas para Hundreds of Beavers.</p>
+      <p>PRIMETIME × TONY · <strong>DOMINGO 22 DE NOVIEMBRE · 17 A 23 HS</strong>.</p>
+      <p id="checkoutIntro">Elegí Primetime, la doble función o tu fanzine.</p>
       <p class="subtle" id="checkoutInstructions">Estamos consultando los cupos. No transfieras hasta recibir tu código de pedido.</p>
       <p class="subtle" id="apiStatus" role="status">CARGANDO CATÁLOGO DE ENTRADAS...</p>
     </div>
@@ -45,7 +45,7 @@
         </nav>
 
         <section class="step" data-step="1" aria-labelledby="chooseHeading">
-          <div class="heading"><span>01 / TU PLAN</span><h2 id="chooseHeading">¿QUÉ LLEVAMOS?</h2><p>Podés combinar entradas generales, post-película y fanzines.</p></div>
+          <div class="heading"><span>01 / TU PLAN</span><h2 id="chooseHeading">¿QUÉ LLEVAMOS?</h2><p>Podés combinar entradas de Primetime, doble función y fanzines.</p></div>
           <div id="products" class="products"></div>
           <p class="hint">Las cantidades y los precios se ajustan para cada edición. La disponibilidad definitiva se confirma después del pago.</p>
           <div class="actions"><button type="button" class="primary" id="continueToPay">SEGUIR CON EL PEDIDO <span>→</span></button></div>
@@ -106,7 +106,7 @@
           <h3>TU PEDIDO</h3>
           <div id="summaryLines" aria-live="polite"></div>
           <div class="summary-total"><span>TOTAL</span><strong id="summaryTotal">$0</strong></div>
-          <p class="summary-foot" id="summaryFoot">Los cupos no se reservan al completar la demo.</p>
+          <p class="summary-foot" id="summaryFoot">Los cupos se reservan temporalmente al registrar el pedido.</p>
         </div>
       </aside>
     </div>
