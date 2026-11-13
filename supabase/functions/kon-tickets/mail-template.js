@@ -1,17 +1,41 @@
 /**
- * KON CLUB — Email editorial / entrada de cine.
- * Plantillas compatibles con Gmail: tablas de presentación y estilos en línea.
- * El flyer de Halloween es el arte original publicado en la web del club.
- * NO se utilizan imágenes creadas ni pósters de las películas por separado.
+ * KON CLUB — Email adaptado a cada edición.
+ * Paleta, flyer y fecha sincronizados desde la misma configuración de la web.
+ * Respaldo local para no interrumpir los envíos si la web no está disponible.
  */
-/** Mantener en sincronía con data/site-config.js, assets.halloween.
- * Debe ser una URL pública y directa a la imagen, NO un enlace privado de Drive.
- */
-// Archivo original del afiche fechado 25/10. No mostrarlo en mails de otro día.
-// Cuando se apruebe un flyer nuevo, reemplazar aquí la URL y la fecha.
-const KON_EVENT_FLYERS={
- halloween:{url:"https://kon-club.vercel.app/public/media/df27d971f6912f.webp",date:"2026-10-25"}
-};
+const BRANDING_URL="https://kon-club.vercel.app/data/edition-branding.js";
+const FALLBACK_BRANDING={"primetime":{"date":"2026-11-22","flyer":"public/media/primetime-tony-2026-11-22.jpg","palette":{"bg":"#092630","on":"#fffaf3","paper":"#d6f4ea","ink":"#08232b","accent":"#6dd8ce","secondary":"#f47a25"}},"beavers":{"date":"2026-11-08","flyer":"public/media/beavers-2026-11-08.webp","palette":{"bg":"#282725","on":"#f1e9da","paper":"#ded6c8","ink":"#29231e","accent":"#b59473","secondary":"#79736b"}},"halloween":{"date":"2026-10-25","flyer":"public/media/df27d971f6912f.webp","palette":{"bg":"#230519","on":"#fff4e6","paper":"#f4dec4","ink":"#291021","accent":"#f26c37","secondary":"#d64350"}}};
+let brandingCache=null,brandingAt=0;
+async function loadBranding(){
+ if(brandingCache&&Date.now()-brandingAt<60000)return brandingCache;
+ try{
+  const response=await fetch(BRANDING_URL,{cache:"no-store",redirect:"error",signal:AbortSignal.timeout(2500)});
+  if(!response.ok)throw new Error("branding_http_error");
+  const source=await response.text();
+  if(source.length>25000)throw new Error("branding_too_large");
+  const match=/^\s*(?:\/\/[^\n]*\n\s*)*window\.KON_BRANDING\s*=\s*(\{[\s\S]*\})\s*;\s*$/.exec(source);
+  if(!match)throw new Error("branding_format");
+  const data=JSON.parse(match[1]);
+  if(!data||typeof data!=="object"||Array.isArray(data))throw new Error("branding_invalid");
+  brandingCache={...FALLBACK_BRANDING,...data};
+ }catch(_error){brandingCache=FALLBACK_BRANDING}
+ brandingAt=Date.now();
+ return brandingCache;
+}
+async function resolveBranding(input){
+ const all=await loadBranding();
+ const fallback=FALLBACK_BRANDING[input.event_slug]||FALLBACK_BRANDING.primetime;
+ const current=all[input.event_slug]||fallback;
+ const palette={};
+ for(const key of ["bg","on","paper","ink","accent","secondary"]){
+  const v=current?.palette?.[key];
+  palette[key]=typeof v==="string"&&/^#[0-9a-f]{6}$/i.test(v)?v:fallback.palette[key];
+ }
+ const asset=current?.date===eventLocalISODate(input.starts_at)?current.flyer:"";
+ const flyer=typeof asset==="string"&&/^public\/media\/[a-z0-9_./-]+\.(?:jpg|jpeg|webp|png)$/i.test(asset)
+  && !asset.includes("..")?"https://kon-club.vercel.app/"+asset:"";
+ return {palette,flyer};
+}
 function eventLocalISODate(value){
  if(!value)return "";
  const date=new Date(value);
@@ -22,7 +46,6 @@ function eventLocalISODate(value){
  const get=type=>parts.find(p=>p.type===type)?.value||"";
  return get("year")+"-"+get("month")+"-"+get("day");
 }
-const BG="#F3E9DA",INK="#230519",ORANGE="#F26C37",CREAM="#FFF4E6",MUTED="#806A70";
 function esc(value){
  return String(value??"").replace(/[&<>"']/g,x=>({
   "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
@@ -48,22 +71,23 @@ function dateParts(value){
 function td(text,style,extra=""){
  return '<td '+extra+' style="'+style+'">'+text+'</td>';
 }
-function paragraph(text,extraStyle=""){
+function paragraph(text,extraStyle="",palette){
+ const INK=palette.ink;
  return '<p style="margin:0 0 12px;color:'+INK+';font:16px/1.6 Arial,Helvetica,sans-serif;'+extraStyle+'">'+esc(text)+'</p>';
 }
-function ticketInfo(label,value){
+function ticketInfo(label,value,palette){
+ const INK=palette.ink,MUTED=palette.bg;
  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse">'+
  '<tr>'+td(esc(label),'font:700 11px/1.5 Arial,sans-serif;letter-spacing:2px;color:'+MUTED+';padding:0 0 5px')+'</tr>'+
  '<tr>'+td(esc(value),'font:700 17px/1.4 Arial,sans-serif;color:'+INK+';padding:0 0 14px')+'</tr></table>';
 }
-export function formatKonMail(input){
+export async function formatKonMail(input){
+ const {palette,flyer}=await resolveBranding(input);
+ const BG=palette.paper,INK=palette.ink,ORANGE=palette.accent,CREAM=palette.on,MUTED=palette.bg;
  const dates=dateParts(input.starts_at);
  const firstName=input.name.trim().split(/\s+/)[0]||"";
  const eventTitle=input.event_title||"Kon Club";
  const items=input.items.filter(x=>x.quantity>0);
- const asset=KON_EVENT_FLYERS[input.event_slug];
- // Un afiche con una fecha anterior nunca debe salir en un recordatorio nuevo.
- const flyer=asset&&asset.date===eventLocalISODate(input.starts_at)?asset.url:"";
  const confirmed=input.kind==="verified"||input.kind==="courtesy"||input.kind==="reminder";
  let subject="",eyebrow="",headline="",intro="",status="",statusColor="",note="";
  if(input.kind==="received"){
@@ -99,7 +123,7 @@ export function formatKonMail(input){
  let productRows="";
  for(const item of items){
   productRows+='<tr>'+
-   td(esc(String(item.quantity)+" × "+item.label),'padding:10px 0;border-bottom:1px solid #E6D8CA;color:'+INK+';font:15px/1.4 Arial,sans-serif;')+
+   td(esc(String(item.quantity)+" × "+item.label),'padding:10px 0;border-bottom:1px solid '+palette.paper+';color:'+INK+';font:15px/1.4 Arial,sans-serif;')+
    '</tr>';
  }
  const flyerMarkup=flyer
@@ -121,10 +145,10 @@ export function formatKonMail(input){
     '<p style="margin:0 0 16px;font:800 31px/1.1 Arial,sans-serif;color:'+INK+'">'+esc(money(input.total))+'</p>'+
     '<p style="margin:0 0 5px;font:700 11px/1.5 Arial,sans-serif;color:'+MUTED+';letter-spacing:2px">ALIAS PARA TRANSFERIR</p>'+
     '<p style="margin:0;font:800 24px/1.3 Arial,sans-serif;color:'+INK+';overflow-wrap:anywhere">'+esc(input.alias)+'</p>',
-    'background:#F4E4C8;padding:21px 22px;border-left:5px solid '+ORANGE+';')+'</tr>';
+    'background:'+palette.paper+';padding:21px 22px;border-left:5px solid '+ORANGE+';')+'</tr>';
  }else if(input.kind==="verified"){
   payMarkup='<tr>'+td('<p style="margin:0;font:700 13px/1.6 Arial,sans-serif;color:'+INK+'">PAGO VERIFICADO · '+esc(money(input.received))+'</p>',
-    'background:#EAF1E3;padding:14px 20px;border-left:5px solid #4E7A45;')+'</tr>';
+    'background:'+palette.paper+';padding:14px 20px;border-left:5px solid #4E7A45;')+'</tr>';
  }
  const mapHref=input.address
   ?"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(input.address)
@@ -146,7 +170,7 @@ export function formatKonMail(input){
      flyerMarkup+
      '<tr>'+td(
        '<p style="margin:0 0 18px;font:15px/1.55 Arial,sans-serif;color:'+INK+'">Hola '+esc(firstName)+', '+esc(intro)+'</p>'+
-       '<table width="100%" role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border-top:2px dashed #CBAB99;border-bottom:2px dashed #CBAB99">'+
+       '<table width="100%" role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border-top:2px dashed '+palette.accent+';border-bottom:2px dashed '+palette.accent+'">'+
        '<tr>'+td(
         '<p style="margin:0 0 9px;font:700 11px Arial,sans-serif;color:'+MUTED+';letter-spacing:2px">TU CÓDIGO DE ENTRADA</p>'+
         '<p style="margin:0;font:800 28px/1.35 Arial,sans-serif;color:'+INK+';letter-spacing:1px;overflow-wrap:anywhere">'+safeCode+'</p>',
@@ -154,7 +178,7 @@ export function formatKonMail(input){
        'padding:2px 26px 25px;')+'</tr>'+
      '<tr>'+td(
        dateCard+
-       ticketInfo("DÓNDE NOS VEMOS",input.address||"Dirección por confirmar")+
+       ticketInfo("DÓNDE NOS VEMOS",input.address||"Dirección por confirmar",palette)+
        mapMarkup+
        '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;margin-top:24px">'+
        '<tr>'+td('TU ENTRADA / PEDIDO',
@@ -163,7 +187,7 @@ export function formatKonMail(input){
        'padding:0 26px 24px;')+'</tr>'+
      (payMarkup?'<tr>'+td('<table width="100%" role="presentation" cellpadding="0" cellspacing="0">'+payMarkup+'</table>',
        'padding:0 26px 24px;')+'</tr>':'')+
-     '<tr>'+td(paragraph(note,'font-size:13px;color:'+MUTED+';'),
+     '<tr>'+td(paragraph(note,'font-size:13px;color:'+MUTED+';',palette),
        'padding:0 26px 16px;')+'</tr>'+
    '</table>';
  const html=
@@ -184,13 +208,13 @@ export function formatKonMail(input){
   '<h1 style="margin:0 0 16px;color:'+CREAM+';font:900 36px/1.04 Arial,sans-serif;letter-spacing:-1px">'+esc(headline)+'</h1>'+
   '<span style="display:inline-block;background:'+statusColor+';color:'+INK+';padding:7px 11px;font:800 11px/1.2 Arial,sans-serif;letter-spacing:1.3px">'+esc(status)+'</span>',
      'padding:4px 24px 26px;')+'</tr></table>',
-  'padding:0;background:'+INK+';border-top:7px solid '+ORANGE+';')+'</tr>'+
+  'padding:0;background:'+palette.bg+';border-top:7px solid '+ORANGE+';')+'</tr>'+
  '<tr>'+td(bodyContent,'padding:0;')+'</tr>'+
  '<tr>'+td(
   '<p style="margin:0 0 8px;color:'+CREAM+';font:800 21px/1.2 Arial,sans-serif">NOS VEMOS EN EL KON.</p>'+
-  '<p style="margin:0 0 8px;color:#DDC9C5;font:13px/1.5 Arial,sans-serif">¿Tenés alguna duda? Respondé este correo.</p>'+
+  '<p style="margin:0 0 8px;color:'+CREAM+';font:13px/1.5 Arial,sans-serif">¿Tenés alguna duda? Respondé este correo.</p>'+
   '<p style="margin:0;color:'+ORANGE+';font:700 11px/1.5 Arial,sans-serif;letter-spacing:2px">KON CLUB · EL CINE ES LA EXCUSA</p>',
-  'background:'+INK+';padding:24px 26px 28px;')+'</tr>'+
+  'background:'+palette.bg+';padding:24px 26px 28px;')+'</tr>'+
  '</table>',
  'padding:22px 12px 32px;')+'</tr></table>'+
  '</body></html>';
