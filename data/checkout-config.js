@@ -13,8 +13,9 @@ window.KON_CHECKOUT = {
   alias: "KON.CLUB.GL",
   proofMaxBytes: 10 * 1024 * 1024,
   products: [
-    { id:"general", title:"PRIMETIME", subtitle:"Entrada individual · Primetime", price:9000, max:8, unit:"entrada" },
-    { id:"post", title:"TONY + PRIMETIME", subtitle:"Doble función · ambas películas", price:12500, max:6, unit:"entrada" },
+    { id:"general", title:"PRIMETIME", subtitle:"Entradas agotadas", price:9000, max:0, unit:"entrada", soldOut:true },
+    { id:"post", title:"TONY + PRIMETIME", subtitle:"Entradas agotadas", price:12500, max:0, unit:"entrada", soldOut:true },
+    { id:"tony", title:"TONY", subtitle:"Entrada individual · Tony", price:9000, max:6, unit:"entrada" },
     { id:"fanzine", title:"FANZINE FÍSICO", subtitle:"Para retirar el día del evento", price:4000, max:5, unit:"ejemplar" }
   ]
 };
