@@ -41,12 +41,13 @@ function button(text,ariaLabel,handler){
  b.addEventListener('click',handler);return b;
 }
 function productRow(product){
- const item=document.createElement('div');item.className='product';
+ const item=document.createElement('div');item.className='product'+(product.soldOut?' is-sold-out':'');
  const info=document.createElement('div');info.className='product-info';
  const name=document.createElement('h3');name.textContent=product.title;
  const subtitle=document.createElement('p');subtitle.textContent=product.subtitle;
  const price=document.createElement('strong');price.textContent=money(product.price);
  info.append(name,subtitle,price);
+ if(product.soldOut){ const badge=document.createElement('span');badge.className='sold-out-badge';badge.textContent='AGOTADAS'; info.appendChild(badge); item.append(info);return item; }
  const counter=document.createElement('div');counter.className='counter';
  const value=document.createElement('output');value.textContent='0';value.setAttribute('aria-label','Cantidad de '+product.title);
  const minus=button('−','Quitar '+product.unit+' de '+product.title,()=>adjust(-1));
@@ -105,7 +106,7 @@ async function loadCatalog(){
    p.title=real.label;
    p.subtitle=real.subtitle||p.subtitle;
    p.price=Number(real.price_ars);
-   p.max=Number(real.per_order_max);
+   p.max=p.soldOut?0:Number(real.per_order_max);
   });
   items.replaceChildren();
   cfg.products.forEach(p=>items.appendChild(productRow(p)));
@@ -115,7 +116,7 @@ async function loadCatalog(){
    byId('demoBanner').hidden=true;
    byId('payHeading').textContent='TRANSFERÍ Y LISTO.';
    byId('payExplanation').textContent='Tu pedido ya fue registrado. Transferí el importe exacto y subí el comprobante para que lo revisemos.';
-   byId('checkoutIntro').textContent='Elegí tus entradas, completá tus datos y aboná por transferencia. Tu entrada se confirma cuando el equipo verifica el pago.';
+   byId('checkoutIntro').textContent='Primetime y la doble función están agotadas. Comprá tu entrada para Tony y aboná por transferencia. Tu entrada se confirma cuando verificamos el pago.';
    byId('checkoutInstructions').textContent='Los cupos se reservan temporalmente al registrar el pedido. Transferí solo después de recibir tu código de pedido.';
    byId('summaryFoot').textContent='La compra queda pendiente hasta que verifiquemos la acreditación bancaria.';
    byId('copyAlias').disabled=false;
