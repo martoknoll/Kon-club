@@ -23,3 +23,8 @@ footer{text-align:center;padding:23px;background:var(--accent);color:var(--ink);
 
 /* Campo condicional del formulario histórico de Kon Club. */
 .form-fields select{background:#fffaf2;border:2px solid #3410218c;border-radius:0;padding:13px;color:var(--ink);width:100%;font:inherit}
+
+/* Disponibilidad agotada — edición Tony */
+.product.is-sold-out{opacity:.7;background:repeating-linear-gradient(-45deg,transparent 0,transparent 16px,rgba(0,0,0,.035) 16px,rgba(0,0,0,.035) 18px)}
+.product.is-sold-out .product-info>strong{text-decoration:line-through;opacity:.6}
+.sold-out-badge{display:inline-block;margin-top:10px;padding:6px 10px;border:2px solid currentColor;font-size:12px;font-weight:900;letter-spacing:.12em}
