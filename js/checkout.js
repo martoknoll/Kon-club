@@ -117,7 +117,7 @@ async function loadCatalog(){
    byId('payHeading').textContent='TRANSFERÍ Y LISTO.';
    byId('payExplanation').textContent='Tu pedido ya fue registrado. Transferí el importe exacto y subí el comprobante para que lo revisemos.';
    byId('checkoutIntro').textContent='Primetime y la doble función están agotadas. Comprá tu entrada para Tony y aboná por transferencia. Tu entrada se confirma cuando verificamos el pago.';
-   byId('checkoutInstructions').textContent='Los cupos se reservan temporalmente al registrar el pedido. Transferí solo después de recibir tu código de pedido.';
+   byId('checkoutInstructions').textContent='Transferí solo después de recibir tu código de pedido.';
    byId('summaryFoot').textContent='La compra queda pendiente hasta que verifiquemos la acreditación bancaria.';
    byId('copyAlias').disabled=false;
    byId('paymentNotice').innerHTML='<strong>IMPORTANTE:</strong> Realizá la transferencia desde tu banco o billetera y adjuntá el comprobante. Kon Club verificará la acreditación manualmente.';
