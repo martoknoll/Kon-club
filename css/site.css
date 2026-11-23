@@ -1147,3 +1147,10 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
     display:none!important;
   }
 }
+
+/* 06/12 desktop: alinear los logos con el borde izquierdo del contenido. */
+@media(min-width:761px){
+  #app[data-edition="snatch-trainspotting"] .hero-title-logos{
+    justify-content:flex-start;
+  }
+}
