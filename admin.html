@@ -9,12 +9,12 @@
 <link href="css/admin.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script src="data/supabase-public.js" defer></script>
-<script src="js/admin.js?v=20261111-primetime-cupos" defer></script>
+<script src="js/admin.js?v=20261123-december-admin" defer></script>
 </head>
 <body>
 <header class="topbar"><a class="wordmark" href="index.html">KON CLUB <span>● PANEL</span></a><a class="back" href="index.html">← VOLVER A LA WEB</a></header>
 <main class="wrap">
-<div class="notice"><strong>PRIMETIME × TONY</strong> · Reservas registradas en Supabase. Cada transferencia requiere comprobante y verificación bancaria. La pestaña de FECHAS está creada; el Apps Script debe apuntar a la nueva edición para sincronizar.</div>
+<div class="notice"><strong>SNATCH × TRAINSPOTTING · 06/12</strong> · Revisá las transferencias desde este panel. Podés aprobar pagos sin comprobante cuando hayas verificado la acreditación bancaria. Los pedidos se sincronizan con la pestaña de esta edición en FECHAS.</div>
 <div class="topcopy"><p class="kicker">ACCESO RESTRINGIDO / KON CLUB</p><h1>LA LISTA<br><em>DEL KON.</em></h1><p>Pedidos, comprobantes y verificaciones en un solo lugar.</p></div>
 <section id="signin" class="panel" aria-labelledby="signinTitle">
  <h2 id="signinTitle">ENTRAR AL PANEL.</h2>
@@ -25,18 +25,18 @@
  <p class="explain"><strong>¿El enlace del correo te manda a una página inexistente?</strong> Antes de solicitar otro, configurá en <a href="https://supabase.com/dashboard/project/ogrzuiwlyfobhtknjuzu/auth/url-configuration" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;font-weight:700">Supabase → Authentication → URL Configuration</a> la dirección de esta página en <strong>Redirect URLs</strong> y el dominio oficial en <strong>Site URL</strong>. Después solicitá un enlace nuevo.</p>
 </section>
 <section id="dashboard" hidden>
- <div class="toolbar"><div><p class="kicker" id="adminContext">PEDIDOS REALES · PRIMETIME × TONY</p><h2>INSCRIPCIONES.</h2></div><div class="toolbar-actions"><button id="manageEditions" type="button">✳ GESTIONAR FUNCIONES</button><button id="openTestCheckout" type="button">🧪 CHECKOUT PRUEBA</button><button id="pairMail" type="button">✉ CONFIGURAR EMAIL</button><button id="pairTestSheets" type="button">🧪 PROBAR SHEETS</button><button id="pairSheets" type="button">⧉ CONECTAR SHEETS</button><button id="refresh" type="button">↻ ACTUALIZAR</button><button id="signout" type="button">SALIR</button></div></div>
+ <div class="toolbar"><div><p class="kicker" id="adminContext">PEDIDOS REALES · SNATCH × TRAINSPOTTING</p><h2>INSCRIPCIONES.</h2></div><div class="toolbar-actions"><button id="manageEditions" type="button">✳ GESTIONAR FUNCIONES</button><button id="openTestCheckout" type="button">🧪 CHECKOUT PRUEBA</button><button id="pairMail" type="button">✉ CONFIGURAR EMAIL</button><button id="pairTestSheets" type="button">🧪 PROBAR SHEETS</button><button id="pairSheets" type="button">⧉ CONECTAR SHEETS</button><button id="refresh" type="button">↻ ACTUALIZAR</button><button id="signout" type="button">SALIR</button></div></div>
  <div class="stats"><div><small>TOTAL PEDIDOS</small><strong id="statTotal">0</strong></div><div><small>PENDIENTES</small><strong id="statPending">0</strong></div><div><small>APROBADOS</small><strong id="statVerified">0</strong></div><div><small>RECAUDACIÓN VERIFICADA</small><strong id="statRevenue">$0</strong></div></div>
  <section class="inventory-board" aria-labelledby="inventoryTitle">
   <div class="inventory-heading">
-   <div><p class="kicker">FORMULARIO ANTERIOR + CHECKOUT NUEVO</p>
+   <div><p class="kicker">CHECKOUT WEB · SUPABASE</p>
    <h2 id="inventoryTitle">CONTROL DE CUPOS.</h2></div>
    <p id="inventorySyncState" role="status">Consultando capacidad compartida...</p>
   </div>
   <div id="inventoryCards" class="inventory-grid" aria-live="polite"></div>
-  <p class="inventory-note">Primetime y la doble función comparten el cupo de sala. Los pedidos web quedan registrados en Supabase y se incorporan a FECHAS cuando se actualiza el script de sincronización.</p>
+  <p class="inventory-note">La doble función incluye ambas películas y el post; el inventario descuenta cupos compartidos automáticamente. El fanzine tiene 20 unidades.</p>
  </section>
- <div class="filters"><label for="environmentFilter">AMBIENTE</label><select id="environmentFilter" aria-label="Ambiente"><option value="real">REAL · PRIMETIME × TONY</option><option value="test">PRUEBA · NO REAL</option></select><label for="statusFilter">MOSTRAR</label><select id="statusFilter"><option value="all">TODOS</option><option value="pending">PENDIENTES</option><option value="verified">VERIFICADOS</option><option value="rejected">RECHAZADOS</option><option value="courtesy">CORTESÍAS</option><option value="cancelled">CANCELADOS</option></select><span id="syncHint">Sincronización Sheets: pendiente de configurar</span></div>
+ <div class="filters"><label for="eventFilter">EDICIÓN</label><select id="eventFilter" aria-label="Edición"><option value="snatch-trainspotting">06/12 · SNATCH + TRAINSPOTTING</option><option value="primetime">22/11 · PRIMETIME + TONY</option></select><label for="environmentFilter">AMBIENTE</label><select id="environmentFilter" aria-label="Ambiente"><option value="real">REAL · PEDIDOS WEB</option><option value="test">PRUEBA · NO REAL</option></select><label for="statusFilter">MOSTRAR</label><select id="statusFilter"><option value="all">TODOS</option><option value="pending">PENDIENTES</option><option value="verified">VERIFICADOS</option><option value="rejected">RECHAZADOS</option><option value="courtesy">CORTESÍAS</option><option value="cancelled">CANCELADOS</option></select><span id="syncHint">Sincronización Sheets: pendiente de configurar</span></div>
  <p class="delete-help">Podés eliminar pedidos web que sean exclusivamente pruebas, incluso si los marcaste como verificados. El borrado requiere confirmar el código exacto y que no hubo transferencia real. El pedido dejará de ocupar cupos. Sheets lo marcará como CANCELADO con el script actual; para borrar la fila de la planilla es necesario instalar la versión nueva del script. Las inscripciones del formulario anterior se gestionan desde Sheets.</p>
  <div id="orders" class="order-list" aria-live="polite"></div>
  <section class="planned-section" aria-labelledby="plannedTitle">
@@ -45,7 +45,7 @@
   <div id="plannedDates" class="planned-grid" aria-live="polite"><p class="explain">Cargando fechas...</p></div>
   <p class="planned-note" id="plannedConflict" hidden></p>
  </section>
- <p class="explain">Los pedidos web se sincronizan con Google Sheets. Los correos automáticos todavía requieren autorizar la cuenta de Gmail y completar una prueba antes de habilitar el envío a compradores.</p>
+ <p class="explain">Los pedidos web se sincronizan con Google Sheets. Los correos de confirmación se procesan desde el servicio conectado de Kon Club. Aprobá solo después de comprobar la acreditación bancaria.</p>
 </section>
 <dialog id="deleteDialog" aria-labelledby="deleteTitle">
   <div class="dialog-head"><div><small>KON CLUB / ELIMINACIÓN CONTROLADA</small><h2 id="deleteTitle">ELIMINAR RESERVA</h2></div><button type="button" id="closeDelete" aria-label="Cerrar">×</button></div>
