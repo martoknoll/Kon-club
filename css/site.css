@@ -1154,3 +1154,8 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
     justify-content:flex-start;
   }
 }
+
+/* Mobile 06/12: evitar repetir títulos que ya están en los pósters. */
+@media(max-width:760px){
+  #app[data-edition="snatch-trainspotting"] .hero-title-logos{display:none!important}
+}
