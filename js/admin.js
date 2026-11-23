@@ -11,6 +11,10 @@ const client=authLib.createClient(config.url,config.publishableKey,{auth:{persis
 let session=null;
 let orders=[];
 $("environmentFilter").value=new URL(window.location.href).searchParams.get("environment")==="test"?"test":"real";
+const EDITION_LABELS={"snatch-trainspotting":"SNATCH × TRAINSPOTTING · 06/12",primetime:"PRIMETIME × TONY · 22/11"};
+const currentEdition=()=>String($("eventFilter").value||"snatch-trainspotting");
+const editionQuery=()=>"?event="+encodeURIComponent(currentEdition());
+$("eventFilter").value=new URL(location.href).searchParams.get("event")==="primetime"?"primetime":"snatch-trainspotting";
 let selection=null;
 let deleteSelection=null;
 let busy=false;
@@ -103,7 +107,7 @@ async function loadInventorySummary(){
  const target=$("inventoryCards");
  if(!target)return;
  try{
-  const response=await call("inventory-summary");
+  const response=await call("inventory-summary"+editionQuery());
   target.replaceChildren();
   const clock=response.legacy_last_synced_at?
    date(response.legacy_last_synced_at):"AÚN NO RECIBIDA";
@@ -113,7 +117,7 @@ async function loadInventorySummary(){
     :(response.legacy_fresh
     ?"SINCRONIZACIÓN ACTIVA · "+clock
     :"SINCRONIZACIÓN PENDIENTE / ANTIGUA · "+clock);
-  if(response.web_only){
+  if(response.web_only&&currentEdition()==="primetime"){
     const room=el("article",null,"inventory-card");
     block(room,"small","SALA / CAPACIDAD COMPARTIDA");
     block(room,"strong",String(response.shared_room_remaining||0)+" LUGARES LIBRES");
@@ -147,7 +151,7 @@ async function loadInventorySummary(){
 async function loadOrders(){
  $("orders").replaceChildren(el("p","Cargando pedidos...","empty"));
  try{
-  const data=await call("orders?environment="+encodeURIComponent($("environmentFilter").value));
+  const data=await call("orders?environment="+encodeURIComponent($("environmentFilter").value)+"&event="+encodeURIComponent(currentEdition()));
   orders=Array.isArray(data.orders)?data.orders:[];
   $("signin").hidden=true;
   $("dashboard").hidden=false;
@@ -214,12 +218,13 @@ $("refresh").addEventListener("click",()=>loadOrders());
 $("openTestCheckout").addEventListener("click",()=>window.location.assign("./checkout-test.html"));
 $("statusFilter").addEventListener("change",draw);
 $("environmentFilter").addEventListener("change",()=>{ $("statusFilter").value="all"; loadOrders(); });
+$("eventFilter").addEventListener("change",()=>{ $("statusFilter").value="all";history.replaceState(null,"",location.pathname+"?event="+encodeURIComponent(currentEdition()));loadOrders(); });
 function block(parent,tag,text,cls){
  const e=el(tag,text,cls);parent.append(e);return e;
 }
 function draw(){
  const isTest=$("environmentFilter").value==="test";
- $("adminContext").textContent=isTest?"MODO PRUEBA · PEDIDOS FICTICIOS":"PEDIDOS REALES · HALLOWEEN";
+ $("adminContext").textContent=isTest?"MODO PRUEBA · PEDIDOS FICTICIOS":"PEDIDOS REALES · "+EDITION_LABELS[currentEdition()];
  $("syncHint").textContent=isTest?"Sincronización aislada: solo la copia de prueba":"Sincronización con Kon Club: FECHAS";
  const shown=orders.filter(o=>$("statusFilter").value==="all"||o.status===$("statusFilter").value);
  $("statTotal").textContent=String(orders.length);
@@ -309,7 +314,7 @@ $("confirmDelete").addEventListener("click",async()=>{
  try{
   const response=await call("delete-order",{method:"POST",headers:{"Content-Type":"application/json"},
    body:JSON.stringify({
-    order_id:target.id,environment:$("environmentFilter").value,
+    order_id:target.id,environment:$("environmentFilter").value,event:currentEdition(),
     confirmation:true,reason:"test_record",confirm_code:target.order_code,
     confirm_no_real_payment:true
    })});
@@ -321,7 +326,7 @@ $("confirmDelete").addEventListener("click",async()=>{
 });
 async function openProof(id){
  try{
-  const response=await call("proof-link?order_id="+encodeURIComponent(id)+"&environment="+encodeURIComponent($("environmentFilter").value));
+  const response=await call("proof-link?order_id="+encodeURIComponent(id)+"&environment="+encodeURIComponent($("environmentFilter").value)+"&event="+encodeURIComponent(currentEdition()));
   const parsed=new URL(response.url);
   if(parsed.protocol!=="https:"||parsed.hostname!==new URL(config.url).hostname)throw new Error("URL del comprobante no válida.");
   window.open(response.url,"_blank","noopener,noreferrer");
@@ -371,11 +376,11 @@ $("reviewForm").addEventListener("submit",async(event)=>{
  }
  if(action==="verified"&&!$("bankChecked").checked){notice("Tenés que verificar la acreditación antes de aprobar.");return;}
  const amount=Number($("receivedAmount").value);
- const payload={order_id:selection.id,status:action,note:$("reviewNote").value,environment:$("environmentFilter").value};
+ const payload={order_id:selection.id,status:action,note:$("reviewNote").value,environment:$("environmentFilter").value,event:currentEdition()};
  if(action==="verified"){payload.amount_received_ars=amount;payload.bank_checked=$("bankChecked").checked;}
  busy=true;$("saveReview").disabled=true;
  try{
-  const result=await call("review",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  const result=await call("review"+editionQuery(),{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
   closeReview();
   if(["verified","courtesy"].includes(action)){
    notice(result.email_queued
@@ -394,10 +399,10 @@ function openPairDialog(mode){
  $("pairTitle").textContent=test?"PRUEBA DE GOOGLE SHEETS":"CONECTAR GOOGLE SHEETS";
  $("pairDescription").textContent=test
   ?"Este token SOLO conecta la copia de prueba: nunca modifica Kon Club: FECHAS. Guardalo como KON_TEST_SYNC_TOKEN en las Propiedades de secuencia de comandos del Apps Script de la COPIA."
-  :"Este token conecta la planilla real Kon Club: FECHAS. Guardalo como KON_SYNC_TOKEN en el Apps Script de la planilla original.";
+  :"Este token conecta la edición seleccionada en Kon Club: FECHAS. Generar una nueva clave invalida la sincronización de esa edición hasta actualizar Apps Script.";
  $("pairScriptLink").href=test
   ?"https://github.com/martoknoll/Kon-club/blob/feature/checkout-transferencias/scripts/kon-sheets-test.gs"
-  :"https://github.com/martoknoll/Kon-club/blob/feature/checkout-transferencias/scripts/kon-sheets-sync.gs";
+  :"https://github.com/martoknoll/Kon-club/blob/main/scripts/kon-sheets-sync.gs";
  $("pairScriptLink").textContent=test?"script AISLADO de prueba":"script de Google Sheets";
  $("pairToken").value="";
  $("copyPair").disabled=true;
@@ -414,7 +419,7 @@ $("generatePair").addEventListener("click",async()=>{
  try{
   const r=await call("sync-pair",{
    method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({environment:pairingMode})
+   body:JSON.stringify({environment:pairingMode,event:currentEdition()})
   });
   $("pairToken").value=r.sync_token;
   $("copyPair").disabled=false;
