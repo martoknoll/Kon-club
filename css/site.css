@@ -1105,8 +1105,8 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
 }
 
 /* Alineación óptica: bajar Trainspotting para centrar la T con Snatch. */
-#app[data-edition="snatch-trainspotting"] .hero-title-logo-trainspotting{transform:translateY(5px)}
-@media(max-width:760px){#app[data-edition="snatch-trainspotting"] .hero-title-logo-trainspotting{transform:translateY(3px)}}
+#app[data-edition="snatch-trainspotting"] .hero-title-logo-trainspotting{transform:translateY(7px)}
+@media(max-width:760px){#app[data-edition="snatch-trainspotting"] .hero-title-logo-trainspotting{transform:translateY(4px)}}
 
 /* 06/12 mobile: logos → posters → información → precios → comprar.
    La estructura desktop conserva la columna de texto y los posters laterales. */
