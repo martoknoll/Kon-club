@@ -962,3 +962,43 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
   #app[data-edition="snatch-trainspotting"] .edition-price-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   #app[data-edition="snatch-trainspotting"] .edition-price-item:last-child{grid-column:auto;}
 }
+
+/* KON CLUB 06/12 — dos posters verticales lado a lado. */
+#app[data-edition="snatch-trainspotting"] .poster-stage-duo{
+  width:min(100%,610px);
+  max-width:610px;
+  margin-inline:auto;
+}
+#app[data-edition="snatch-trainspotting"] .poster-stage-duo::before{display:none;}
+#app[data-edition="snatch-trainspotting"] .poster-pair{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+  gap:clamp(8px,1.4vw,18px);
+}
+#app[data-edition="snatch-trainspotting"] .poster-pair .poster-main{
+  display:block;
+  min-width:0;
+  width:100%;
+  height:auto;
+  aspect-ratio:2 / 3;
+  object-fit:cover;
+  transform:none;
+  border:clamp(4px,.65vw,7px) solid var(--paper);
+  box-shadow:10px 12px 0 rgba(0,0,0,.32);
+}
+#app[data-edition="snatch-trainspotting"] .poster-stage-duo .round-stamp{
+  width:clamp(60px,7vw,91px);
+  height:clamp(60px,7vw,91px);
+  font-size:clamp(12px,1.5vw,17px);
+  right:-12px;
+  bottom:-18px;
+  outline-width:4px;
+}
+@media(max-width:760px){
+  #app[data-edition="snatch-trainspotting"] .poster-stage-duo{width:100%;max-width:540px;margin-inline:auto;}
+  #app[data-edition="snatch-trainspotting"] .poster-pair{gap:9px;}
+  #app[data-edition="snatch-trainspotting"] .poster-pair .poster-main{border-width:4px;box-shadow:5px 7px 0 rgba(0,0,0,.3);}
+  #app[data-edition="snatch-trainspotting"] .poster-stage-duo .round-stamp{width:65px;height:65px;right:-5px;bottom:-13px;font-size:12px;}
+}
