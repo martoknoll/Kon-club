@@ -4,7 +4,7 @@ window.KON_BRANDING = {
   "snatch-trainspotting": {
     date: "2026-12-06",
     flyer: "public/media/snatch-trainspotting-2026-12-06.svg",
-    palette: {bg:"#092630",on:"#fffaf3",paper:"#d6f4ea",ink:"#08232b",accent:"#6dd8ce",secondary:"#f47a25"}
+    palette: {bg:"#26150f",on:"#fff1dd",paper:"#e9c7a1",ink:"#2d170f",accent:"#f07832",secondary:"#ad4829"}
   },
   "primetime": {
     "date": "2026-11-22",
