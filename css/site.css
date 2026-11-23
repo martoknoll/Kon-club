@@ -1052,3 +1052,7 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
 /* 06/12: quitar las etiquetas de próxima edición y ganar espacio vertical. */
 #app[data-edition="snatch-trainspotting"] .hero .tiny-row{display:none!important}
 #app[data-edition="snatch-trainspotting"] .hero h1{margin-top:0}
+
+/* 06/12: acercar el título al borde superior, sin alterar el resto del layout. */
+#app[data-edition="snatch-trainspotting"] .hero{padding-top:clamp(22px,2.3vw,32px)}
+@media(max-width:760px){#app[data-edition="snatch-trainspotting"] .hero{padding-top:22px}}
