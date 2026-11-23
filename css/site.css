@@ -1107,3 +1107,43 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
 /* Alineación óptica: bajar Trainspotting para centrar la T con Snatch. */
 #app[data-edition="snatch-trainspotting"] .hero-title-logo-trainspotting{transform:translateY(5px)}
 @media(max-width:760px){#app[data-edition="snatch-trainspotting"] .hero-title-logo-trainspotting{transform:translateY(3px)}}
+
+/* 06/12 mobile: logos → posters → información → precios → comprar.
+   La estructura desktop conserva la columna de texto y los posters laterales. */
+@media (max-width:760px){
+  #app[data-edition="snatch-trainspotting"] .hero{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:0;
+  }
+  #app[data-edition="snatch-trainspotting"] .hero > .copy{
+    display:contents;
+  }
+  #app[data-edition="snatch-trainspotting"] .hero-title-logos{
+    order:1;
+    align-self:stretch;
+    margin-bottom:20px;
+  }
+  #app[data-edition="snatch-trainspotting"] .hero > .poster-stage{
+    order:2;
+    align-self:center;
+    margin:0 auto 30px;
+  }
+  #app[data-edition="snatch-trainspotting"] .hero-detail{
+    order:3;
+    width:100%;
+  }
+  #app[data-edition="snatch-trainspotting"] .edition-price-grid{
+    order:4;
+    width:100%;
+  }
+  #app[data-edition="snatch-trainspotting"] .hero-actions{
+    order:5;
+    width:100%;
+  }
+  #app[data-edition="snatch-trainspotting"] .hero h1[hidden],
+  #app[data-edition="snatch-trainspotting"] .hero .hero-lead[hidden]{
+    display:none!important;
+  }
+}
