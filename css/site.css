@@ -1159,3 +1159,13 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
 @media(max-width:760px){
   #app[data-edition="snatch-trainspotting"] .hero-title-logos{display:none!important}
 }
+
+/* 06/12 mobile: reducir aire arriba de los pósters y antes de la línea CUÁNDO/DÓNDE. */
+@media(max-width:760px){
+  #app[data-edition="snatch-trainspotting"] .hero{padding-top:12px}
+  #app[data-edition="snatch-trainspotting"] .hero > .poster-stage{
+    margin-bottom:14px;
+    padding-top:2px;
+    padding-bottom:8px;
+  }
+}
