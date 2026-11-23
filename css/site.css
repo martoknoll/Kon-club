@@ -944,3 +944,12 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
 
 /* Edición 06/12: conservar cada crédito cinematográfico en su propio renglón. */
 .hero-lead{white-space:pre-line}
+
+/* Snatch + Trainspotting: créditos en dos líneas también en iPhone. */
+@media (max-width:760px){
+  #app[data-edition="snatch-trainspotting"] .hero-lead{
+    font-size:clamp(14px,3.7vw,17px);
+    letter-spacing:0;
+    line-height:1.26;
+  }
+}
