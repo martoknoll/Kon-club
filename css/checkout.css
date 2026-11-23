@@ -28,3 +28,11 @@ footer{text-align:center;padding:23px;background:var(--accent);color:var(--ink);
 .product.is-sold-out{opacity:.7;background:repeating-linear-gradient(-45deg,transparent 0,transparent 16px,rgba(0,0,0,.035) 16px,rgba(0,0,0,.035) 18px)}
 .product.is-sold-out .product-info>strong{text-decoration:line-through;opacity:.6}
 .sold-out-badge{display:inline-block;margin-top:10px;padding:6px 10px;border:2px solid currentColor;font-size:12px;font-weight:900;letter-spacing:.12em}
+
+/* Checkout paso 01: centrar el encabezado entre la línea de pasos y la de productos. */
+.checkout:has(.step[data-step="1"]:not([hidden])) .steps{margin-bottom:0}
+.step[data-step="1"] > .heading{
+  text-align:center;
+  padding:24px 0;
+}
+.step[data-step="1"] > .heading h2{margin:8px 0 0}
