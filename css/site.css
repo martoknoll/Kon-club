@@ -1169,3 +1169,7 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
     padding-bottom:8px;
   }
 }
+
+/* 06/12: CTA de entradas sin flecha y con tipografía más visible. */
+#app[data-edition="snatch-trainspotting"] #heroButton{font-size:clamp(14px,1.3vw,17px)}
+@media(max-width:760px){#app[data-edition="snatch-trainspotting"] #heroButton{font-size:15px}}
