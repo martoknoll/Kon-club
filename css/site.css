@@ -1057,31 +1057,48 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
 #app[data-edition="snatch-trainspotting"] .hero{padding-top:clamp(22px,2.3vw,32px)}
 @media(max-width:760px){#app[data-edition="snatch-trainspotting"] .hero{padding-top:22px}}
 
-/* Edición 06/12 — logos originales, horizontales, sin título tipográfico duplicado. */
+/* KON 06/12 — logos al mismo alto visual, separados por un &. */
 #app[data-edition="snatch-trainspotting"] .hero-title-logos{
   display:flex;
   align-items:center;
-  justify-content:space-between;
+  justify-content:center;
   width:100%;
   max-width:700px;
-  gap:clamp(12px,2vw,28px);
+  gap:clamp(10px,1.5vw,18px);
   margin:0 0 clamp(22px,2.7vw,32px);
 }
 #app[data-edition="snatch-trainspotting"] .hero-title-logo{
   display:block;
+  flex:0 1 auto;
+  width:auto;
+  height:clamp(32px,4vw,56px);
+  max-width:100%;
   min-width:0;
-  width:100%;
-  height:auto;
   object-fit:contain;
-  flex-shrink:1;
 }
-#app[data-edition="snatch-trainspotting"] .hero-title-logo-snatch{flex:1 1 47%;}
-#app[data-edition="snatch-trainspotting"] .hero-title-logo-trainspotting{flex:1 1 53%;}
-#app[data-edition="snatch-trainspotting"] .hero-title-gap{display:none;}
-#app[data-edition="snatch-trainspotting"] .hero-title-logos[hidden]{display:none!important;}
-@media(max-width:760px){
+#app[data-edition="snatch-trainspotting"] .hero-title-amp{
+  flex:0 0 auto;
+  font-family:'Barlow Condensed',Arial,sans-serif;
+  font-weight:700;
+  font-size:clamp(28px,3.5vw,51px);
+  line-height:1;
+  color:var(--on);
+}
+#app[data-edition="snatch-trainspotting"] .hero-title-logos[hidden]{display:none!important}
+@media (min-width:761px) and (max-width:1100px){
+  #app[data-edition="snatch-trainspotting"] .hero-title-logo{height:clamp(24px,3.5vw,39px)}
+  #app[data-edition="snatch-trainspotting"] .hero-title-amp{font-size:clamp(24px,3.2vw,38px)}
+  #app[data-edition="snatch-trainspotting"] .hero-title-logos{gap:10px}
+}
+@media (max-width:760px){
   #app[data-edition="snatch-trainspotting"] .hero-title-logos{
-    gap:12px;
+    gap:clamp(7px,2vw,11px);
     margin:0 0 22px;
+  }
+  #app[data-edition="snatch-trainspotting"] .hero-title-logo{
+    height:clamp(23px,6.5vw,30px);
+  }
+  #app[data-edition="snatch-trainspotting"] .hero-title-amp{
+    font-size:clamp(24px,6vw,31px);
   }
 }
