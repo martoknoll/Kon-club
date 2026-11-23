@@ -1,7 +1,7 @@
 // Configuración editable de la compra de entradas.
 // NO almacenar claves, datos de clientes ni credenciales en este archivo.
-// Precios y alias definitivos confirmados por la organización el 20/10/2026.
-// PRIMETIME $9.000 · TONY + PRIMETIME $12.500 · FANZINE $4.000 · Alias KON.CLUB.GL.
+// Edición 06/12/2026: Trainspotting, doble función, post-película y fanzine.
+// Mantener las ventas deshabilitadas hasta configurar el catálogo y los cupos en Supabase.
  // El checkout real SOLO se habilita cuando también haya sincronización
  // reciente y cupos definidos en Supabase para cada producto.
 window.KON_CHECKOUT = {
@@ -15,7 +15,7 @@ window.KON_CHECKOUT = {
   products: [
     { id:"trainspotting", title:"TRAINSPOTTING", subtitle:"20:00 · Incluye el Post-Película", price:9000, max:6, unit:"entrada" },
     { id:"double", title:"SNATCH + TRAINSPOTTING", subtitle:"17:00 y 20:00 · Incluye el Post-Película", price:12500, max:6, unit:"entrada" },
-    { id:"post", title:"POST-PELÍCULA", subtitle:"22:00 · Puede comprarla cualquier persona", price:7000, max:6, unit:"entrada" },
+    { id:"post", title:"POST-PELÍCULA", subtitle:"22:00 · Puede comprarla cualquier persona", price:7000, max:100, unit:"entrada" },
     { id:"fanzine", title:"FANZINE FÍSICO", subtitle:"Adicional opcional · Retiro el día del evento", price:4000, max:5, unit:"ejemplar" }
   ]
 };
