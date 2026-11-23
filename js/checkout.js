@@ -116,11 +116,11 @@ async function loadCatalog(){
    byId('demoBanner').hidden=true;
    byId('payHeading').textContent='TRANSFERÍ Y LISTO.';
    byId('payExplanation').textContent='Tu pedido ya fue registrado. Transferí el importe exacto y subí el comprobante para que lo revisemos.';
-   byId('checkoutIntro').textContent='Primetime y la doble función están agotadas. Comprá tu entrada para Tony y aboná por transferencia. Tu entrada se confirma cuando verificamos el pago.';
+   byId('checkoutIntro').textContent='Snatch 17:00 · Trainspotting 20:00 · Post-Película 22:00. Las entradas de cine incluyen el post; también podés comprar solo el post sin restricciones.';
    byId('summaryFoot').textContent='La compra queda pendiente hasta que verifiquemos la acreditación bancaria.';
    byId('copyAlias').disabled=false;
    byId('paymentNotice').innerHTML='<strong>IMPORTANTE:</strong> Realizá la transferencia desde tu banco o billetera y adjuntá el comprobante. Kon Club verificará la acreditación manualmente.';
-   byId('completionNotice').innerHTML='<strong>PEDIDO RECIBIDO.</strong> Guardá tu código. El equipo de Kon Club verificará la transferencia manualmente. No se envían correos automáticos por ahora.';
+   byId('completionNotice').innerHTML='<strong>PEDIDO RECIBIDO.</strong> Guardá tu código. El equipo de Kon Club verificará la transferencia manualmente y enviará la confirmación por correo cuando se acredite el pago.';
    proof.parentElement.querySelector('small').textContent='PNG, JPG o PDF · Máximo 10 MB';
   }else{
    byId('copyAlias').disabled=true;
