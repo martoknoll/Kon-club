@@ -1103,3 +1103,7 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
     font-size:clamp(24px,6vw,31px);
   }
 }
+
+/* Alineación óptica: bajar Trainspotting para centrar la T con Snatch. */
+#app[data-edition="snatch-trainspotting"] .hero-title-logo-trainspotting{transform:translateY(5px)}
+@media(max-width:760px){#app[data-edition="snatch-trainspotting"] .hero-title-logo-trainspotting{transform:translateY(3px)}}
