@@ -1203,3 +1203,18 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
 /* 06/12: cuatro precios en una grilla 2×2, también en desktop. */
 #app[data-edition="snatch-trainspotting"] .edition-price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 #app[data-edition="snatch-trainspotting"] .edition-price-grid .edition-price-item:last-child{grid-column:auto}
+
+/* Prueba: cronograma compacto en dos columnas, sin cambiar el resto de la edición. */
+#app[data-edition="snatch-trainspotting"] .hero-schedule{display:block;width:100%;font-size:inherit;line-height:1.15}
+#app[data-edition="snatch-trainspotting"] .schedule-date{display:block;font-size:19px;font-weight:950;line-height:1.08;margin:0 0 11px;letter-spacing:-.015em}
+#app[data-edition="snatch-trainspotting"] .schedule-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:12px;row-gap:10px}
+#app[data-edition="snatch-trainspotting"] .schedule-slot{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+#app[data-edition="snatch-trainspotting"] .schedule-label{font-size:10px;line-height:1.15;font-weight:900;letter-spacing:.045em;opacity:.75}
+#app[data-edition="snatch-trainspotting"] .schedule-slot strong{font-size:23px;font-weight:950;line-height:1}
+#app[data-edition="snatch-trainspotting"] .schedule-end{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;padding-top:8px;border-top:1px solid var(--rule);font-size:10px;letter-spacing:.04em;font-weight:900}
+#app[data-edition="snatch-trainspotting"] .schedule-end strong{font-size:14px;letter-spacing:0}
+@media(max-width:760px){
+ #app[data-edition="snatch-trainspotting"] .schedule-date{font-size:17px}
+ #app[data-edition="snatch-trainspotting"] .schedule-grid{column-gap:8px;row-gap:9px}
+ #app[data-edition="snatch-trainspotting"] .schedule-slot strong{font-size:21px}
+}
