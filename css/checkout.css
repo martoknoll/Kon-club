@@ -54,37 +54,3 @@ footer{text-align:center;padding:23px;background:var(--accent);color:var(--ink);
   letter-spacing:.11em;
   line-height:1.15;
 }
-
-/* PRUEBA REVERSIBLE — brillo suave en la entrada Snatch + Trainspotting. */
-.product.is-featured-shimmer{
-  position:relative;
-  isolation:isolate;
-  overflow:hidden;
-  width:100%;
-  padding:19px 0;
-  background:radial-gradient(ellipse 82% 92% at center,rgba(240,120,50,.14),rgba(255,241,221,.06) 65%,transparent 100%);
-  box-shadow:none;
-}
-.product.is-featured-shimmer::before{
-  content:"";
-  position:absolute;
-  inset:7px 0;
-  z-index:0;
-  pointer-events:none;
-  background:linear-gradient(105deg,transparent 20%,rgba(255,250,234,.06) 42%,rgba(255,250,234,.29) 50%,rgba(255,250,234,.06) 58%,transparent 80%);
-  -webkit-mask-image:radial-gradient(ellipse 78% 80% at center,#000 45%,transparent 100%);
-  mask-image:radial-gradient(ellipse 78% 80% at center,#000 45%,transparent 100%);
-  transform:translateX(-120%);
-  animation:kon-checkout-ticket-glow 2.4s ease-in-out infinite;
-}
-.product.is-featured-shimmer > *{
-  position:relative;
-  z-index:1;
-}
-@keyframes kon-checkout-ticket-glow{
-  0%,10%{transform:translateX(-120%)}
-  70%,100%{transform:translateX(120%)}
-}
-@media(prefers-reduced-motion:reduce){
-  .product.is-featured-shimmer::before{animation:none;opacity:0}
-}
