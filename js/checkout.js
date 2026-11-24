@@ -105,6 +105,7 @@ async function loadCatalog(){
    p.backendId=real.id;
    p.title=real.label;
    p.subtitle=real.subtitle||p.subtitle;
+   if(p.id==='post')p.subtitle='22:00 - Vení después de la función';
    p.price=Number(real.price_ars);
    p.max=p.soldOut?0:Number(real.per_order_max);
   });
