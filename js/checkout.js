@@ -203,7 +203,7 @@ function appendReview(parent,label,value){
 }
 const proofForm=byId('proofForm');
 const proofError=byId('proofError');
-const registeredCode=byId('registeredCode');
+
 function setProofError(message){
  proofError.textContent=message;
  proofError.hidden=!message;
@@ -238,10 +238,10 @@ form.addEventListener('submit',async(evt)=>{
    });
    pendingOrder=response;
    byId('payTotal').textContent=money(response.order.total);
-   registeredCode.textContent='PEDIDO '+response.order.code+' · Guardá este código. Tenés hasta 48 horas para cargar el comprobante.';
+
    byId('returnToDetails').hidden=true;
   }else{
-   registeredCode.textContent='PEDIDO DE DEMOSTRACIÓN · No transfieras dinero real.';
+
    byId('returnToDetails').hidden=false;
   }
   go(3);
