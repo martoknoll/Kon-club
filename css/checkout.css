@@ -39,3 +39,18 @@ footer{text-align:center;padding:23px;background:var(--accent);color:var(--ink);
 
 /* Paso 01: etiqueta y título alineados al margen izquierdo. */
 .step[data-step="1"] > .heading > span{display:block;text-align:left}
+
+/* Identificador editorial discreto de la entrada de doble función. */
+.product-feature-badge{
+  display:inline-block;
+  width:max-content;
+  max-width:100%;
+  margin:0 0 9px;
+  padding:6px 10px 5px;
+  background:#653827;
+  color:#fff1dd;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.11em;
+  line-height:1.15;
+}
