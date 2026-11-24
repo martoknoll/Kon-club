@@ -41,7 +41,7 @@ function button(text,ariaLabel,handler){
  b.addEventListener('click',handler);return b;
 }
 function productRow(product){
- const item=document.createElement('div');item.className='product'+(product.soldOut?' is-sold-out':'');
+ const item=document.createElement('div');item.className='product'+(product.id==='double'?' is-featured-shimmer':'')+(product.soldOut?' is-sold-out':'');
  const info=document.createElement('div');info.className='product-info';
  const name=document.createElement('h3');name.textContent=product.title;
  const subtitle=document.createElement('p');subtitle.textContent=product.subtitle;
