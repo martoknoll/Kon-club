@@ -14,7 +14,7 @@
   <script src="data/site-config.js?v=20261206" defer></script>
   <script src="data/checkout-config.js?v=20261124-post-copy" defer></script>
   <script src="data/supabase-public.js" defer></script>
-  <script src="js/checkout.js?v=20261124-transfer-note" defer></script>
+  <script src="js/checkout.js?v=20261124-firsttime-ad-conditional" defer></script>
 </head>
 <body>
   <div class="preview-banner" id="demoBanner" role="status">VENTAS TEMPORALMENTE PAUSADAS. NO TRANSFIERAS DINERO HASTA RECIBIR UN PEDIDO VÁLIDO.</div>
@@ -58,10 +58,9 @@
               <label><span>Email <abbr title="obligatorio">*</abbr></span><input name="email" type="email" required autocomplete="email" maxlength="150" placeholder="tu@email.com"></label>
               <label><span>Instagram <abbr title="obligatorio">*</abbr></span><input name="instagram" required maxlength="80" placeholder="@usuario"></label>
               <fieldset><legend>¿Es la primera vez que venís? <abbr title="obligatorio">*</abbr></legend><div class="radio-row"><label><input type="radio" name="firstTime" value="si" required> Sí</label><label><input type="radio" name="firstTime" value="no" required> No</label></div></fieldset>
-              <fieldset><legend>¿Llegaste al Kon Club por nuestra publicidad?</legend>
+              <fieldset id="advertisingQuestion" hidden><legend>¿Llegaste al Kon Club por nuestra publicidad?</legend>
                 <div class="checkboxline"><label><input type="checkbox" name="fromPromotedReel"> Sí, llegué por la publicidad del Kon Club.</label></div>
               </fieldset>
-              <div class="checkboxline"><label><input type="checkbox" name="consent" required> Entiendo que el pedido queda pendiente hasta que Kon Club compruebe la acreditación de la transferencia.</label></div>
               
             </div>
             <p class="hint" id="formError" role="alert" hidden></p>
