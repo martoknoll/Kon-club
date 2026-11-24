@@ -61,17 +61,19 @@ footer{text-align:center;padding:23px;background:var(--accent);color:var(--ink);
   isolation:isolate;
   overflow:hidden;
   width:100%;
-  padding:26px 16px;
-  background:linear-gradient(115deg,rgba(240,120,50,.13),rgba(255,241,221,.07) 60%,rgba(240,120,50,.10));
-  box-shadow:inset 0 0 0 1px rgba(173,72,41,.34);
+  padding:19px 0;
+  background:radial-gradient(ellipse 82% 92% at center,rgba(240,120,50,.14),rgba(255,241,221,.06) 65%,transparent 100%);
+  box-shadow:none;
 }
 .product.is-featured-shimmer::before{
   content:"";
   position:absolute;
-  inset:0;
+  inset:7px 0;
   z-index:0;
   pointer-events:none;
-  background:linear-gradient(105deg,transparent 20%,rgba(255,250,234,.10) 42%,rgba(255,250,234,.32) 50%,rgba(255,250,234,.10) 58%,transparent 80%);
+  background:linear-gradient(105deg,transparent 20%,rgba(255,250,234,.06) 42%,rgba(255,250,234,.29) 50%,rgba(255,250,234,.06) 58%,transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse 78% 80% at center,#000 45%,transparent 100%);
+  mask-image:radial-gradient(ellipse 78% 80% at center,#000 45%,transparent 100%);
   transform:translateX(-120%);
   animation:kon-checkout-ticket-glow 6s ease-in-out infinite;
 }
