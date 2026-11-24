@@ -1190,7 +1190,7 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
   pointer-events:none;
   background:linear-gradient(105deg,transparent 43%,rgba(255,241,221,.03) 47%,rgba(255,241,221,.24) 50%,rgba(255,241,221,.04) 53%,transparent 57%);
   transform:translateX(-85%);
-  animation:kon-ticket-shimmer 3s ease-in-out infinite;
+  animation:kon-ticket-shimmer 2s ease-in-out infinite;
 }
 @keyframes kon-ticket-shimmer{
   0%,15%{transform:translateX(-85%)}
