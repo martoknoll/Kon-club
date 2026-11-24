@@ -120,8 +120,8 @@ async function loadCatalog(){
   if(liveReady()){
    status.textContent='INSCRIPCIONES ABIERTAS · PAGOS POR TRANSFERENCIA';
    byId('demoBanner').hidden=true;
-   byId('payHeading').textContent='TRANSFERÍ Y LISTO.';
-   byId('payExplanation').textContent='Tu pedido ya fue registrado. Transferí el importe exacto y subí el comprobante para que lo revisemos.';
+   byId('payHeading').textContent='ASEGURÁ TU LUGAR.';
+   byId('payExplanation').textContent='Tu pedido ya está registrado. Transferí el importe indicado y subí el comprobante para que podamos confirmar tu entrada.';
    byId('checkoutIntro').textContent='Snatch 17:00 · Trainspotting 20:00 · Post-Película 22:00. Las entradas de cine incluyen el post; también podés comprar solo el post sin restricciones.';
    byId('summaryFoot').textContent='La compra queda pendiente hasta que verifiquemos la acreditación bancaria.';
    byId('copyAlias').disabled=false;
