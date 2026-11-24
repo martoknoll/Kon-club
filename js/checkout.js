@@ -179,6 +179,15 @@ byId('copyAlias').addEventListener('click',async()=>{
 });
 
 const form=byId('orderForm');
+const advertisingQuestion=byId('advertisingQuestion');
+const advertisingCheckbox=form.elements.namedItem('fromPromotedReel');
+function syncAdvertisingQuestion(){
+ const firstVisit=form.querySelector('input[name="firstTime"]:checked')?.value==='si';
+ advertisingQuestion.hidden=!firstVisit;
+ if(!firstVisit)advertisingCheckbox.checked=false;
+}
+form.querySelectorAll('input[name="firstTime"]').forEach(input=>input.addEventListener('change',syncAdvertisingQuestion));
+syncAdvertisingQuestion();
 const proof=byId('proof');
 const error=byId('formError');
 function setError(message){
@@ -287,7 +296,7 @@ proofForm.addEventListener('submit',async(evt)=>{
   appendReview(box,'Email',String(formData.get('email')||''));
   appendReview(box,'Instagram',String(formData.get('instagram')||''));
   appendReview(box,'Primera visita',formData.get('firstTime')==='si'?'Sí':'No');
-  appendReview(box,'Llegó por nuestra publicidad',formData.get('fromPromotedReel')==='on'?'Sí':'No');
+  if(formData.get('firstTime')==='si')appendReview(box,'Llegó por nuestra publicidad',formData.get('fromPromotedReel')==='on'?'Sí':'No');
   cfg.products.forEach(p=>{if(quantities[p.id])appendReview(box,p.title,quantities[p.id]+' × '+money(p.price))});
   appendReview(box,'Total',isReal?money(pendingOrder.order.total):money(total()));
   appendReview(box,'Comprobante',isReal?'Almacenado en forma privada':file.name+' (no enviado)');
