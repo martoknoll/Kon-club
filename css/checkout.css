@@ -75,7 +75,7 @@ footer{text-align:center;padding:23px;background:var(--accent);color:var(--ink);
   -webkit-mask-image:radial-gradient(ellipse 78% 80% at center,#000 45%,transparent 100%);
   mask-image:radial-gradient(ellipse 78% 80% at center,#000 45%,transparent 100%);
   transform:translateX(-120%);
-  animation:kon-checkout-ticket-glow 2s ease-in-out infinite;
+  animation:kon-checkout-ticket-glow 2.4s ease-in-out infinite;
 }
 .product.is-featured-shimmer > *{
   position:relative;
