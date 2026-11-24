@@ -106,6 +106,7 @@ async function loadCatalog(){
    p.title=real.label;
    p.subtitle=real.subtitle||p.subtitle;
    if(p.id==='post')p.subtitle='22:00 - Vení después de la función';
+   if(p.id==='fanzine')p.subtitle='Una copia de nuestra revista original';
    p.price=Number(real.price_ars);
    p.max=p.soldOut?0:Number(real.per_order_max);
   });
