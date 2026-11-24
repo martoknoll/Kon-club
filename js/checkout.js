@@ -125,7 +125,7 @@ async function loadCatalog(){
    byId('checkoutIntro').textContent='Snatch 17:00 · Trainspotting 20:00 · Post-Película 22:00. Las entradas de cine incluyen el post; también podés comprar solo el post sin restricciones.';
    byId('summaryFoot').textContent='La compra queda pendiente hasta que verifiquemos la acreditación bancaria.';
    byId('copyAlias').disabled=false;
-   byId('paymentNotice').innerHTML='<strong>IMPORTANTE:</strong> Realizá la transferencia desde tu banco o billetera y adjuntá el comprobante. Kon Club verificará la acreditación manualmente.';
+   byId('paymentNotice').hidden=true;
    byId('completionNotice').innerHTML='<strong>PEDIDO RECIBIDO.</strong> Guardá tu código. El equipo de Kon Club verificará la transferencia manualmente y enviará la confirmación por correo cuando se acredite el pago.';
    proof.parentElement.querySelector('small').textContent='PNG, JPG o PDF · Máximo 10 MB';
   }else{
