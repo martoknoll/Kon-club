@@ -1199,3 +1199,7 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
 @media(prefers-reduced-motion:reduce){
   #app[data-edition="snatch-trainspotting"] .edition-price-item:first-child::before{animation:none;opacity:0}
 }
+
+/* 06/12: cuatro precios en una grilla 2×2, también en desktop. */
+#app[data-edition="snatch-trainspotting"] .edition-price-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#app[data-edition="snatch-trainspotting"] .edition-price-grid .edition-price-item:last-child{grid-column:auto}
