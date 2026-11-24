@@ -82,8 +82,8 @@ footer{text-align:center;padding:23px;background:var(--accent);color:var(--ink);
   z-index:1;
 }
 @keyframes kon-checkout-ticket-glow{
-  0%,15%{transform:translateX(-120%)}
-  55%,100%{transform:translateX(120%)}
+  0%,10%{transform:translateX(-120%)}
+  70%,100%{transform:translateX(120%)}
 }
 @media(prefers-reduced-motion:reduce){
   .product.is-featured-shimmer::before{animation:none;opacity:0}
