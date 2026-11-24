@@ -15,7 +15,7 @@ window.KON_CHECKOUT = {
   products: [
     { id:"double", title:"SNATCH + TRAINSPOTTING", subtitle:"17:00 a 00:00 · Incluye el Post-Película", price:12500, max:6, unit:"entrada" },
     { id:"trainspotting", title:"TRAINSPOTTING", subtitle:"20:00 · Incluye el Post-Película", price:9000, max:6, unit:"entrada" },
-    { id:"post", title:"POST-PELÍCULA", subtitle:"22:00 - Vení después de la función", price:7000, max:30, unit:"entrada" },
+    { id:"post", title:"POST-PELÍCULA", subtitle:"22:00 - Vení a disfrutar después de la función", price:7000, max:30, unit:"entrada" },
     { id:"fanzine", title:"FANZINE FÍSICO", subtitle:"Una copia de nuestra revista original", price:4000, max:5, unit:"ejemplar" }
   ]
 };
