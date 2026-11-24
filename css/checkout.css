@@ -32,10 +32,10 @@ footer{text-align:center;padding:23px;background:var(--accent);color:var(--ink);
 /* Checkout paso 01: centrar el encabezado entre la línea de pasos y la de productos. */
 .checkout:has(.step[data-step="1"]:not([hidden])) .steps{margin-bottom:0}
 .step[data-step="1"] > .heading{
-  text-align:center;
+  text-align:left;
   padding:24px 0;
 }
 .step[data-step="1"] > .heading h2{margin:8px 0 0}
 
-/* Paso 01: etiqueta de sección alineada a la izquierda; título principal centrado. */
+/* Paso 01: etiqueta y título alineados al margen izquierdo. */
 .step[data-step="1"] > .heading > span{display:block;text-align:left}
