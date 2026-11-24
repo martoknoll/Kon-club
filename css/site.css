@@ -1193,8 +1193,8 @@ button[data-ticket]:disabled{cursor:not-allowed;opacity:.66}
   animation:kon-ticket-shimmer 2s ease-in-out infinite;
 }
 @keyframes kon-ticket-shimmer{
-  0%,15%{transform:translateX(-85%)}
-  55%,100%{transform:translateX(85%)}
+  0%,10%{transform:translateX(-85%)}
+  70%,100%{transform:translateX(85%)}
 }
 @media(prefers-reduced-motion:reduce){
   #app[data-edition="snatch-trainspotting"] .edition-price-item:first-child::before{animation:none;opacity:0}
