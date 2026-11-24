@@ -46,6 +46,10 @@ function productRow(product){
  const name=document.createElement('h3');name.textContent=product.title;
  const subtitle=document.createElement('p');subtitle.textContent=product.subtitle;
  const price=document.createElement('strong');price.textContent=money(product.price);
+ if(product.id==='double'){
+  const badge=document.createElement('span');badge.className='product-feature-badge';badge.textContent='EXPERIENCIA COMPLETA';
+  info.appendChild(badge);
+ }
  info.append(name,subtitle,price);
  if(product.soldOut){ const badge=document.createElement('span');badge.className='sold-out-badge';badge.textContent='AGOTADAS'; info.appendChild(badge); item.append(info);return item; }
  const counter=document.createElement('div');counter.className='counter';
