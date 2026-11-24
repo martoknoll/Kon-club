@@ -124,7 +124,7 @@ async function loadCatalog(){
    byId('payHeading').textContent='ASEGURÁ TU LUGAR.';
    byId('payExplanation').textContent='Tu pedido ya está registrado. Transferí el importe indicado y subí el comprobante para que podamos confirmar tu entrada.';
    byId('checkoutIntro').textContent='Snatch 17:00 · Trainspotting 20:00 · Post-Película 22:00. Las entradas de cine incluyen el post; también podés comprar solo el post sin restricciones.';
-   byId('summaryFoot').textContent='La compra queda pendiente hasta que verifiquemos la acreditación bancaria.';
+   byId('summaryFoot').textContent='La compra queda pendiente hasta que verifiquemos transferencia.';
    byId('copyAlias').disabled=false;
    byId('paymentNotice').hidden=true;
    byId('completionNotice').innerHTML='<strong>PEDIDO RECIBIDO.</strong> Guardá tu código. El equipo de Kon Club verificará la transferencia manualmente y enviará la confirmación por correo cuando se acredite el pago.';
